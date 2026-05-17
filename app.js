@@ -4,12 +4,12 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 const TV = [
-    { n: "MTV Lebanon", i: "UCXqPuaVx8hBdEG5XhQc4qJg", h: "@mtvlebanon", icon: "📡" },
-    { n: "Al Jadeed", i: "UC3OV2K9c6p9pnM_vYfGc0wA", h: "@aljadeed", icon: "📰" },
-    { n: "LBCI", i: "UCRZmcAg9TrX9YJpm8fG-yVQ", h: "@LBCILebanon", icon: "📺" },
-    { n: "OTV", i: "UCkSPdEZjWAxwh2Lwq5ZmpnA", h: "@OTVLebanon", icon: "🍊" },
-    { n: "NBN", i: "UC9pVQHpFJKo4zH7tHdllqLg", h: "@NBNLebanon", icon: "🔴" },
-    { n: "Télé Liban", i: "UC-lRlbsx1yH5Uw8wzX9pnfg", h: "@tllebanon", icon: "🏛️" }
+    { n: "MTV Lebanon", i: "UCXqPuaVx8hBdEG5XhQc4qJg", h: "@mtvlebanon" },
+    { n: "Al Jadeed", i: "UC3OV2K9c6p9pnM_vYfGc0wA", h: "@aljadeed" },
+    { n: "LBCI", i: "UCRZmcAg9TrX9YJpm8fG-yVQ", h: "@LBCILebanon" },
+    { n: "OTV", i: "UCkSPdEZjWAxwh2Lwq5ZmpnA", h: "@OTVLebanon" },
+    { n: "NBN", i: "UC9pVQHpFJKo4zH7tHdllqLg", h: "@NBNLebanon" },
+    { n: "Télé Liban", i: "UC-lRlbsx1yH5Uw8wzX9pnfg", h: "@tllebanon" }
 ];
 
 const R = {
@@ -37,320 +37,193 @@ async function S() {
 
 const CSS = `
 :root {
-    --bg: #000; --card: #0a0a0a; --text: #ddd; --muted: #555;
-    --a: #0ff; --a2: #f0f; --g: 0 0 20px rgba(0,255,255,0.2);
-    --b: 1px solid rgba(255,255,255,0.06); --r: 14px;
+    --bg: #000; --card: #080808; --text: #ccc; --muted: #444;
+    --a: #0ff; --a2: #f0f; --g: 0 0 20px rgba(0,255,255,0.15);
+    --b: 1px solid rgba(255,255,255,0.04); --r: 10px;
 }
-.t1 { --bg: #000; --card: #0a0a0a; --a: #0ff; --a2: #f0f; --g: 0 0 20px rgba(0,255,255,0.2); --b: 1px solid rgba(255,255,255,0.06); }
-.t2 { --bg: #040804; --card: #0a100a; --a: #3f4; --a2: #3f4; --g: 0 0 20px rgba(57,255,20,0.2); --b: 1px solid rgba(57,255,20,0.08); }
-.t3 { --bg: #060610; --card: #0e0e18; --a: #f0f; --a2: #0ff; --g: 0 0 20px rgba(255,0,255,0.2); --b: 1px solid rgba(255,0,255,0.06); }
+.t1 { --bg: #000; --card: #080808; --a: #0ff; --a2: #f0f; }
+.t2 { --bg: #030703; --card: #080e08; --a: #3f4; --a2: #3f4; }
+.t3 { --bg: #050510; --card: #0c0c16; --a: #f0f; --a2: #0ff; }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin:0;padding:0;box-sizing:border-box }
 body {
-    font: 400 15px 'Space Mono', monospace;
-    background: var(--bg); color: var(--text);
-    min-height: 100vh; -webkit-tap-highlight-color: transparent;
-    transition: background .4s;
+    font:400 14px 'Space Mono',monospace;
+    background:var(--bg);color:var(--text);
+    min-height:100vh;-webkit-tap-highlight-color:transparent;
+    transition:background .4s;
+    padding-bottom:80px;
 }
 
-/* ── Navigation ── */
 nav {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 14px 18px; background: var(--bg);
-    border-bottom: var(--b); position: sticky; top: 0; z-index: 100;
+    display:flex;justify-content:space-between;align-items:center;
+    padding:12px 16px;background:var(--bg);
+    border-bottom:var(--b);position:sticky;top:0;z-index:100;
 }
 .logo {
-    font-size: 1rem; font-weight: 700; color: var(--a);
-    text-shadow: var(--g); text-decoration: none; letter-spacing: 2px;
+    font-size:.95rem;font-weight:700;color:var(--a);
+    text-shadow:var(--g);text-decoration:none;letter-spacing:1px;
 }
-.nav-r { display: flex; gap: 6px; align-items: center; }
-.nav-r a {
-    color: var(--muted); text-decoration: none; font-size: .75rem;
-    padding: 7px 12px; border-radius: 8px; transition: .3s;
-    display: flex; align-items: center; gap: 6px;
+.nr { display:flex;gap:4px;align-items:center }
+.nr a, .nr button {
+    color:var(--muted);text-decoration:none;font-size:.7rem;
+    padding:6px 10px;border-radius:6px;transition:.3s;
+    background:none;border:var(--b);cursor:pointer;
+    font-family:'Space Mono',monospace;
 }
-.nav-r a:hover, .nav-r a.on { color: var(--a); background: rgba(255,255,255,.03); }
-.nav-r .badge {
-    background: var(--a); color: #000; font-size: .6rem;
-    padding: 2px 6px; border-radius: 10px; font-weight: 700;
-}
-.nav-r button {
-    background: none; border: var(--b); color: var(--muted);
-    padding: 7px 10px; border-radius: 8px; cursor: pointer;
-    font: 400 .75rem 'Space Mono', monospace; transition: .3s;
-    display: flex; align-items: center; gap: 4px;
-}
-.nav-r button.on { border-color: var(--a); color: var(--a); }
+.nr a:hover, .nr button.on { color:var(--a);border-color:var(--a) }
 
-/* ── Layout ── */
-.main { max-width: 720px; margin: 0 auto; padding: 20px 18px; }
+.main { max-width:640px;margin:0 auto;padding:16px }
+h1 { color:var(--a);font-size:1.1rem;font-weight:400;margin-bottom:14px }
 
-/* ── Page Header ── */
-.page-header {
-    display: flex; align-items: center; gap: 12px;
-    margin-bottom: 18px; padding-bottom: 14px;
-    border-bottom: var(--b);
-}
-.page-header .icon {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: var(--card); border: var(--b);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem;
-}
-.page-header h1 { color: var(--a); font-size: 1.2rem; font-weight: 400; letter-spacing: 1px; margin: 0; }
-.page-header p { color: var(--muted); font-size: .7rem; margin-top: 2px; }
-
-/* ── Hero ── */
-.hero { text-align: center; padding: 30px 14px; }
-.hero .icon { font-size: 3rem; margin-bottom: 10px; }
-.hero h1 { font-size: 2.2rem; color: var(--a); text-shadow: var(--g); margin-bottom: 4px; }
-.hero .sub { color: var(--muted); margin-bottom: 18px; font-size: .85rem; }
-
-/* ── Regions ── */
-.regions { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; margin-bottom: 18px; }
-.regions button {
-    background: none; border: var(--b); color: var(--muted);
-    padding: 6px 12px; border-radius: 18px; cursor: pointer;
-    font: 400 .65rem 'Space Mono', monospace; transition: .3s;
-}
-.regions button:hover, .regions button.on { border-color: var(--a); color: var(--a); }
-
-/* ── Dial ── */
+/* Dial */
 .dial {
-    max-width: 340px; margin: 16px auto; background: var(--card);
-    border: var(--b); border-radius: var(--r); padding: 28px 24px; text-align: center;
+    max-width:300px;margin:20px auto;background:var(--card);
+    border:var(--b);border-radius:var(--r);padding:24px;text-align:center;
 }
-.dial .icon { font-size: 2.4rem; margin-bottom: 8px; }
-.dial .freq { color: var(--a2); font-size: 1.1rem; margin-bottom: 2px; font-weight: 700; }
-.dial .name { color: var(--muted); font-size: .7rem; margin-bottom: 18px; }
-.dial .ctrls { display: flex; justify-content: center; align-items: center; gap: 14px; }
+.dial .freq { color:var(--a2);font-size:.95rem;margin-bottom:2px }
+.dial .name { color:var(--muted);font-size:.65rem;margin-bottom:16px }
+.dial .ctrls { display:flex;justify-content:center;align-items:center;gap:10px }
 .dial .ctrls button {
-    width: 44px; height: 44px; border-radius: 50%; border: var(--b);
-    background: none; color: var(--a); font-size: .9rem; cursor: pointer;
-    transition: .3s; font-family: 'Space Mono', monospace;
-    display: flex; align-items: center; justify-content: center;
+    width:40px;height:40px;border-radius:50%;border:var(--b);
+    background:none;color:var(--a);font-size:.8rem;cursor:pointer;
+    transition:.3s;font-family:'Space Mono',monospace;
 }
-.dial .ctrls button:active { border-color: var(--a); box-shadow: var(--g); }
-.dial .ctrls .play { width: 60px; height: 60px; font-size: 1.3rem; border-color: var(--a); }
+.dial .ctrls .play { width:52px;height:52px;font-size:1.1rem;border-color:var(--a) }
 
-/* ── Station Cards ── */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+/* Regions */
+.regions { display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:14px 0 }
+.regions button {
+    background:none;border:var(--b);color:var(--muted);
+    padding:4px 10px;border-radius:14px;cursor:pointer;
+    font:.6rem 'Space Mono',monospace;transition:.3s;
+}
+.regions button.on { border-color:var(--a);color:var(--a) }
+
+/* Cards */
+.grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px }
 .card {
-    background: var(--card); padding: 16px; border-radius: var(--r);
-    border: var(--b); transition: .3s;
+    background:var(--card);padding:14px;border-radius:var(--r);
+    border:var(--b);transition:.3s;
 }
-.card:active { border-color: var(--a); }
-.card .card-header {
-    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
-}
-.card .card-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: rgba(255,255,255,.03); border: var(--b);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1rem; flex-shrink: 0;
-}
-.card .card-info { flex: 1; min-width: 0; }
-.card h3 { color: #fff; font-size: .85rem; font-weight: 400; margin-bottom: 3px; }
-.card .m { color: var(--muted); font-size: .65rem; }
-.card .tags { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
-.card .tags span {
-    background: rgba(255,255,255,.02); color: var(--a);
-    padding: 3px 8px; border-radius: 10px; font-size: .6rem; border: var(--b);
-    display: flex; align-items: center; gap: 3px;
-}
-.card .card-footer { display: flex; justify-content: space-between; align-items: center; }
-.card .quality {
-    color: var(--a); font-size: .6rem; display: flex; align-items: center; gap: 3px;
-}
+.card:active { border-color:var(--a) }
+.card h3 { color:#fff;font-size:.8rem;font-weight:400;margin-bottom:6px }
+.card .m { color:var(--muted);font-size:.6rem;margin-bottom:10px }
 
-/* ── Buttons ── */
 .btn {
-    background: none; border: 1px solid var(--a); color: var(--a);
-    padding: 7px 16px; border-radius: 8px; cursor: pointer;
-    font: 400 .7rem 'Space Mono', monospace; text-decoration: none;
-    display: inline-flex; align-items: center; gap: 5px;
-    transition: .3s; letter-spacing: .5px;
+    background:none;border:1px solid var(--a);color:var(--a);
+    padding:6px 14px;border-radius:6px;cursor:pointer;
+    font:.65rem 'Space Mono',monospace;text-decoration:none;
+    display:inline-block;transition:.3s;
 }
-.btn:active { background: rgba(0,255,255,.04); box-shadow: var(--g); }
-.btn.p { border-color: var(--a2); color: var(--a2); }
-.btn.sm { padding: 5px 10px; font-size: .65rem; border-radius: 6px; }
+.btn:active { background:rgba(0,255,255,.04) }
+.btn.p { border-color:var(--a2);color:var(--a2) }
 
-/* ── Featured Card ── */
-.featured {
-    max-width: 320px; margin: 16px auto; background: var(--card);
-    border: var(--b); border-radius: var(--r); padding: 20px; text-align: center;
-    position: relative; overflow: hidden;
-}
-.featured .badge {
-    position: absolute; top: 10px; right: 10px;
-    background: var(--a); color: #000; font-size: .55rem;
-    padding: 3px 8px; border-radius: 10px; font-weight: 700;
-    letter-spacing: .5px;
-}
-.featured .feat-icon { font-size: 2rem; margin-bottom: 8px; }
-.featured h3 { color: #fff; font-size: .9rem; font-weight: 400; margin-bottom: 2px; }
-.featured .name { color: var(--text); font-size: 1rem; margin: 6px 0; }
-.featured .m { color: var(--muted); font-size: .65rem; margin-bottom: 12px; }
-.featured .meta-row {
-    display: flex; justify-content: center; gap: 14px; margin-bottom: 12px;
-}
-.featured .meta-item {
-    display: flex; align-items: center; gap: 4px;
-    color: var(--muted); font-size: .6rem;
-}
+/* TV */
+.tv-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px }
+.tv-card { background:var(--card);border-radius:var(--r);overflow:hidden;border:var(--b) }
+.tv-card iframe { width:100%;height:160px;border:none;background:#000 }
+.tv-card .info { padding:12px }
+.tv-card .info h3 { color:var(--a);font-size:.8rem;font-weight:400;margin-bottom:6px }
 
-/* ── Nav Cards ── */
-.nav-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; max-width: 320px; margin: 16px auto; }
-.nav-card {
-    background: var(--card); padding: 18px 14px; border-radius: var(--r);
-    border: var(--b); text-align: center; text-decoration: none; transition: .3s;
-    display: flex; flex-direction: column; align-items: center; gap: 6px;
+/* Featured */
+.ft {
+    max-width:300px;margin:16px auto;background:var(--card);
+    border:var(--b);border-radius:var(--r);padding:18px;text-align:center;
 }
-.nav-card:active { border-color: var(--a); }
-.nav-card .nc-icon { font-size: 2rem; }
-.nav-card h3 { color: #fff; font-size: .8rem; font-weight: 400; }
-.nav-card p { color: var(--muted); font-size: .6rem; }
-.nav-card .arrow {
-    color: var(--a); font-size: .7rem; opacity: 0;
-    transition: .3s;
-}
-.nav-card:active .arrow { opacity: 1; }
+.ft .name { color:var(--text);font-size:.95rem;margin:6px 0 }
+.ft .m { color:var(--muted);font-size:.6rem;margin-bottom:12px }
 
-/* ── TV Cards ── */
-.tv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.tv-card {
-    background: var(--card); border-radius: var(--r); overflow: hidden; border: var(--b);
-    transition: .3s;
+/* Nav cards */
+.nc { display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:300px;margin:16px auto }
+.nc a {
+    background:var(--card);padding:16px;border-radius:var(--r);
+    border:var(--b);text-align:center;text-decoration:none;
+    color:var(--text);transition:.3s;
 }
-.tv-card:active { border-color: var(--a); }
-.tv-card iframe { width: 100%; height: 170px; border: none; background: #000; }
-.tv-card .info { padding: 14px; }
-.tv-card .info .tv-header {
-    display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
-}
-.tv-card .info .tv-icon {
-    width: 32px; height: 32px; border-radius: 8px;
-    background: rgba(255,255,255,.03); border: var(--b);
-    display: flex; align-items: center; justify-content: center;
-    font-size: .9rem;
-}
-.tv-card .info h3 { color: var(--a); font-size: .85rem; font-weight: 400; }
-.tv-card .info .status {
-    display: flex; align-items: center; gap: 5px; margin-bottom: 8px;
-}
-.tv-card .info .live-dot {
-    width: 7px; height: 7px; border-radius: 50%;
-    background: #f33; animation: pulse 2s infinite;
-}
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-.tv-card .info .live-text {
-    color: #f33; font-size: .6rem; text-transform: uppercase; letter-spacing: 1px;
-}
+.nc a:active { border-color:var(--a) }
+.nc a .ic { font-size:1.6rem;margin-bottom:4px }
+.nc a h3 { color:#fff;font-size:.75rem;font-weight:400 }
+.nc a p { color:var(--muted);font-size:.6rem }
 
-/* ── Player ── */
+/* Player */
 .player {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: var(--bg); border-top: var(--b); padding: 12px 16px;
-    display: none; align-items: center; gap: 12px; z-index: 1000;
+    position:fixed;bottom:0;left:0;right:0;
+    background:var(--bg);border-top:var(--b);padding:10px 14px;
+    display:none;align-items:center;gap:10px;z-index:1000;
 }
-.player.on { display: flex; }
-.player.car { padding: 16px; gap: 16px; }
-.player .np-section { display: flex; align-items: center; gap: 8px; min-width: 80px; }
-.player .np-dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--a); animation: pulse 1.5s infinite;
-}
-.player span { color: var(--a); font-size: .7rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.player audio { flex: 1; height: 30px; border-radius: 4px; }
-.player.car audio { height: 46px; }
+.player.on { display:flex }
+.player.car { padding:14px;gap:14px }
+.player span { color:var(--a);font-size:.65rem;min-width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+.player audio { flex:1;height:28px;border-radius:4px }
+.player.car audio { height:44px }
 .player .cls {
-    background: none; border: var(--b); color: var(--muted);
-    padding: 5px 10px; border-radius: 6px; cursor: pointer;
-    font: 400 .7rem 'Space Mono', monospace;
+    background:none;border:var(--b);color:var(--muted);
+    padding:4px 8px;border-radius:4px;cursor:pointer;
+    font:.65rem 'Space Mono',monospace;
 }
 
-/* ── Theme Selector ── */
-.theme-btn {
-    position: fixed; bottom: 18px; right: 18px; z-index: 999;
-    width: 42px; height: 42px; border-radius: 50%;
-    border: 2px solid var(--a); background: var(--bg); color: var(--a);
-    cursor: pointer; font-size: 1rem; box-shadow: var(--g);
-    transition: .3s; font-family: 'Space Mono', monospace;
+/* Theme */
+.tb {
+    position:fixed;bottom:14px;right:14px;z-index:999;
+    width:38px;height:38px;border-radius:50%;
+    border:2px solid var(--a);background:var(--bg);color:var(--a);
+    cursor:pointer;font-size:.9rem;box-shadow:var(--g);
+    transition:.3s;font-family:'Space Mono',monospace;
 }
-.theme-btn:active { transform: scale(.9); }
-
-.theme-popup {
-    position: fixed; bottom: 74px; right: 18px; z-index: 999;
-    display: flex; flex-direction: column; gap: 8px;
-    background: var(--card); padding: 10px; border-radius: 14px;
-    border: var(--b); opacity: 0; transform: translateY(10px);
-    pointer-events: none; transition: .3s;
+.tb:active { transform:scale(.9) }
+.tp {
+    position:fixed;bottom:64px;right:14px;z-index:999;
+    display:flex;flex-direction:column;gap:6px;
+    background:var(--card);padding:8px;border-radius:12px;
+    border:var(--b);opacity:0;transform:translateY(8px);
+    pointer-events:none;transition:.3s;
 }
-.theme-popup.open { opacity: 1; transform: translateY(0); pointer-events: all; }
-.theme-popup button {
-    width: 36px; height: 36px; border-radius: 50%; border: 2px solid transparent;
-    cursor: pointer; font-size: .8rem; background: var(--bg); color: var(--text);
-    transition: .3s; font-family: 'Space Mono', monospace;
+.tp.open { opacity:1;transform:translateY(0);pointer-events:all }
+.tp button {
+    width:32px;height:32px;border-radius:50%;border:2px solid transparent;
+    cursor:pointer;font-size:.7rem;background:var(--bg);color:var(--text);
+    transition:.3s;font-family:'Space Mono',monospace;
 }
-.theme-popup button:hover { transform: scale(1.1); }
-.theme-popup .tc { border-color: #0ff; color: #0ff; }
-.theme-popup .tg { border-color: #3f4; color: #3f4; }
-.theme-popup .tp { border-color: #f0f; color: #f0f; }
+.tp .tc { border-color:#0ff;color:#0ff }
+.tp .tg { border-color:#3f4;color:#3f4 }
+.tp .tp2 { border-color:#f0f;color:#f0f }
 
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 998; display: none; }
-.overlay.show { display: block; }
+.overlay { position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:998;display:none }
+.overlay.show { display:block }
 
-.empty { 
-    text-align: center; padding: 50px 20px; color: var(--muted);
-    display: flex; flex-direction: column; align-items: center; gap: 10px;
-}
-.empty .icon { font-size: 2.5rem; }
-
-/* ── Utility ── */
-.spacer { flex: 1; }
-.row { display: flex; align-items: center; gap: 8px; }
-
-@media (max-width: 500px) {
-    .hero h1 { font-size: 1.6rem; }
-    .grid, .tv-grid { grid-template-columns: 1fr; }
-    .player { flex-direction: column; padding: 10px; }
-    .player audio { width: 100%; }
-    .nav-r a { padding: 6px 8px; font-size: .7rem; }
-    .nav-r .badge { display: none; }
-    .featured { max-width: 100%; }
-    .nav-cards { max-width: 100%; }
+@media (max-width:500px) {
+    .grid,.tv-grid { grid-template-columns:1fr }
+    .player { flex-direction:column;padding:8px }
+    .player audio { width:100% }
+    .logo { font-size:.85rem }
 }
 `;
 
 function H(title, body, js = '') {
     return `<!DOCTYPE html><html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#000"><meta name="apple-mobile-web-app-capable" content="yes">
-<title>${title}</title>
+<meta name="theme-color" content="#000"><title>${title}</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>${CSS}</style></head>
 <body class="t1">
 <nav>
     <a href="/" class="logo">RADIO🎙CEDAR</a>
-    <div class="nav-r">
-        <a href="/radio">📻<span>Radio</span></a>
-        <a href="/tv">📺<span>TV</span><span class="badge">LIVE</span></a>
-        <button id="carBtn" onclick="car()">🚗<span>Auto</span></button>
+    <div class="nr">
+        <a href="/radio">Radio</a>
+        <a href="/tv">TV</a>
+        <button id="carBtn" onclick="car()">🚗</button>
     </div>
 </nav>
 ${body}
 <div class="overlay" id="overlay" onclick="closeThemes()"></div>
-<div class="theme-popup" id="themePopup">
+<div class="tp" id="themePopup">
     <button class="tc" onclick="theme('t1')">🔵</button>
     <button class="tg" onclick="theme('t2')">🟢</button>
-    <button class="tp" onclick="theme('t3')">🟣</button>
+    <button class="tp2" onclick="theme('t3')">🟣</button>
 </div>
-<button class="theme-btn" onclick="toggleThemes()" id="themeBtn">🎨</button>
+<button class="tb" onclick="toggleThemes()">🎨</button>
 <div class="player" id="player">
-    <div class="np-section">
-        <div class="np-dot"></div>
-        <span id="np">Select station</span>
-    </div>
+    <span id="np">—</span>
     <audio id="audio" controls></audio>
     <button class="cls" onclick="stop()">✕</button>
 </div>
@@ -359,9 +232,8 @@ let cur=null,carMode=!1;
 function play(u,n){
     const p=document.getElementById('player'),a=document.getElementById('audio'),d=document.getElementById('np');
     if(cur){cur.pause();cur.load();}
-    a.src=u;a.load();a.play().catch(()=>alert('Unavailable'));
+    a.src=u;a.load();a.play().catch(()=>{});
     d.textContent=n;p.classList.add('on');if(carMode)p.classList.add('car');cur=a;
-    if(navigator.vibrate)navigator.vibrate(20);
 }
 function stop(){
     const p=document.getElementById('player'),a=document.getElementById('audio');
@@ -369,9 +241,8 @@ function stop(){
 }
 function car(){
     carMode=!carMode;
-    document.body.classList.toggle('car-mode',carMode);
     const b=document.getElementById('carBtn');
-    b.classList.toggle('on',carMode);b.innerHTML=carMode?'📱<span>Mobile</span>':'🚗<span>Auto</span>';
+    b.classList.toggle('on',carMode);b.textContent=carMode?'📱':'🚗';
     if(document.getElementById('player').classList.contains('on'))
         document.getElementById('player').classList.toggle('car',carMode);
 }
@@ -384,13 +255,9 @@ function closeThemes(){
     document.getElementById('overlay').classList.remove('show');
 }
 function theme(t){
-    document.body.className=t;if(carMode)document.body.classList.add('car-mode');
-    localStorage.setItem('rcTheme',t);closeThemes();
+    document.body.className=t;localStorage.setItem('rcTheme',t);closeThemes();
 }
-(function(){
-    const t=localStorage.getItem('rcTheme');if(t)document.body.className=t;
-})();
-document.addEventListener('keydown',e=>{if(e.code==='Space'&&cur){e.preventDefault();const a=document.getElementById('audio');a.paused?a.play():a.pause();}});
+(function(){const t=localStorage.getItem('rcTheme');if(t)document.body.className=t;})();
 ${js}
 </script></body></html>`;
 }
@@ -399,17 +266,15 @@ app.get('/', async (req, res) => {
     const st = await S();
     const ft = st[Math.floor(Math.random() * Math.min(5, st.length))];
     res.send(H('RADIO🎙CEDAR', `
-        <div class="hero">
-            <div class="icon">🌲</div>
-            <h1>RADIO🎙CEDAR</h1>
-            <p class="sub">Lebanon's voice, wherever you are</p>
+        <div style="text-align:center;padding:24px 14px">
+            <h1 style="font-size:1.8rem">RADIO🎙CEDAR</h1>
+            <p style="color:var(--muted);font-size:.75rem;margin-bottom:14px">Lebanon's voice, wherever you are</p>
             <div class="regions">
                 ${Object.entries(R).map(([k,v]) => `<button onclick="region('${k}',this)">${v}</button>`).join('')}
             </div>
             <div class="dial">
-                <div class="icon">📻</div>
                 <div class="freq" id="f">--.- FM</div>
-                <div class="name" id="dn">Tuning the dial...</div>
+                <div class="name" id="dn">Tuning...</div>
                 <div class="ctrls">
                     <button onclick="t(-1)">◀</button>
                     <button class="play" onclick="pd()">▶</button>
@@ -417,31 +282,14 @@ app.get('/', async (req, res) => {
                 </div>
             </div>
             ${ft ? `
-            <div class="featured">
-                <div class="badge">⭐ FEATURED</div>
-                <div class="feat-icon">📻</div>
-                <h3>Recommended</h3>
-                <p class="name">${ft.n}</p>
-                <div class="meta-row">
-                    <span class="meta-item">📶 ${ft.b}kbps</span>
-                    <span class="meta-item">🎵 ${ft.c}</span>
-                    <span class="meta-item">🗣 ${ft.l}</span>
-                </div>
-                <button class="btn p" onclick="play('${ft.u}','${ft.n.replace(/'/g,"\\'")}')">▶ Play Now</button>
+            <div class="ft">
+                <div class="name">${ft.n}</div>
+                <p class="m">${ft.b}kbps · ${ft.l}</p>
+                <button class="btn p" onclick="play('${ft.u}','${ft.n.replace(/'/g,"\\'")}')">▶ Play</button>
             </div>` : ''}
-            <div class="nav-cards">
-                <a href="/radio" class="nav-card">
-                    <span class="nc-icon">📻</span>
-                    <h3>Radio</h3>
-                    <p>${st.length} stations live</p>
-                    <span class="arrow">→</span>
-                </a>
-                <a href="/tv" class="nav-card">
-                    <span class="nc-icon">📺</span>
-                    <h3>TV</h3>
-                    <p>6 channels live</p>
-                    <span class="arrow">→</span>
-                </a>
+            <div class="nc">
+                <a href="/radio"><div class="ic">📻</div><h3>Radio</h3><p>${st.length} live</p></a>
+                <a href="/tv"><div class="ic">📺</div><h3>TV</h3><p>6 live</p></a>
             </div>
         </div>`,
         `const ds=${JSON.stringify(st.slice(0,20).map(s=>({n:s.n,u:s.u})))};
@@ -452,7 +300,7 @@ app.get('/', async (req, res) => {
             document.querySelectorAll('.regions button').forEach(b=>b.classList.remove('on'));
             el.classList.add('on');
             const tz={beirut:'Asia/Beirut',dubai:'Asia/Dubai',paris:'Europe/Paris',sydney:'Australia/Sydney',montreal:'America/Toronto',nyc:'America/New_York',london:'Europe/London',saopaulo:'America/Sao_Paulo'};
-            document.querySelector('.sub').textContent=R[id]+' · '+new Date().toLocaleTimeString('en-US',{timeZone:tz[id],hour:'2-digit',minute:'2-digit'});
+            document.querySelector('p').textContent=R[id]+' · '+new Date().toLocaleTimeString('en-US',{timeZone:tz[id],hour:'2-digit',minute:'2-digit'});
         }
         t(0);`
     ));
@@ -462,31 +310,13 @@ app.get('/radio', async (req, res) => {
     const st = await S();
     res.send(H('Radio — RADIO🎙CEDAR', `
         <div class="main">
-            <div class="page-header">
-                <div class="icon">📻</div>
-                <div>
-                    <h1>Radio Stations</h1>
-                    <p>${st.length} stations broadcasting live from Lebanon</p>
-                </div>
-            </div>
+            <h1>Radio · ${st.length} stations</h1>
             <div class="grid">
-                ${st.map((s, idx) => `
+                ${st.map(s => `
                 <div class="card">
-                    <div class="card-header">
-                        <div class="card-icon">${['🎵','🎶','🎤','📻','🎼','🎧','🗣','🔊'][idx % 8]}</div>
-                        <div class="card-info">
-                            <h3>${s.n}</h3>
-                            <p class="m">${s.l} · ${s.c}</p>
-                        </div>
-                    </div>
-                    <div class="tags">
-                        <span>📶 ${s.b}kbps</span>
-                        <span>⭐ ${s.v}</span>
-                    </div>
-                    <div class="card-footer">
-                        <span class="quality">🔊 Stereo</span>
-                        <button class="btn p sm" onclick="play('${s.u}','${s.n.replace(/'/g,"\\'")}')">▶ Tune</button>
-                    </div>
+                    <h3>${s.n}</h3>
+                    <p class="m">${s.b}kbps · ${s.l}</p>
+                    <button class="btn p" onclick="play('${s.u}','${s.n.replace(/'/g,"\\'")}')">▶ Tune</button>
                 </div>`).join('')}
             </div>
         </div>`
@@ -496,27 +326,14 @@ app.get('/radio', async (req, res) => {
 app.get('/tv', (req, res) => {
     res.send(H('TV — RADIO🎙CEDAR', `
         <div class="main">
-            <div class="page-header">
-                <div class="icon">📺</div>
-                <div>
-                    <h1>TV Channels</h1>
-                    <p>Live broadcasts from Lebanon</p>
-                </div>
-            </div>
+            <h1>TV · 6 channels</h1>
             <div class="tv-grid">
                 ${TV.map(c => `
                 <div class="tv-card">
                     <iframe src="https://www.youtube.com/embed/live_stream?channel=${c.i}" allow="autoplay;encrypted-media" allowfullscreen loading="lazy"></iframe>
                     <div class="info">
-                        <div class="tv-header">
-                            <div class="tv-icon">${c.icon}</div>
-                            <h3>${c.n}</h3>
-                        </div>
-                        <div class="status">
-                            <div class="live-dot"></div>
-                            <span class="live-text">Live</span>
-                        </div>
-                        <a href="https://youtube.com/${c.h}/live" target="_blank" class="btn sm">📺 Watch on YouTube</a>
+                        <h3>${c.n}</h3>
+                        <a href="https://youtube.com/${c.h}/live" target="_blank" class="btn">YouTube →</a>
                     </div>
                 </div>`).join('')}
             </div>
