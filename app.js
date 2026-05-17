@@ -1,65 +1,80 @@
 const express = require('express');
+const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Verified Lebanese Radio Stations ──
-// These are direct streaming URLs used by popular Lebanese radio apps
-const STATIONS = [
-    { n: "NRJ Lebanon 99.1 FM", u: "https://stream.zeno.fm/xycruze3k0hvv", b: "128", l: "Arabic/English" },
-    { n: "Mix FM 104.4", u: "https://stream.zeno.fm/80mw4qg2h8quv", b: "128", l: "English" },
-    { n: "Radio One Lebanon 105.1", u: "https://stream.zeno.fm/9a3x5kq7y5vtv", b: "128", l: "English" },
-    { n: "Light FM 90.5", u: "https://stream.zeno.fm/4b7x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Sawt El Ghad 96.7 FM", u: "https://stream.zeno.fm/6z8x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Voice of Lebanon 100.5", u: "https://stream.zeno.fm/8z5x2kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Radio Orient 88.7 FM", u: "https://stream.zeno.fm/7q5xy85k3v8uv", b: "128", l: "Arabic" },
-    { n: "Radio Lebanon 96.2 FM", u: "https://stream.zeno.fm/0z7h8f2q5yzuv", b: "128", l: "Arabic" },
-    { n: "Virgin Radio Lebanon 89.5", u: "https://stream.zeno.fm/5z8x5kq7y5vtv", b: "128", l: "English" },
-    { n: "Fame FM 99.9", u: "https://stream.zeno.fm/1a2x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Pax Radio 103.0 FM", u: "https://stream.zeno.fm/3b4x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Delta Radio Lebanon 101.7", u: "https://stream.zeno.fm/9c8x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Al Jadeed FM 90.3", u: "https://stream.zeno.fm/8f6x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Nostalgie Liban 88.1 FM", u: "https://stream.zeno.fm/4d0x5kq7y5vtv", b: "128", l: "Arabic/French" },
-    { n: "Kiss FM Classics", u: "https://stream.zeno.fm/2e5x5kq7y5vtv", b: "128", l: "English" },
-    { n: "Beirut Nights Radio", u: "https://stream.zeno.fm/7a1x5kq7y5vtv", b: "128", l: "Arabic/English" },
-    { n: "Ashohra Radio", u: "https://stream.zeno.fm/6c3x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Byblos Radio", u: "https://stream.zeno.fm/5b9x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Quran Radio Lebanon", u: "https://stream.zeno.fm/3f2x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Radio Zahle", u: "https://stream.zeno.fm/8d4x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Albalad FM", u: "https://stream.zeno.fm/1g7x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Star FM Lebanon", u: "https://stream.zeno.fm/0h9x5kq7y5vtv", b: "128", l: "Arabic/English" },
-    { n: "Radio Sawa Lebanon", u: "https://stream.zeno.fm/9j1x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Voice of Charity", u: "https://stream.zeno.fm/2k3x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Radio Sevan", u: "https://stream.zeno.fm/4l5x5kq7y5vtv", b: "128", l: "Armenian/Arabic" },
-    { n: "Radio Arev", u: "https://stream.zeno.fm/6m7x5kq7y5vtv", b: "128", l: "Armenian" },
-    { n: "Radio Magic Lebanon", u: "https://stream.zeno.fm/8n9x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "Sawt El Noujoum", u: "https://stream.zeno.fm/1p0x5kq7y5vtv", b: "128", l: "Arabic" },
-    { n: "RFX Classics", u: "https://stream.zeno.fm/3q2x5kq7y5vtv", b: "128", l: "English" },
-    { n: "Radio Flash Lebanon", u: "https://stream.zeno.fm/5r4x5kq7y5vtv", b: "128", l: "Arabic/English" }
-];
+// ── Radio Browser API ──
+const API = 'https://de1.api.radio-browser.info/json';
 
-const TV = [
-    { n: "MTV Lebanon", i: "UCXqPuaVx8hBdEG5XhQc4qJg", h: "@mtvlebanon" },
-    { n: "Al Jadeed", i: "UC3OV2K9c6p9pnM_vYfGc0wA", h: "@aljadeed" },
-    { n: "LBCI", i: "UCRZmcAg9TrX9YJpm8fG-yVQ", h: "@LBCILebanon" },
-    { n: "OTV", i: "UCkSPdEZjWAxwh2Lwq5ZmpnA", h: "@OTVLebanon" },
-    { n: "NBN", i: "UC9pVQHpFJKo4zH7tHdllqLg", h: "@NBNLebanon" },
-    { n: "Télé Liban", i: "UC-lRlbsx1yH5Uw8wzX9pnfg", h: "@tllebanon" }
-];
+// Cache stations for 30 minutes
+let stationCache = [];
+let cacheTime = 0;
 
-const R = {
-    beirut: "🇱🇧 Beirut", dubai: "🇦🇪 Dubai", paris: "🇫🇷 Paris",
-    sydney: "🇦🇺 Sydney", montreal: "🇨🇦 Montreal", nyc: "🇺🇸 New York",
-    london: "🇬🇧 London", saopaulo: "🇧🇷 São Paulo"
+async function getStations() {
+    const now = Date.now();
+    if (stationCache.length > 0 && now - cacheTime < 1800000) {
+        return stationCache;
+    }
+    try {
+        const { data } = await axios.get(`${API}/stations/search`, {
+            params: { limit: 500, hidebroken: true, order: 'clickcount', reverse: true },
+            timeout: 15000
+        });
+        stationCache = data.filter(s => s.url_resolved && s.name && s.country)
+            .map(s => ({
+                id: s.stationuuid,
+                n: s.name,
+                c: s.country,
+                cc: s.countrycode,
+                f: s.tags ? s.tags.split(',')[0] : 'Variety',
+                u: s.url_resolved,
+                b: s.bitrate || '?',
+                l: s.language || '',
+                ls: s.clickcount || 0,
+                votes: s.votes || 0,
+                favicon: s.favicon || ''
+            }));
+        cacheTime = now;
+        return stationCache;
+    } catch {
+        return getFallbackStations();
+    }
+}
+
+function getFallbackStations() {
+    return [
+        { n: "NRJ Lebanon 99.1", c: "Lebanon", cc: "LB", f: "Pop", u: "https://stream.zeno.fm/xycruze3k0hvv", b: "128", ls: 12500 },
+        { n: "BBC World Service", c: "United Kingdom", cc: "GB", f: "News", u: "https://stream.live.vc.bbcmedia.co.uk/bbc_world_service", b: "96", ls: 50000 },
+        { n: "NPR 24", c: "United States", cc: "US", f: "News", u: "https://npr-ice.streamguys1.com/live.mp3", b: "128", ls: 45000 },
+        { n: "Radio France Internationale", c: "France", cc: "FR", f: "News", u: "https://rfimonde-96k.ice.infomaniak.ch/rfimonde-96k.mp3", b: "96", ls: 38000 },
+        { n: "ABC Triple J", c: "Australia", cc: "AU", f: "Alternative", u: "https://abcradio4live.akamaized.net/triplej/aac", b: "64", ls: 22000 },
+        { n: "Sawt El Ghad 96.7", c: "Lebanon", cc: "LB", f: "Arabic", u: "https://stream.zeno.fm/6z8x5kq7y5vtv", b: "128", ls: 9800 },
+        { n: "CBC Radio One", c: "Canada", cc: "CA", f: "News/Talk", u: "https://cbcradiolive.akamaized.net/hls/live/2041004/cbcradiolive/master.m3u8", b: "128", ls: 32000 },
+        { n: "Deutschlandfunk", c: "Germany", cc: "DE", f: "News", u: "https://st01.sslstream.dlf.de/dlf/01/128/mp3/stream.mp3", b: "128", ls: 28000 },
+        { n: "Radio Mitre", c: "Argentina", cc: "AR", f: "Talk", u: "https://streaming.radiomitre.com/radio.mp3", b: "128", ls: 15000 },
+        { n: "NHK World Japan", c: "Japan", cc: "JP", f: "News", u: "https://nhkworld.webcdn.stream.ne.jp/www11/radiojapan/all/263949/live_s.m3u8", b: "64", ls: 18000 },
+        { n: "Al Jazeera English", c: "Qatar", cc: "QA", f: "News", u: "https://live-hls-audio-web-aje.getaj.net/VOICE-AJE/index.m3u8", b: "64", ls: 25000 },
+        { n: "Radio Deejay", c: "Italy", cc: "IT", f: "Pop", u: "https://stream.deejay.it/radiodeejay", b: "128", ls: 35000 }
+    ];
+}
+
+const GC = {
+    Pop: "#ff6b9d", Rock: "#e74c3c", News: "#f39c12", Talk: "#f39c12",
+    Arabic: "#2ecc71", Dance: "#1abc9c", Electronic: "#1abc9c",
+    Classical: "#9b59b6", Jazz: "#e67e22", Country: "#e91e63",
+    HipHop: "#ff6b9d", RnB: "#ff6b9d", Latin: "#e91e63",
+    Religious: "#3498db", Folk: "#2ecc71", Alternative: "#1abc9c",
+    Variety: "#00bcd4", Default: "#888"
 };
 
 const CSS = `
 :root {
-    --bg: #000; --card: #080808; --text: #ccc; --muted: #444;
-    --a: #0ff; --a2: #f0f; --g: 0 0 20px rgba(0,255,255,0.15);
-    --b: 1px solid rgba(255,255,255,0.04); --r: 8px;
+    --bg: #030a03; --card: #081008; --text: #ccc; --muted: #556;
+    --a: #2ecc71; --a2: #1abc9c; --g: 0 0 20px rgba(46,204,113,0.15);
+    --b: 1px solid rgba(255,255,255,0.04); --r: 10px;
 }
 .t1 { --bg: #000; --card: #080808; --a: #0ff; --a2: #f0f; }
-.t2 { --bg: #030703; --card: #080e08; --a: #3f4; --a2: #3f4; }
+.t2 { --bg: #030a03; --card: #081008; --a: #2ecc71; --a2: #1abc9c; }
 .t3 { --bg: #050510; --card: #0c0c16; --a: #f0f; --a2: #0ff; }
 
 * { margin:0;padding:0;box-sizing:border-box }
@@ -67,14 +82,13 @@ body {
     font:400 13px 'Space Mono',monospace;
     background:var(--bg);color:var(--text);
     min-height:100vh;-webkit-tap-highlight-color:transparent;
-    transition:background .4s;
-    padding-bottom:80px;
+    transition:background .4s;padding-bottom:80px;
 }
 
 nav {
     display:flex;justify-content:space-between;align-items:center;
-    padding:10px 16px;background:var(--bg);
-    border-bottom:var(--b);position:sticky;top:0;z-index:100;
+    padding:10px 16px;background:var(--bg);border-bottom:var(--b);
+    position:sticky;top:0;z-index:100;
 }
 .logo {
     font-size:.9rem;font-weight:700;color:var(--a);
@@ -87,100 +101,90 @@ nav {
     background:none;border:var(--b);cursor:pointer;
     font-family:'Space Mono',monospace;
 }
-.nr a:hover, .nr button.on { color:var(--a);border-color:var(--a) }
+.nr a:hover, .nr button.on, .nr a.on { color:var(--a);border-color:var(--a) }
 
 .main { max-width:900px;margin:0 auto;padding:14px 16px }
-h1 { color:var(--a);font-size:1rem;font-weight:400;margin-bottom:12px }
 
-/* ── 3 Columns Desktop, 2 Mobile ── */
+/* ── Hero ── */
+.hero { text-align:center;padding:20px 14px 10px }
+.hero h1 { font-size:1.8rem;color:var(--a);text-shadow:var(--g);margin-bottom:2px }
+.hero .sub { color:var(--muted);font-size:.7rem;margin-bottom:16px }
+
+/* ── Search ── */
+.search-wrap { max-width:500px;margin:0 auto 12px }
+.search-wrap input {
+    width:100%;background:var(--card);border:var(--b);color:var(--text);
+    padding:10px 14px;border-radius:var(--r);font:.7rem 'Space Mono',monospace;
+    outline:none;transition:.3s;
+}
+.search-wrap input:focus { border-color:var(--a) }
+.search-wrap input::placeholder { color:var(--muted) }
+
+/* ── Tabs ── */
+.tabs { display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;justify-content:center }
+.tabs button {
+    background:none;border:var(--b);color:var(--muted);
+    padding:6px 14px;border-radius:16px;cursor:pointer;
+    font:.65rem 'Space Mono',monospace;transition:.3s;
+}
+.tabs button.on { background:var(--a);color:#000;border-color:var(--a);font-weight:700 }
+
+/* ── Nearby Bar ── */
+.nearby-bar {
+    background:var(--card);border:var(--b);border-radius:var(--r);
+    padding:10px 14px;margin-bottom:12px;display:none;
+    font-size:.6rem;color:var(--muted);
+}
+.nearby-bar.show { display:flex;align-items:center;gap:8px;flex-wrap:wrap }
+.nearby-bar .loc { color:var(--a) }
+
+/* ── Trending ── */
+.section-title {
+    color:var(--a);font-size:.75rem;margin-bottom:8px;
+    display:flex;align-items:center;gap:6px;
+}
+
+/* ── Grid ── */
 .grid {
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:8px;
+    display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
 }
-@media (max-width:700px) {
-    .grid { grid-template-columns:repeat(2,1fr) }
-}
-@media (max-width:400px) {
-    .grid { grid-template-columns:1fr }
-}
+@media (max-width:700px) { .grid { grid-template-columns:repeat(2,1fr) } }
+@media (max-width:400px) { .grid { grid-template-columns:1fr } }
 
 .card {
     background:var(--card);padding:12px;border-radius:var(--r);
-    border:var(--b);transition:.3s;
-    display:flex;flex-direction:column;justify-content:space-between;
+    border:var(--b);transition:.3s;position:relative;
+    display:flex;flex-direction:column;
 }
 .card:active { border-color:var(--a) }
-.card h3 { color:#fff;font-size:.75rem;font-weight:400;margin-bottom:4px;line-height:1.2 }
-.card .m { color:var(--muted);font-size:.58rem;margin-bottom:8px }
+.card .country-row {
+    display:flex;align-items:center;gap:6px;margin-bottom:6px;
+}
+.card .flag { font-size:1rem }
+.card .country { color:var(--muted);font-size:.55rem }
+.card h3 { color:#fff;font-size:.72rem;font-weight:400;margin-bottom:4px;line-height:1.2 }
+.card .genre-bar { height:2px;border-radius:2px;margin-bottom:6px }
+.card .meta-row {
+    display:flex;justify-content:space-between;align-items:center;
+    margin-bottom:6px;
+}
+.card .listeners { color:var(--muted);font-size:.5rem }
+.card .quality { color:var(--a);font-size:.5rem }
+.card .fav-btn {
+    position:absolute;top:8px;right:8px;
+    background:none;border:none;color:var(--muted);
+    cursor:pointer;font-size:.75rem;transition:.3s;
+}
+.card .fav-btn.faved { color:#f1c40f }
 
 .btn {
     background:none;border:1px solid var(--a);color:var(--a);
-    padding:5px 12px;border-radius:5px;cursor:pointer;
-    font:.6rem 'Space Mono',monospace;text-decoration:none;
+    padding:5px 10px;border-radius:5px;cursor:pointer;
+    font:.55rem 'Space Mono',monospace;text-decoration:none;
     display:inline-block;transition:.3s;text-align:center;
-    width:100%;
+    width:100%;margin-top:auto;
 }
-.btn:active { background:rgba(0,255,255,.04) }
-.btn.p { border-color:var(--a2);color:var(--a2) }
-
-/* TV — 2 columns */
-.tv-grid {
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:10px;
-}
-@media (max-width:600px) {
-    .tv-grid { grid-template-columns:1fr }
-}
-.tv-card { background:var(--card);border-radius:var(--r);overflow:hidden;border:var(--b) }
-.tv-card iframe { width:100%;height:160px;border:none;background:#000 }
-.tv-card .info { padding:10px }
-.tv-card .info h3 { color:var(--a);font-size:.75rem;font-weight:400;margin-bottom:6px }
-
-/* Dial */
-.dial {
-    max-width:300px;margin:16px auto;background:var(--card);
-    border:var(--b);border-radius:var(--r);padding:20px;text-align:center;
-}
-.dial .freq { color:var(--a2);font-size:.9rem;margin-bottom:2px }
-.dial .name { color:var(--muted);font-size:.6rem;margin-bottom:14px }
-.dial .ctrls { display:flex;justify-content:center;align-items:center;gap:10px }
-.dial .ctrls button {
-    width:38px;height:38px;border-radius:50%;border:var(--b);
-    background:none;color:var(--a);font-size:.75rem;cursor:pointer;
-    transition:.3s;font-family:'Space Mono',monospace;
-}
-.dial .ctrls .play { width:48px;height:48px;font-size:1rem;border-color:var(--a) }
-
-/* Regions */
-.regions { display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:12px 0 }
-.regions button {
-    background:none;border:var(--b);color:var(--muted);
-    padding:3px 8px;border-radius:12px;cursor:pointer;
-    font:.55rem 'Space Mono',monospace;transition:.3s;
-}
-.regions button.on { border-color:var(--a);color:var(--a) }
-
-/* Featured */
-.ft {
-    max-width:300px;margin:14px auto;background:var(--card);
-    border:var(--b);border-radius:var(--r);padding:16px;text-align:center;
-}
-.ft .name { color:var(--text);font-size:.85rem;margin:6px 0 }
-.ft .m { color:var(--muted);font-size:.55rem;margin-bottom:10px }
-
-/* Nav cards */
-.nc { display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:300px;margin:14px auto }
-.nc a {
-    background:var(--card);padding:14px;border-radius:var(--r);
-    border:var(--b);text-align:center;text-decoration:none;
-    color:var(--text);transition:.3s;
-}
-.nc a:active { border-color:var(--a) }
-.nc a .ic { font-size:1.4rem;margin-bottom:4px }
-.nc a h3 { color:#fff;font-size:.7rem;font-weight:400 }
-.nc a p { color:var(--muted);font-size:.55rem }
+.btn:active { background:rgba(46,204,113,.04) }
 
 /* Player */
 .player {
@@ -222,25 +226,37 @@ h1 { color:var(--a);font-size:1rem;font-weight:400;margin-bottom:12px }
     transition:.3s;font-family:'Space Mono',monospace;
 }
 .tp .tc { border-color:#0ff;color:#0ff }
-.tp .tg { border-color:#3f4;color:#3f4 }
+.tp .tg { border-color:#2ecc71;color:#2ecc71 }
 .tp .tp2 { border-color:#f0f;color:#f0f }
 
 .overlay { position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:998;display:none }
 .overlay.show { display:block }
+
+.stats { display:flex;justify-content:space-between;color:var(--muted);font-size:.55rem;margin-bottom:8px }
 `;
+
+// ── Country list with flags ──
+const COUNTRIES = {
+    LB: "🇱🇧", US: "🇺🇸", GB: "🇬🇧", FR: "🇫🇷", DE: "🇩🇪",
+    IT: "🇮🇹", ES: "🇪🇸", CA: "🇨🇦", AU: "🇦🇺", JP: "🇯🇵",
+    BR: "🇧🇷", AR: "🇦🇷", MX: "🇲🇽", IN: "🇮🇳", RU: "🇷🇺",
+    ZA: "🇿🇦", EG: "🇪🇬", SA: "🇸🇦", AE: "🇦🇪", QA: "🇶🇦",
+    TR: "🇹🇷", GR: "🇬🇷", PT: "🇵🇹", NL: "🇳🇱", BE: "🇧🇪",
+    CH: "🇨🇭", SE: "🇸🇪", NO: "🇳🇴", PL: "🇵🇱", KR: "🇰🇷",
+    CN: "🇨🇳", NG: "🇳🇬", KE: "🇰🇪", CO: "🇨🇴", CL: "🇨🇱"
+};
 
 function H(title, body, js = '') {
     return `<!DOCTYPE html><html lang="en">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#000"><title>${title}</title>
+<meta name="theme-color" content="#030a03"><title>${title}</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>${CSS}</style></head>
-<body class="t1">
+<body class="t2">
 <nav>
-    <a href="/" class="logo">RADIO🎙CEDAR</a>
+    <a href="/" class="logo">🌍 DIAL EARTH</a>
     <div class="nr">
-        <a href="/radio">Radio</a>
-        <a href="/tv">TV</a>
+        <button id="nearbyBtn" onclick="showNearby()" title="Nearby">📍</button>
         <button id="carBtn" onclick="car()">🚗</button>
     </div>
 </nav>
@@ -258,7 +274,10 @@ ${body}
     <button class="cls" onclick="stop()">✕</button>
 </div>
 <script>
-let cur=null,carMode=!1;
+let cur=null,carMode=!1,allStations=[];
+let favs=JSON.parse(localStorage.getItem('dialearthFavs')||'[]');
+let userLat=null,userLon=null;
+
 function play(u,n){
     const p=document.getElementById('player'),a=document.getElementById('audio'),d=document.getElementById('np');
     if(cur){cur.pause();cur.load();}
@@ -276,6 +295,12 @@ function car(){
     if(document.getElementById('player').classList.contains('on'))
         document.getElementById('player').classList.toggle('car',carMode);
 }
+function toggleFav(id,el){
+    const idx=favs.indexOf(id);
+    if(idx>-1){favs.splice(idx,1);el.classList.remove('faved');el.textContent='☆';}
+    else{favs.push(id);el.classList.add('faved');el.textContent='★';}
+    localStorage.setItem('dialearthFavs',JSON.stringify(favs));
+}
 function toggleThemes(){
     document.getElementById('themePopup').classList.toggle('open');
     document.getElementById('overlay').classList.toggle('show');
@@ -285,89 +310,224 @@ function closeThemes(){
     document.getElementById('overlay').classList.remove('show');
 }
 function theme(t){
-    document.body.className=t;localStorage.setItem('rcTheme',t);closeThemes();
+    document.body.className=t;localStorage.setItem('dialearthTheme',t);closeThemes();
 }
-(function(){const t=localStorage.getItem('rcTheme');if(t)document.body.className=t;})();
+(function(){const t=localStorage.getItem('dialearthTheme');if(t)document.body.className=t;})();
+
+// Nearby detection
+function showNearby(){
+    const bar=document.getElementById('nearbyBar');
+    if(!bar.classList.contains('show')){
+        if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(pos=>{
+                userLat=pos.coords.latitude;
+                userLon=pos.coords.longitude;
+                bar.classList.add('show');
+                bar.innerHTML='📍 <span class="loc">Nearby stations</span> · Detecting...';
+                loadNearby();
+            },()=>{
+                bar.classList.add('show');
+                bar.innerHTML='📍 <span class="loc">Location access denied</span>';
+            });
+        }else{
+            bar.classList.add('show');
+            bar.innerHTML='📍 <span class="loc">Geolocation not supported</span>';
+        }
+    }else{
+        bar.classList.remove('show');
+    }
+}
+function loadNearby(){
+    fetch('/api/nearby?lat='+userLat+'&lon='+userLon).then(r=>r.json()).then(stations=>{
+        const bar=document.getElementById('nearbyBar');
+        if(stations.length>0){
+            bar.innerHTML='📍 <span class="loc">Nearby:</span> '+stations.slice(0,5).map(s=>'<button onclick="play(\\''+s.u+'\\',\\''+s.n.replace(/'/g,"\\\\'")+'\\')" style="background:none;border:var(--b);color:var(--a);cursor:pointer;font:inherit;padding:2px 6px;border-radius:4px">'+s.n+'</button>').join(' · ');
+        }else{
+            bar.innerHTML='📍 <span class="loc">No nearby stations found</span>';
+        }
+    });
+}
 ${js}
 </script></body></html>`;
 }
 
-app.get('/', (req, res) => {
-    const st = STATIONS;
-    const ft = st[Math.floor(Math.random() * st.length)];
-    res.send(H('RADIO🎙CEDAR', `
-        <div style="text-align:center;padding:20px 14px">
-            <h1 style="font-size:1.6rem">RADIO🎙CEDAR</h1>
-            <p style="color:var(--muted);font-size:.7rem;margin-bottom:12px">Lebanon's voice, wherever you are</p>
-            <div class="regions">
-                ${Object.entries(R).map(([k,v]) => `<button onclick="region('${k}',this)">${v}</button>`).join('')}
+// ── API Routes ──
+app.get('/api/stations', async (req, res) => {
+    const stations = await getStations();
+    res.json(stations);
+});
+
+app.get('/api/nearby', async (req, res) => {
+    const { lat, lon } = req.query;
+    if (!lat || !lon) return res.json([]);
+    try {
+        const { data } = await axios.get(`${API}/stations/search`, {
+            params: { limit: 10, hidebroken: true, order: 'distance', reverse: false },
+            timeout: 8000
+        });
+        const nearby = data.filter(s => s.url_resolved && s.name).slice(0, 10).map(s => ({
+            n: s.name, u: s.url_resolved, c: s.country
+        }));
+        res.json(nearby);
+    } catch {
+        res.json([]);
+    }
+});
+
+app.get('/api/trending', async (req, res) => {
+    const stations = await getStations();
+    const trending = [...stations].sort((a, b) => b.ls - a.ls).slice(0, 20);
+    res.json(trending);
+});
+
+app.get('/api/countries', async (req, res) => {
+    const stations = await getStations();
+    const countries = [...new Set(stations.map(s => s.c))].sort();
+    res.json(countries);
+});
+
+// ── Main Page ──
+app.get('/', async (req, res) => {
+    const stations = await getStations();
+    const trending = [...stations].sort((a, b) => b.ls - a.ls).slice(0, 20);
+    const countries = [...new Set(stations.map(s => s.c))].sort();
+    const genres = [...new Set(stations.map(s => s.f).filter(f => f && f !== 'Default'))].sort().slice(0, 15);
+
+    res.send(H('Dial Earth — Worldwide Live Radio', `
+        <div class="hero">
+            <h1>🌍 DIAL EARTH</h1>
+            <p class="sub">Worldwide live radio · ${stations.length.toLocaleString()} stations · ${countries.length} countries</p>
+        </div>
+        <div class="main">
+            <div class="search-wrap">
+                <input type="text" id="search" placeholder="Search stations, countries, genres..." oninput="filter()">
             </div>
-            <div class="dial">
-                <div class="freq" id="f">--.- FM</div>
-                <div class="name" id="dn">Tuning...</div>
-                <div class="ctrls">
-                    <button onclick="t(-1)">◀</button>
-                    <button class="play" onclick="pd()">▶</button>
-                    <button onclick="t(1)">▶</button>
-                </div>
+            <div class="nearby-bar" id="nearbyBar"></div>
+            <div class="tabs" id="countryTabs">
+                <button class="on" onclick="switchTab('trending',this)">🔥 Trending</button>
+                <button onclick="switchTab('countries',this)">🌎 Countries</button>
+                <button onclick="switchTab('genres',this)">🎵 Genres</button>
+                <button onclick="switchTab('favorites',this)">⭐ Favorites</button>
             </div>
-            <div class="ft">
-                <div class="name">${ft.n}</div>
-                <p class="m">${ft.b}kbps · ${ft.l}</p>
-                <button class="btn p" onclick="play('${ft.u}','${ft.n.replace(/'/g,"\\'")}')">▶ Play</button>
+            <div class="tabs" id="subTabs" style="display:none"></div>
+            <div class="stats">
+                <span id="count">${trending.length} trending</span>
+                <span id="totalListeners">👥 ${trending.reduce((a,s)=>a+(s.ls||0),0).toLocaleString()} listeners</span>
             </div>
-            <div class="nc">
-                <a href="/radio"><div class="ic">📻</div><h3>Radio</h3><p>${st.length} live</p></a>
-                <a href="/tv"><div class="ic">📺</div><h3>TV</h3><p>6 live</p></a>
+            <div class="grid" id="grid">
+                ${trending.map(s => {
+                    const flag = COUNTRIES[s.cc] || '🌐';
+                    const genreColor = GC[s.f] || GC.Default;
+                    const isFav = 'false';
+                    return `
+                <div class="card" data-genre="${s.f||''}" data-country="${s.c||''}" data-name="${(s.n||'').toLowerCase()}">
+                    <button class="fav-btn${isFav==='true'?' faved':''}" onclick="toggleFav('${(s.id||'').replace(/'/g,"\\'")}',this)">${isFav==='true'?'★':'☆'}</button>
+                    <div class="country-row">
+                        <span class="flag">${flag}</span>
+                        <span class="country">${s.c||'Unknown'}</span>
+                    </div>
+                    <h3>${s.n||'Unknown'}</h3>
+                    <div class="genre-bar" style="background:${genreColor}"></div>
+                    <div class="meta-row">
+                        <span class="listeners">👥 ${(s.ls||0).toLocaleString()}</span>
+                        <span class="quality">📶 ${s.b||'?'}kbps</span>
+                    </div>
+                    <button class="btn" onclick="play('${s.u}','${(s.n||'Unknown').replace(/'/g,"\\'")}')">▶ Tune</button>
+                </div>`;
+                }).join('')}
             </div>
         </div>`,
-        `const ds=${JSON.stringify(st.slice(0,20).map(s=>({n:s.n,u:s.u})))};
-        let i=0;
-        function t(d){i=(i+d+ds.length)%ds.length;document.getElementById('f').textContent=(88+Math.floor(Math.random()*20))+'.'+Math.floor(Math.random()*9)+' FM';document.getElementById('dn').textContent=ds[i].n;}
-        function pd(){play(ds[i].u,ds[i].n);}
-        function region(id,el){
-            document.querySelectorAll('.regions button').forEach(b=>b.classList.remove('on'));
-            el.classList.add('on');
-            const tz={beirut:'Asia/Beirut',dubai:'Asia/Dubai',paris:'Europe/Paris',sydney:'Australia/Sydney',montreal:'America/Toronto',nyc:'America/New_York',london:'Europe/London',saopaulo:'America/Sao_Paulo'};
-            document.querySelector('p').textContent=R[id]+' · '+new Date().toLocaleTimeString('en-US',{timeZone:tz[id],hour:'2-digit',minute:'2-digit'});
+        `allStations=${JSON.stringify(stations)};
+        let currentTab='trending';
+        
+        function filter(){
+            const q=document.getElementById('search').value.toLowerCase();
+            document.querySelectorAll('.card').forEach(c=>{
+                const name=c.dataset.name||'';
+                const country=c.dataset.country||'';
+                c.style.display=(name.includes(q)||country.toLowerCase().includes(q))?'':'none';
+            });
+            updateCount();
         }
-        t(0);`
+        
+        function switchTab(tab,el){
+            currentTab=tab;
+            document.querySelectorAll('#countryTabs button').forEach(b=>b.classList.remove('on'));
+            el.classList.add('on');
+            const sub=document.getElementById('subTabs');
+            
+            if(tab==='trending'){
+                sub.style.display='none';
+                renderStations([...allStations].sort((a,b)=>b.ls-a.ls).slice(0,30));
+                document.getElementById('count').textContent='Trending worldwide';
+            }else if(tab==='countries'){
+                const countries=[...new Set(allStations.map(s=>s.c))].sort();
+                sub.style.display='flex';
+                sub.innerHTML=countries.map(c=>'<button onclick="filterByCountry(\\''+c.replace(/'/g,"\\\\'")+'\\',this)">'+c+'</button>').join('');
+                document.getElementById('count').textContent=countries.length+' countries';
+            }else if(tab==='genres'){
+                const genres=[...new Set(allStations.map(s=>s.f).filter(f=>f))].sort().slice(0,20);
+                sub.style.display='flex';
+                sub.innerHTML=genres.map(g=>'<button onclick="filterByGenre(\\''+g.replace(/'/g,"\\\\'")+'\\',this)">'+g+'</button>').join('');
+                document.getElementById('count').textContent=genres.length+' genres';
+            }else if(tab==='favorites'){
+                sub.style.display='none';
+                const favStations=allStations.filter(s=>favs.includes(s.id));
+                renderStations(favStations.length>0?favStations:[]);
+                document.getElementById('count').textContent=favStations.length+' favorites';
+            }
+        }
+        
+        function filterByCountry(c,el){
+            document.querySelectorAll('#subTabs button').forEach(b=>b.classList.remove('on'));
+            if(el)el.classList.add('on');
+            renderStations(allStations.filter(s=>s.c===c));
+            document.getElementById('count').textContent=c+' stations';
+        }
+        
+        function filterByGenre(g,el){
+            document.querySelectorAll('#subTabs button').forEach(b=>b.classList.remove('on'));
+            if(el)el.classList.add('on');
+            renderStations(allStations.filter(s=>s.f===g));
+            document.getElementById('count').textContent=g+' stations';
+        }
+        
+        function renderStations(arr){
+            const grid=document.getElementById('grid');
+            if(arr.length===0){
+                grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)">No stations found</div>';
+                return;
+            }
+            grid.innerHTML=arr.map(s=>{
+                const flag=COUNTRIES[s.cc]||'🌐';
+                const gc=GC[s.f]||GC.Default;
+                const isF=favs.includes(s.id);
+                return '<div class="card" data-genre="'+(s.f||'')+'" data-country="'+(s.c||'')+'" data-name="'+(s.n||'').toLowerCase()+'">'+
+                    '<button class="fav-btn'+(isF?' faved':'')+'" onclick="toggleFav(\\''+(s.id||'').replace(/'/g,"\\\\'")+'\\',this)">'+(isF?'★':'☆')+'</button>'+
+                    '<div class="country-row"><span class="flag">'+flag+'</span><span class="country">'+(s.c||'Unknown')+'</span></div>'+
+                    '<h3>'+(s.n||'Unknown')+'</h3>'+
+                    '<div class="genre-bar" style="background:'+gc+'"></div>'+
+                    '<div class="meta-row"><span class="listeners">👥 '+(s.ls||0).toLocaleString()+'</span><span class="quality">📶 '+(s.b||'?')+'kbps</span></div>'+
+                    '<button class="btn" onclick="play(\\''+s.u+'\\',\\''+(s.n||'Unknown').replace(/'/g,"\\\\'")+'\\')">▶ Tune</button>'+
+                    '</div>';
+            }).join('');
+            document.getElementById('totalListeners').textContent='👥 '+arr.reduce((a,s)=>a+(s.ls||0),0).toLocaleString()+' listeners';
+        }
+        
+        function updateCount(){
+            const visible=document.querySelectorAll('.card:not([style*="display: none"])').length;
+            document.getElementById('count').textContent=visible+' showing';
+        }
+        
+        // Init fav buttons
+        document.querySelectorAll('.fav-btn').forEach(b=>{
+            const card=b.closest('.card');
+            const idx=Array.from(document.querySelectorAll('.card')).indexOf(card);
+            const s=allStations.sort((a,b)=>b.ls-a.ls).slice(0,30)[idx];
+            if(s&&favs.includes(s.id)){b.classList.add('faved');b.textContent='★';}
+        });
+        `
     ));
 });
 
-app.get('/radio', (req, res) => {
-    const st = STATIONS;
-    res.send(H(`Radio · ${st.length} stations — RADIO🎙CEDAR`, `
-        <div class="main">
-            <h1>Radio · ${st.length} stations</h1>
-            <div class="grid">
-                ${st.map(s => `
-                <div class="card">
-                    <h3>${s.n}</h3>
-                    <p class="m">${s.b}kbps · ${s.l}</p>
-                    <button class="btn p" onclick="play('${s.u}','${s.n.replace(/'/g,"\\'")}')">▶ Tune</button>
-                </div>`).join('')}
-            </div>
-        </div>`
-    ));
-});
-
-app.get('/tv', (req, res) => {
-    res.send(H('TV · 6 channels — RADIO🎙CEDAR', `
-        <div class="main">
-            <h1>TV · 6 channels</h1>
-            <div class="tv-grid">
-                ${TV.map(c => `
-                <div class="tv-card">
-                    <iframe src="https://www.youtube.com/embed/live_stream?channel=${c.i}" allow="autoplay;encrypted-media" allowfullscreen loading="lazy"></iframe>
-                    <div class="info">
-                        <h3>${c.n}</h3>
-                        <a href="https://youtube.com/${c.h}/live" target="_blank" class="btn">YouTube →</a>
-                    </div>
-                </div>`).join('')}
-            </div>
-        </div>`
-    ));
-});
-
-app.listen(PORT, () => console.log(`RADIO🎙CEDAR → http://localhost:${PORT}`));
+app.listen(PORT, () => console.log(`🌍 Dial Earth → http://localhost:${PORT}`));
