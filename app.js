@@ -20,7 +20,8 @@ const R = {
 
 async function S() {
     try {
-        const { data } = await axios.get('https://de1.api.radio-browser.info/json/stations/bycountrycodeexact/LB', { timeout: 8000 });
+        const { data } = await axios.get('https://at1.api.radio-browser.info/json/stations/bycountrycodeexact/LB', { timeout: 10000 });
+        if (!data || !data.length) throw new Error('Empty');
         return data.filter(s => s.url_resolved && s.name).slice(0, 30).map(s => ({
             n: s.name, u: s.url_resolved, b: s.bitrate || '128', c: s.codec || 'MP3', l: s.language || 'Arabic', v: s.votes || 0
         })).sort((a, b) => b.v - a.v);
@@ -30,7 +31,10 @@ async function S() {
             { n: "Voice of Lebanon 100.5", u: "https://stream.zeno.fm/8z5x2kq7y5vtv", b: "128", c: "MP3", l: "Arabic", v: 95 },
             { n: "NRJ Lebanon 99.1", u: "https://stream.zeno.fm/xycruze3k0hvv", b: "128", c: "MP3", l: "Arabic/English", v: 90 },
             { n: "Mix FM 104.4", u: "https://stream.zeno.fm/80mw4qg2h8quv", b: "128", c: "MP3", l: "English", v: 85 },
-            { n: "Radio Orient 88.7", u: "https://stream.zeno.fm/7q5xy85k3v8uv", b: "128", c: "MP3", l: "Arabic", v: 80 }
+            { n: "Radio Orient 88.7", u: "https://stream.zeno.fm/7q5xy85k3v8uv", b: "128", c: "MP3", l: "Arabic", v: 80 },
+            { n: "Sawt El Ghad 96.7", u: "https://stream.zeno.fm/6z8x5kq7y5vtv", b: "128", c: "MP3", l: "Arabic", v: 75 },
+            { n: "Radio One 105.5", u: "https://stream.zeno.fm/9a3x5kq7y5vtv", b: "128", c: "MP3", l: "English", v: 70 },
+            { n: "Light FM 93.5", u: "https://stream.zeno.fm/4b7x5kq7y5vtv", b: "128", c: "MP3", l: "Arabic", v: 65 }
         ];
     }
 }
@@ -39,7 +43,7 @@ const CSS = `
 :root {
     --bg: #000; --card: #080808; --text: #ccc; --muted: #444;
     --a: #0ff; --a2: #f0f; --g: 0 0 20px rgba(0,255,255,0.15);
-    --b: 1px solid rgba(255,255,255,0.04); --r: 10px;
+    --b: 1px solid rgba(255,255,255,0.04); --r: 8px;
 }
 .t1 { --bg: #000; --card: #080808; --a: #0ff; --a2: #f0f; }
 .t2 { --bg: #030703; --card: #080e08; --a: #3f4; --a2: #3f4; }
@@ -47,7 +51,7 @@ const CSS = `
 
 * { margin:0;padding:0;box-sizing:border-box }
 body {
-    font:400 14px 'Space Mono',monospace;
+    font:400 13px 'Space Mono',monospace;
     background:var(--bg);color:var(--text);
     min-height:100vh;-webkit-tap-highlight-color:transparent;
     transition:background .4s;
@@ -56,94 +60,115 @@ body {
 
 nav {
     display:flex;justify-content:space-between;align-items:center;
-    padding:12px 16px;background:var(--bg);
+    padding:10px 16px;background:var(--bg);
     border-bottom:var(--b);position:sticky;top:0;z-index:100;
 }
 .logo {
-    font-size:.95rem;font-weight:700;color:var(--a);
+    font-size:.9rem;font-weight:700;color:var(--a);
     text-shadow:var(--g);text-decoration:none;letter-spacing:1px;
 }
-.nr { display:flex;gap:4px;align-items:center }
+.nr { display:flex;gap:3px;align-items:center }
 .nr a, .nr button {
-    color:var(--muted);text-decoration:none;font-size:.7rem;
-    padding:6px 10px;border-radius:6px;transition:.3s;
+    color:var(--muted);text-decoration:none;font-size:.65rem;
+    padding:5px 8px;border-radius:5px;transition:.3s;
     background:none;border:var(--b);cursor:pointer;
     font-family:'Space Mono',monospace;
 }
 .nr a:hover, .nr button.on { color:var(--a);border-color:var(--a) }
 
-.main { max-width:640px;margin:0 auto;padding:16px }
-h1 { color:var(--a);font-size:1.1rem;font-weight:400;margin-bottom:14px }
+.main { max-width:900px;margin:0 auto;padding:14px 16px }
+h1 { color:var(--a);font-size:1rem;font-weight:400;margin-bottom:12px }
 
-/* Dial */
-.dial {
-    max-width:300px;margin:20px auto;background:var(--card);
-    border:var(--b);border-radius:var(--r);padding:24px;text-align:center;
+/* ── 2-3 Column Grid ── */
+.grid {
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
 }
-.dial .freq { color:var(--a2);font-size:.95rem;margin-bottom:2px }
-.dial .name { color:var(--muted);font-size:.65rem;margin-bottom:16px }
-.dial .ctrls { display:flex;justify-content:center;align-items:center;gap:10px }
-.dial .ctrls button {
-    width:40px;height:40px;border-radius:50%;border:var(--b);
-    background:none;color:var(--a);font-size:.8rem;cursor:pointer;
-    transition:.3s;font-family:'Space Mono',monospace;
+@media (max-width:700px) {
+    .grid { grid-template-columns:repeat(2,1fr) }
 }
-.dial .ctrls .play { width:52px;height:52px;font-size:1.1rem;border-color:var(--a) }
+@media (max-width:400px) {
+    .grid { grid-template-columns:1fr }
+}
 
-/* Regions */
-.regions { display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:14px 0 }
-.regions button {
-    background:none;border:var(--b);color:var(--muted);
-    padding:4px 10px;border-radius:14px;cursor:pointer;
-    font:.6rem 'Space Mono',monospace;transition:.3s;
-}
-.regions button.on { border-color:var(--a);color:var(--a) }
-
-/* Cards */
-.grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px }
 .card {
-    background:var(--card);padding:14px;border-radius:var(--r);
+    background:var(--card);padding:12px;border-radius:var(--r);
     border:var(--b);transition:.3s;
+    display:flex;flex-direction:column;justify-content:space-between;
+    min-height:0;
 }
 .card:active { border-color:var(--a) }
-.card h3 { color:#fff;font-size:.8rem;font-weight:400;margin-bottom:6px }
-.card .m { color:var(--muted);font-size:.6rem;margin-bottom:10px }
+.card h3 { color:#fff;font-size:.75rem;font-weight:400;margin-bottom:4px;line-height:1.2 }
+.card .m { color:var(--muted);font-size:.58rem;margin-bottom:8px }
 
 .btn {
     background:none;border:1px solid var(--a);color:var(--a);
-    padding:6px 14px;border-radius:6px;cursor:pointer;
-    font:.65rem 'Space Mono',monospace;text-decoration:none;
-    display:inline-block;transition:.3s;
+    padding:5px 12px;border-radius:5px;cursor:pointer;
+    font:.6rem 'Space Mono',monospace;text-decoration:none;
+    display:inline-block;transition:.3s;text-align:center;
+    width:100%;
 }
 .btn:active { background:rgba(0,255,255,.04) }
 .btn.p { border-color:var(--a2);color:var(--a2) }
 
-/* TV */
-.tv-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px }
+/* TV — 2 columns */
+.tv-grid {
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+}
+@media (max-width:600px) {
+    .tv-grid { grid-template-columns:1fr }
+}
 .tv-card { background:var(--card);border-radius:var(--r);overflow:hidden;border:var(--b) }
 .tv-card iframe { width:100%;height:160px;border:none;background:#000 }
-.tv-card .info { padding:12px }
-.tv-card .info h3 { color:var(--a);font-size:.8rem;font-weight:400;margin-bottom:6px }
+.tv-card .info { padding:10px }
+.tv-card .info h3 { color:var(--a);font-size:.75rem;font-weight:400;margin-bottom:6px }
+
+/* Dial */
+.dial {
+    max-width:300px;margin:16px auto;background:var(--card);
+    border:var(--b);border-radius:var(--r);padding:20px;text-align:center;
+}
+.dial .freq { color:var(--a2);font-size:.9rem;margin-bottom:2px }
+.dial .name { color:var(--muted);font-size:.6rem;margin-bottom:14px }
+.dial .ctrls { display:flex;justify-content:center;align-items:center;gap:10px }
+.dial .ctrls button {
+    width:38px;height:38px;border-radius:50%;border:var(--b);
+    background:none;color:var(--a);font-size:.75rem;cursor:pointer;
+    transition:.3s;font-family:'Space Mono',monospace;
+}
+.dial .ctrls .play { width:48px;height:48px;font-size:1rem;border-color:var(--a) }
+
+/* Regions */
+.regions { display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:12px 0 }
+.regions button {
+    background:none;border:var(--b);color:var(--muted);
+    padding:3px 8px;border-radius:12px;cursor:pointer;
+    font:.55rem 'Space Mono',monospace;transition:.3s;
+}
+.regions button.on { border-color:var(--a);color:var(--a) }
 
 /* Featured */
 .ft {
-    max-width:300px;margin:16px auto;background:var(--card);
-    border:var(--b);border-radius:var(--r);padding:18px;text-align:center;
+    max-width:300px;margin:14px auto;background:var(--card);
+    border:var(--b);border-radius:var(--r);padding:16px;text-align:center;
 }
-.ft .name { color:var(--text);font-size:.95rem;margin:6px 0 }
-.ft .m { color:var(--muted);font-size:.6rem;margin-bottom:12px }
+.ft .name { color:var(--text);font-size:.85rem;margin:6px 0 }
+.ft .m { color:var(--muted);font-size:.55rem;margin-bottom:10px }
 
 /* Nav cards */
-.nc { display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:300px;margin:16px auto }
+.nc { display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:300px;margin:14px auto }
 .nc a {
-    background:var(--card);padding:16px;border-radius:var(--r);
+    background:var(--card);padding:14px;border-radius:var(--r);
     border:var(--b);text-align:center;text-decoration:none;
     color:var(--text);transition:.3s;
 }
 .nc a:active { border-color:var(--a) }
-.nc a .ic { font-size:1.6rem;margin-bottom:4px }
-.nc a h3 { color:#fff;font-size:.75rem;font-weight:400 }
-.nc a p { color:var(--muted);font-size:.6rem }
+.nc a .ic { font-size:1.4rem;margin-bottom:4px }
+.nc a h3 { color:#fff;font-size:.7rem;font-weight:400 }
+.nc a p { color:var(--muted);font-size:.55rem }
 
 /* Player */
 .player {
@@ -153,35 +178,35 @@ h1 { color:var(--a);font-size:1.1rem;font-weight:400;margin-bottom:14px }
 }
 .player.on { display:flex }
 .player.car { padding:14px;gap:14px }
-.player span { color:var(--a);font-size:.65rem;min-width:60px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
+.player span { color:var(--a);font-size:.6rem;min-width:50px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis }
 .player audio { flex:1;height:28px;border-radius:4px }
 .player.car audio { height:44px }
 .player .cls {
     background:none;border:var(--b);color:var(--muted);
     padding:4px 8px;border-radius:4px;cursor:pointer;
-    font:.65rem 'Space Mono',monospace;
+    font:.6rem 'Space Mono',monospace;
 }
 
 /* Theme */
 .tb {
     position:fixed;bottom:14px;right:14px;z-index:999;
-    width:38px;height:38px;border-radius:50%;
+    width:36px;height:36px;border-radius:50%;
     border:2px solid var(--a);background:var(--bg);color:var(--a);
-    cursor:pointer;font-size:.9rem;box-shadow:var(--g);
+    cursor:pointer;font-size:.85rem;box-shadow:var(--g);
     transition:.3s;font-family:'Space Mono',monospace;
 }
 .tb:active { transform:scale(.9) }
 .tp {
-    position:fixed;bottom:64px;right:14px;z-index:999;
+    position:fixed;bottom:60px;right:14px;z-index:999;
     display:flex;flex-direction:column;gap:6px;
-    background:var(--card);padding:8px;border-radius:12px;
+    background:var(--card);padding:8px;border-radius:10px;
     border:var(--b);opacity:0;transform:translateY(8px);
     pointer-events:none;transition:.3s;
 }
 .tp.open { opacity:1;transform:translateY(0);pointer-events:all }
 .tp button {
-    width:32px;height:32px;border-radius:50%;border:2px solid transparent;
-    cursor:pointer;font-size:.7rem;background:var(--bg);color:var(--text);
+    width:30px;height:30px;border-radius:50%;border:2px solid transparent;
+    cursor:pointer;font-size:.65rem;background:var(--bg);color:var(--text);
     transition:.3s;font-family:'Space Mono',monospace;
 }
 .tp .tc { border-color:#0ff;color:#0ff }
@@ -190,13 +215,6 @@ h1 { color:var(--a);font-size:1.1rem;font-weight:400;margin-bottom:14px }
 
 .overlay { position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:998;display:none }
 .overlay.show { display:block }
-
-@media (max-width:500px) {
-    .grid,.tv-grid { grid-template-columns:1fr }
-    .player { flex-direction:column;padding:8px }
-    .player audio { width:100% }
-    .logo { font-size:.85rem }
-}
 `;
 
 function H(title, body, js = '') {
@@ -266,9 +284,9 @@ app.get('/', async (req, res) => {
     const st = await S();
     const ft = st[Math.floor(Math.random() * Math.min(5, st.length))];
     res.send(H('RADIO🎙CEDAR', `
-        <div style="text-align:center;padding:24px 14px">
-            <h1 style="font-size:1.8rem">RADIO🎙CEDAR</h1>
-            <p style="color:var(--muted);font-size:.75rem;margin-bottom:14px">Lebanon's voice, wherever you are</p>
+        <div style="text-align:center;padding:20px 14px">
+            <h1 style="font-size:1.6rem">RADIO🎙CEDAR</h1>
+            <p style="color:var(--muted);font-size:.7rem;margin-bottom:12px">Lebanon's voice, wherever you are</p>
             <div class="regions">
                 ${Object.entries(R).map(([k,v]) => `<button onclick="region('${k}',this)">${v}</button>`).join('')}
             </div>
@@ -308,7 +326,7 @@ app.get('/', async (req, res) => {
 
 app.get('/radio', async (req, res) => {
     const st = await S();
-    res.send(H('Radio — RADIO🎙CEDAR', `
+    res.send(H(`Radio · ${st.length} stations — RADIO🎙CEDAR`, `
         <div class="main">
             <h1>Radio · ${st.length} stations</h1>
             <div class="grid">
@@ -324,7 +342,7 @@ app.get('/radio', async (req, res) => {
 });
 
 app.get('/tv', (req, res) => {
-    res.send(H('TV — RADIO🎙CEDAR', `
+    res.send(H('TV · 6 channels — RADIO🎙CEDAR', `
         <div class="main">
             <h1>TV · 6 channels</h1>
             <div class="tv-grid">
