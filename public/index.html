@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>وردة - Lebanese Diaspora Hub</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: #0b1a0f;
+      color: #e0d7c6;
+      padding: 20px;
+      max-width: 1000px;
+      margin: auto;
+    }
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      color: #c4a35a;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .panel {
+      background: #142218;
+      border: 1px solid #2f3e2c;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    .panel h2 {
+      color: #d4af37;
+      border-bottom: 1px solid #3a4a35;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .news-source h3 {
+      color: #b89b4b;
+      margin: 12px 0 6px;
+    }
+    .news-item {
+      padding: 8px 0;
+      border-bottom: 1px solid #2e3a2b;
+    }
+    .news-item a {
+      color: #d1c4a5;
+      text-decoration: none;
+    }
+    .news-item a:hover {
+      color: #f5e6c6;
+    }
+    .radio-buttons {
+      margin: 10px 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .radio-btn {
+      background: #1f3322;
+      color: #c4a35a;
+      border: 1px solid #4a5e3f;
+      padding: 6px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+    }
+    .radio-btn.active {
+      background: #3a502b;
+      color: #fff;
+    }
+    audio, iframe {
+      width: 100%;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+    iframe {
+      height: 240px;
+    }
+    .tv-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .tv-channel {
+      flex: 1 1 45%;
+      text-align: center;
+    }
+    .tv-channel iframe {
+      height: 200px;
+    }
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+      .tv-channel { flex: 1 1 100%; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🇱🇧 وردة Wardé</h1>
+
+  <div class="grid">
+    <!-- News Panel -->
+    <div class="panel" id="news-panel">
+      <h2>📰 أخبار من لبنان</h2>
+      <div id="news-content">جاري تحميل الأخبار...</div>
+    </div>
+
+    <!-- Arabic Music / Radio -->
+    <div class="panel" id="music-panel">
+      <h2>🎵 موسيقى عربية</h2>
+      <div class="radio-buttons" id="radio-list"></div>
+      <audio id="audio-player" controls></audio>
+    </div>
+  </div>
+
+  <!-- TV Section -->
+  <div class="panel">
+    <h2>📺 تلفزيون لبنان (مباشر)</h2>
+    <div class="tv-grid" id="tv-grid"></div>
+  </div>
+
+  <script>
+    // ---------- NEWS FETCH ----------
+    async function loadNews() {
+      const container = document.getElementById('news-content');
+      try {
+        const res = await fetch('/api/news');
+        const sources = await res.json();
+        container.innerHTML = sources.map(source => {
+          const items = source.items.map(item =>
+            `<div class="news-item"><a href="${item.link}" target="_blank">${item.title}</a></div>`
+          ).join('');
+          return `<div class="news-source"><h3>${source.source}</h3>${items || '<p>لا توجد أخبار حالياً</p>'}</div>`;
+        }).join('');
+      } catch {
+        container.innerHTML = '<p>فشل تحميل الأخبار. تأكد من اتصالك بالإنترنت.</p>';
+      }
+    }
+    loadNews();
+
+    // ---------- ARABIC RADIO STREAMS (free Shoutcast/Icecast) ----------
+    const radioStations = [
+      { name: 'راديو لبنان (لبنان)', url: 'https://stream.radiojar.com/a76z8b9vzq8tv' },
+      { name: 'صوت الغد (لبنان)', url: 'http://sawtelghad.com:8000/stream' },
+      { name: 'إذاعة الشرق (مصر - كلاسيكيات)', url: 'https://sharq.ice.infomaniak.ch/sharq-32.aac' },
+      { name: 'راديو نجوم (مصر - حديث)', url: 'https://stream.masr.audio/stream/32' },
+      { name: 'راديو بانوراما (سوريا)', url: 'https://streaming.radionomy.com/RadioPanoramaLattakia' }
+    ];
+
+    const radioListDiv = document.getElementById('radio-list');
+    const audioPlayer = document.getElementById('audio-player');
+
+    radioStations.forEach((station, idx) => {
+      const btn = document.createElement('button');
+      btn.className = 'radio-btn' + (idx === 0 ? ' active' : '');
+      btn.textContent = station.name;
+      btn.onclick = () => {
+        document.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        audioPlayer.src = station.url;
+        audioPlayer.play().catch(() => {}); // autoplay may be blocked
+      };
+      radioListDiv.appendChild(btn);
+    });
+    // Play first station by default
+    audioPlayer.src = radioStations[0].url;
+
+    // ---------- LEBANESE TV (YouTube live embeds, official and free) ----------
+    const tvChannels = [
+      { name: 'LBCI Lebanon', embed: 'https://www.youtube.com/embed/live_stream?channel=UC9h2FJNTk2G5kCUa3B1G91g' },
+      { name: 'MTV Lebanon',  embed: 'https://www.youtube.com/embed/live_stream?channel=UC4FDHXFqAVz0BFS4OoRP8IA' },
+      { name: 'Al Jadeed News', embed: 'https://www.youtube.com/embed/live_stream?channel=UCUhnU2PhvbRPjSzfFytQQKA' },
+      { name: 'OTV Lebanon',  embed: 'https://www.youtube.com/embed/live_stream?channel=UCfY_hXcVwz5B2QwC2N2H1CQ' }
+    ];
+
+    const tvGrid = document.getElementById('tv-grid');
+    tvGrid.innerHTML = tvChannels.map(ch =>
+      `<div class="tv-channel">
+        <strong>${ch.name}</strong>
+        <iframe src="${ch.embed}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>`
+    ).join('');
+  </script>
+</body>
+</html>
