@@ -25,7 +25,8 @@
       daysLeft: n => n === 0 ? 'اليوم' : n === 1 ? 'بكرا' : `بعد ${S.num(n)} يوم`,
       close: 'سكّر',
       scenes: { sunrise: 'طلوع الشمس', day: 'الضهر', afternoon: 'بعد الضهر', sunset: 'المغرب', night: 'الليل' },
-      sceneManual: 'اضغط لتغيّر الوقت',
+      sceneManual: 'اضغط لتغيّر الوقت والطقس',
+      timeLabel: 'الوقت', weatherLabel: 'الطقس', autoBeirut: 'متل بيروت هلّق', clearW: 'صحو', rainW: 'شتي',
       beirut: 'بيروت',
       here: 'عندك',
       objects: {
@@ -38,9 +39,9 @@
         cassettes: 'الزمن الجميل', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'الطقس', calendar: 'المناسبات',
         coffee: 'نقرا الفنجان؟', books: 'طبخات تيتا'
       },
-      tvLede: 'شغّل التلفزيون على المحطات اللبنانية، مباشرة.',
+      tvLede: 'اختار قناة، وبتشتغل هون عالتلفزيون.',
       photosLede: 'رسائل من الغربة لأهلنا بلبنان.',
-      cassettesLede: 'كاسيت لكل جوّ. بيفتح على Spotify.',
+      cassettesLede: 'كاسيت لكل جوّ. اضغط وبتشتغل هون بالبيت.',
       lampLede: 'سكّر الراديو لحاله بعد شوي، وإنت عم تغفى.',
       approxNote: 'الأعياد الهجرية تقريبية وبتتأكد مع رؤية الهلال.',
       coffeeLede: 'اشرب القهوة، اقلب الفنجان، وخلّينا نشوف شو مكتوبلك. (للتسلية بس!)',
@@ -49,7 +50,7 @@
       coffeeSee: 'شايف بالفنجان',
       sunrise: 'طلوع الشمس', sunset: 'غياب الشمس', iftar: 'الإفطار تقريباً', today: 'اليوم', inDays: n => n === 1 ? 'بكرا' : `بعد ${S.num(n)} يوم`,
       serves: n => `لـ ${S.num(n)} أشخاص`, minutes: n => `${S.num(n)} دقيقة`, ingredients: 'المكوّنات', method: 'الطريقة',
-      playOnSpotify: 'افتح على Spotify', listen: 'اسمع',
+      playOnSpotify: 'شغّل', listen: 'اسمع',
       nowOutside: (w, t) => `هلّق ببيروت: ${w}، ${t}°`,
       credits: 'مجسّمات من Khronos glTF Sample Assets (CC BY 4.0 وCC0).'
     },
@@ -66,7 +67,8 @@
       daysLeft: n => n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : `In ${n} days`,
       close: 'Close',
       scenes: { sunrise: 'Sunrise', day: 'Midday', afternoon: 'Afternoon', sunset: 'Sunset', night: 'Night' },
-      sceneManual: 'Tap to change the time',
+      sceneManual: 'Tap to change the time and weather',
+      timeLabel: 'Time of day', weatherLabel: 'Weather', autoBeirut: 'Like Beirut now', clearW: 'Clear', rainW: 'Rain',
       beirut: 'Beirut',
       here: 'Where you are',
       objects: {
@@ -79,9 +81,9 @@
         cassettes: 'Golden-age classics', clock: 'Alarm', lamp: 'Sleep timer', window: 'Weather', calendar: 'Occasions',
         coffee: 'Read my cup?', books: 'Teta’s recipes'
       },
-      tvLede: 'Lebanese channels, live.',
+      tvLede: 'Pick a channel and it plays right here on the TV.',
       photosLede: 'Messages from abroad to family in Lebanon.',
-      cassettesLede: 'A tape for every mood. Opens in Spotify.',
+      cassettesLede: 'A tape for every mood. Tap one and it plays right here.',
       lampLede: 'Let the radio switch itself off while you drift to sleep.',
       approxNote: 'Islamic holidays are approximate and confirmed by the moon sighting.',
       coffeeLede: 'Finish your coffee, flip the cup, and let’s see what it says. (Just for fun!)',
@@ -90,7 +92,7 @@
       coffeeSee: 'I can see',
       sunrise: 'Sunrise', sunset: 'Sunset', iftar: 'Iftar, around', today: 'Today', inDays: n => n === 1 ? 'Tomorrow' : `In ${n} days`,
       serves: n => `Serves ${n}`, minutes: n => `${n} min`, ingredients: 'Ingredients', method: 'Method',
-      playOnSpotify: 'Open in Spotify', listen: 'Listen',
+      playOnSpotify: 'Play', listen: 'Listen',
       nowOutside: (w, t) => `Beirut right now: ${w}, ${t}°`,
       credits: '3D models from Khronos glTF Sample Assets (CC BY 4.0 and CC0).'
     },
@@ -107,7 +109,8 @@
       daysLeft: n => n === 0 ? 'Aujourd’hui' : n === 1 ? 'Demain' : `Dans ${n} jours`,
       close: 'Fermer',
       scenes: { sunrise: 'Lever du soleil', day: 'Midi', afternoon: 'Après-midi', sunset: 'Coucher du soleil', night: 'Nuit' },
-      sceneManual: 'Touchez pour changer l’heure',
+      sceneManual: 'Touchez pour changer l’heure et la météo',
+      timeLabel: 'Moment', weatherLabel: 'Météo', autoBeirut: 'Comme à Beyrouth', clearW: 'Dégagé', rainW: 'Pluie',
       beirut: 'Beyrouth',
       here: 'Chez vous',
       objects: {
@@ -120,9 +123,9 @@
         cassettes: 'Les classiques', clock: 'Réveil', lamp: 'Minuterie', window: 'Météo', calendar: 'Fêtes',
         coffee: 'Lire ma tasse ?', books: 'Les recettes de Teta'
       },
-      tvLede: 'Les chaînes libanaises, en direct.',
+      tvLede: 'Choisissez une chaîne, elle passe ici, sur la télé.',
       photosLede: 'Des messages de l’étranger pour la famille au Liban.',
-      cassettesLede: 'Une cassette pour chaque ambiance. S’ouvre dans Spotify.',
+      cassettesLede: 'Une cassette pour chaque ambiance. Touchez, elle joue ici.',
       lampLede: 'La radio s’éteint toute seule pendant que vous vous endormez.',
       approxNote: 'Les fêtes musulmanes sont approximatives, selon l’observation de la lune.',
       coffeeLede: 'Finissez votre café, retournez la tasse, et voyons ce qu’elle dit. (Pour rire !)',
@@ -131,7 +134,7 @@
       coffeeSee: 'Je vois',
       sunrise: 'Lever', sunset: 'Coucher', iftar: 'Iftar, vers', today: 'Aujourd’hui', inDays: n => n === 1 ? 'Demain' : `Dans ${n} jours`,
       serves: n => `Pour ${n}`, minutes: n => `${n} min`, ingredients: 'Ingrédients', method: 'Préparation',
-      playOnSpotify: 'Ouvrir dans Spotify', listen: 'Écouter',
+      playOnSpotify: 'Écouter', listen: 'Écouter',
       nowOutside: (w, t) => `À Beyrouth en ce moment : ${w}, ${t}°`,
       credits: 'Modèles 3D : Khronos glTF Sample Assets (CC BY 4.0 et CC0).'
     }
@@ -257,7 +260,44 @@
     uniform sampler2D t0;
     uniform sampler2D t1;
     uniform float mixv;
+    uniform sampler2D tm;      // where the window glass is
+    uniform float rain;        // 0 dry .. 1 pouring
+    uniform float time;
+    uniform float flash;       // lightning
     const float PI = 3.14159265;
+    float h21(vec2 q) { q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }
+    // Running drops with trails on glass (after Martijn Steinrucken's "Heartfelt" idea).
+    vec3 drops(vec2 g0, float t) {
+      vec2 aspect = vec2(2.0, 1.0);
+      vec2 g = g0 * aspect;
+      g.y += t * 0.25;
+      vec2 id = floor(g);
+      vec2 gv = fract(g) - 0.5;
+      float n = h21(id);
+      t += n * 6.2831;
+      float wv = g0.y * 10.0;
+      float x = (n - 0.5) * 0.8;
+      x += (0.4 - abs(x)) * sin(3.0 * wv) * pow(sin(wv), 6.0) * 0.45;
+      float y = -sin(t + sin(t + sin(t) * 0.5)) * 0.45;
+      y -= (gv.x - x) * (gv.x - x);
+      vec2 dp = (gv - vec2(x, y)) / aspect;
+      float drop = smoothstep(0.05, 0.03, length(dp));
+      vec2 tp = (gv - vec2(x, t * 0.25)) / aspect;
+      tp.y = (fract(tp.y * 8.0) - 0.5) / 8.0;
+      float trail = smoothstep(0.03, 0.01, length(tp));
+      float fog = smoothstep(-0.05, 0.05, dp.y) * smoothstep(0.5, y, gv.y);
+      trail *= fog;
+      return vec3(drop * dp + trail * tp, max(drop, trail));
+    }
+    vec3 beads(vec2 g) {      // small still droplets
+      vec2 id = floor(g); vec2 gv = fract(g) - 0.5;
+      float n = h21(id);
+      vec2 c = vec2(n - 0.5, fract(n * 7.3) - 0.5) * 0.7;
+      vec2 d = gv - c;
+      float r = 0.08 + 0.12 * fract(n * 13.1);
+      float m = smoothstep(r, r * 0.6, length(d)) * step(0.35, fract(n * 3.7));
+      return vec3(d * m * 0.6, m);
+    }
     void main(){
       vec3 d = normalize(rot * vec3(p.x * th.x, p.y * th.y, -1.0));
       float lon = atan(d.x, -d.z);
@@ -265,6 +305,26 @@
       vec2 uv = vec2(0.5 + lon / (2.0 * PI), 0.5 - lat / PI);
       vec4 c = texture2D(t0, uv);
       if (mixv > 0.0) c = mix(c, texture2D(t1, uv), mixv);
+      if (rain > 0.001) {
+        float m = texture2D(tm, uv).r;
+        if (m > 0.02) {
+          vec2 st = vec2(lon, lat) * 9.0;
+          vec3 a = drops(st, time);
+          vec3 b = drops(st * 1.65 + vec2(7.54, 2.1), time * 1.1);
+          vec3 e = beads(st * 6.0);
+          vec2 o = (a.xy + b.xy * 0.7 + e.xy) * rain;
+          float wetness = max(max(a.z, b.z), e.z);
+          vec2 u2 = uv + o * 0.02;
+          float bl = 0.0016 * (1.0 - wetness);    // drops are clear, the fogged glass between is soft
+          vec3 g = (texture2D(t0, u2 + vec2(bl, 0.0)).rgb + texture2D(t0, u2 - vec2(bl, 0.0)).rgb +
+                    texture2D(t0, u2 + vec2(0.0, bl)).rgb + texture2D(t0, u2 - vec2(0.0, bl)).rgb) * 0.25;
+          g *= mix(vec3(0.82, 0.86, 0.95), vec3(1.0), wetness * 0.6);
+          g += wetness * 0.035;
+          c.rgb = mix(c.rgb, g, clamp(m, 0.0, 1.0) * rain);
+          c.rgb += flash * m * 0.9;
+        }
+      }
+      c.rgb += flash * 0.06;
       gl_FragColor = vec4(c.rgb, 1.0);
     }`;
 
@@ -294,9 +354,10 @@
     const a = gl.getAttribLocation(prog, 'a');
     gl.enableVertexAttribArray(a);
     gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    for (const n of ['rot', 'th', 't0', 't1', 'mixv']) uni[n] = gl.getUniformLocation(prog, n);
+    for (const n of ['rot', 'th', 't0', 't1', 'mixv', 'tm', 'rain', 'time', 'flash']) uni[n] = gl.getUniformLocation(prog, n);
     gl.uniform1i(uni.t0, 0);
     gl.uniform1i(uni.t1, 1);
+    gl.uniform1i(uni.tm, 2);
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); }, false);
     canvas.addEventListener('webglcontextrestored', () => { initGL(); if (currentImg) setTexture(0, currentImg); needsDraw = true; });
     return true;
@@ -304,7 +365,7 @@
 
   function setTexture(unit, img) {
     if (!tex[unit]) tex[unit] = gl.createTexture();
-    gl.activeTexture(unit ? gl.TEXTURE1 : gl.TEXTURE0);
+    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2][unit]);
     gl.bindTexture(gl.TEXTURE_2D, tex[unit]);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
@@ -342,8 +403,12 @@
       gl.uniformMatrix3fv(uni.rot, false, [...rr, ...u, -f[0], -f[1], -f[2]]);
       gl.uniform2fv(uni.th, tanHalf());
       gl.uniform1f(uni.mixv, mixAmount);
+      gl.uniform1f(uni.rain, tex[2] ? rainNow : 0);
+      gl.uniform1f(uni.time, (performance.now() / 1000) % 3600);
+      gl.uniform1f(uni.flash, flashNow);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[0]);
       if (tex[1]) { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[1]); }
+      if (tex[2]) { gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, tex[2]); }
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     } else if (!gl && currentImg) {
       // No WebGL: slide a flat strip of the panorama instead.
@@ -541,9 +606,44 @@
         fade = null;
       }
     }
+    // weather: ease the rain in and out; keep the drops moving (about 30 fps)
+    const target = rainTarget();
+    if (Math.abs(rainNow - target) > 0.002) { rainNow += (target - rainNow) * 0.03; needsDraw = true; }
+    if (rainNow > 0.01 && !document.hidden && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
+    if (stormy() && rainNow > 0.5 && now > nextFlash) {
+      flashNow = 1; nextFlash = now + 9000 + Math.random() * 22000;
+    }
+    if (flashNow > 0) { flashNow = Math.max(0, flashNow - 0.06); needsDraw = true; }
     if (needsDraw) { needsDraw = false; draw(); }
     requestAnimationFrame(frame);
   }
+
+  // ------------------------------------------------------------------ weather on the window
+  let rainNow = 0, flashNow = 0, lastRainDraw = 0, nextFlash = performance.now() + 6000;
+  let weatherMode = 'auto';              // auto | clear | rain
+  function beirutCode() {
+    const w = S.weather();
+    const c = w && (w.cities || []).find(x => x.id === 'beirut');
+    return c ? c.code : null;
+  }
+  function rainingInBeirut() {
+    const code = beirutCode();
+    return code !== null && ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || code >= 95);
+  }
+  function stormy() { const c = beirutCode(); return weatherMode === 'auto' && c !== null && c >= 95; }
+  function isRaining() { return weatherMode === 'rain' || (weatherMode === 'auto' && rainingInBeirut()); }
+  function rainTarget() {
+    if (!isRaining()) return 0;
+    const code = beirutCode();
+    if (weatherMode === 'rain' || code === null) return 0.85;
+    if (code === 51 || code === 56 || code === 61 || code === 80) return 0.55;    // light
+    return 0.95;
+  }
+  function loadMask() {
+    if (!gl) return;
+    loadImage('/room/mask.png').then(img => { setTexture(2, img); needsDraw = true; }).catch(() => {});
+  }
+  document.addEventListener('sawt:weather', () => { renderSceneChip(); needsDraw = true; });
 
   // ------------------------------------------------------------------ hint
 
@@ -589,18 +689,52 @@
   const chip = $('scene-chip');
   function renderSceneChip() {
     const now = new Date();
-    chip.replaceChildren(
+    const wet = isRaining();
+    chip.replaceChildren(...[
       el('span', { className: 'scene-dot scene-' + scene }),
       el('span', { className: 'scene-name', text: r('scenes')[scene] }),
+      wet ? el('span', { className: 'scene-rain', 'aria-hidden': 'true' }) : null,
       el('span', { className: 'scene-time', text: `${timeIn(now, 'Asia/Beirut')} · ${r('beirut')}` })
-    );
+    ].filter(Boolean));
     chip.title = r('sceneManual');
-    chip.setAttribute('aria-label', `${r('scenes')[scene]}, ${timeIn(now, 'Asia/Beirut')} ${r('beirut')}. ${r('sceneManual')}`);
+    chip.setAttribute('aria-label', `${r('scenes')[scene]}${wet ? ', ' + r('rainW') : ''}, ${timeIn(now, 'Asia/Beirut')} ${r('beirut')}. ${r('sceneManual')}`);
+    chip.setAttribute('aria-expanded', String(!pop.hidden));
+    renderPop();
   }
-  chip.addEventListener('click', () => {
-    manualScene = true;
-    showScene(SCENES[(SCENES.indexOf(scene) + 1) % SCENES.length], true);
+  // the little panel under the chip: choose the time of day and the weather
+  const pop = el('div', { className: 'scene-pop', id: 'scene-pop', role: 'dialog', hidden: true });
+  chip.after(pop);
+  chip.setAttribute('aria-controls', 'scene-pop');
+  function opt(label, pressed, onClick, cls) {
+    const b = el('button', { type: 'button', className: 'pop-opt' + (cls ? ' ' + cls : ''), text: label });
+    b.setAttribute('aria-pressed', String(pressed));
+    b.addEventListener('click', e => { e.stopPropagation(); onClick(); renderSceneChip(); });
+    return b;
+  }
+  function renderPop() {
+    if (pop.hidden) return;
+    pop.replaceChildren(
+      el('p', { className: 'pop-k', text: r('timeLabel') }),
+      el('div', { className: 'pop-row' }, [
+        opt(r('autoBeirut'), !manualScene, () => { manualScene = false; showScene(sceneFor(), true); }, 'is-auto'),
+        ...SCENES.map(sc => opt(r('scenes')[sc], manualScene && scene === sc, () => { manualScene = true; showScene(sc, true); }, 'scene-opt-' + sc))
+      ]),
+      el('p', { className: 'pop-k', text: r('weatherLabel') }),
+      el('div', { className: 'pop-row' }, [
+        opt(r('autoBeirut'), weatherMode === 'auto', () => { weatherMode = 'auto'; }, 'is-auto'),
+        opt(r('clearW'), weatherMode === 'clear', () => { weatherMode = 'clear'; }),
+        opt(r('rainW'), weatherMode === 'rain', () => { weatherMode = 'rain'; })
+      ])
+    );
+  }
+  chip.addEventListener('click', e => {
+    e.stopPropagation();
+    pop.hidden = !pop.hidden;
+    renderSceneChip();
+    if (!pop.hidden) { const f = pop.querySelector('[aria-pressed="true"]'); if (f) f.focus({ preventScroll: true }); }
   });
+  document.addEventListener('click', e => { if (!pop.hidden && !pop.contains(e.target)) { pop.hidden = true; renderSceneChip(); } });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) { pop.hidden = true; renderSceneChip(); chip.focus(); } });
   setInterval(() => {
     renderSceneChip();
     if (!manualScene) {
@@ -981,9 +1115,9 @@
   // ---- the cassette shelf
   function renderTapes() {
     const lang = S.lang();
+    const playing = window.SawtScreen && window.SawtScreen.current();
     $('tapes').replaceChildren(...(C.moods || []).map(m => {
-      const href = m.spotify ? `https://open.spotify.com/playlist/${m.spotify}` : `https://open.spotify.com/search/${encodeURIComponent(m.q)}`;
-      const a = el('a', { className: 'tape', href, target: '_blank', rel: 'noopener noreferrer' }, [
+      const b = el('button', { type: 'button', className: 'tape' + (playing && playing.mood && playing.mood.id === m.id ? ' is-playing' : '') }, [
         el('span', { className: 'tape-shell' }, [
           el('span', { className: 'tape-label' }, [
             el('span', { className: 'tape-title', text: m[lang] || m.en }),
@@ -993,9 +1127,11 @@
         ]),
         el('span', { className: 'tape-cta', text: r('playOnSpotify') })
       ]);
-      a.style.setProperty('--c1', m.colors[0]);
-      a.style.setProperty('--c2', m.colors[1]);
-      return a;
+      b.dataset.id = m.id;
+      b.style.setProperty('--c1', m.colors[0]);
+      b.style.setProperty('--c2', m.colors[1]);
+      b.addEventListener('click', () => { if (window.SawtScreen) window.SawtScreen.playTape(m); });
+      return b;
     }));
   }
 
@@ -1064,6 +1200,7 @@
     img.addEventListener('error', () => { img.src = doorUrl('afternoon'); }, { once: true });
 
     const ready = showScene(scene, false);
+    loadMask();
     const fast = S.store.get('visited', false) || deepLink();
     if (fast) {
       intro.classList.add('is-quick');
