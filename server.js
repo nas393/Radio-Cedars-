@@ -100,8 +100,12 @@ function toItems(feed, fromGoogle) {
   return (feed.items || [])
     .map(item => {
       let title = cleanText(item.title);
-      // Google News appends " - Publisher" to every headline; drop it.
-      if (fromGoogle) title = title.replace(/\s+[-–]\s+[^-–]+$/, '').trim();
+      // Google News appends " - Publisher" to every headline; drop that last
+      // spaced segment (publisher names like "Al-Manar" keep their own hyphen).
+      if (fromGoogle) {
+        const parts = title.split(/\s[-–]\s/);
+        if (parts.length > 1) title = parts.slice(0, -1).join(' - ').trim();
+      }
       return {
         title,
         link: safeUrl(item.link),
@@ -109,6 +113,9 @@ function toItems(feed, fromGoogle) {
       };
     })
     .filter(item => item.title && item.link)
+    // Google sometimes returns section pages ("Shopping - Lebanon News");
+    // real headlines have at least four words.
+    .filter(item => !fromGoogle || item.title.split(/\s+/).length >= 4)
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
     .slice(0, ITEMS_PER_FEED);
 }
@@ -172,7 +179,8 @@ function hasExpiringToken(url) {
 
 // Playlist files (.pls/.m3u/.asx) can't be played by an <audio> element.
 function isPlaylist(url) {
-  return /\.(pls|m3u|asx|xspf)$/i.test(new URL(url).pathname);
+  // .m3u8 is HLS video/audio, which Chrome and Firefox can't play natively.
+  return /\.(pls|m3u|m3u8|asx|xspf)$/i.test(new URL(url).pathname);
 }
 
 function pickStreamUrl(station) {
@@ -187,7 +195,7 @@ function pickStreamUrl(station) {
 // Same stream listed twice under different names (e.g. "Al Bal Radio" / "راديو عالبال").
 function streamKey(url) {
   const u = new URL(url);
-  return (u.host + u.pathname).toLowerCase().replace(/\/+$/, '');
+  return (u.host + u.pathname).toLowerCase().replace(/\/+$/, '').replace(/\.(mp3|aac)$/, '');
 }
 
 async function fetchJson(url) {
