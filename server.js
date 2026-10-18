@@ -9,21 +9,35 @@ const USER_AGENT = 'Warde/1.1 (Lebanese Diaspora Hub)';
 // ---------------------------------------------------------------------------
 // News feeds
 // ---------------------------------------------------------------------------
+// Each outlet has its own feed plus a Google News fallback for the same site.
+// Many news sites block requests from cloud servers, so the fallback keeps
+// headlines flowing when the direct feed refuses us.
+function googleNews(site, lang) {
+  const locale = lang === 'ar'
+    ? 'hl=ar&gl=LB&ceid=LB:ar'
+    : 'hl=en-US&gl=LB&ceid=LB:en';
+  return `https://news.google.com/rss/search?q=${encodeURIComponent('site:' + site + ' when:2d')}&${locale}`;
+}
+
 const FEEDS = [
-  { name: 'Annahar (Arabic)', url: 'https://www.annahar.com/rss/article.xml' },
-  { name: "L'Orient Today (English)", url: 'https://today.lorientlejour.com/feed.xml' },
-  { name: 'Al-Manar English', url: 'https://eng.almanar.com.lb/feed.php' },
-  { name: 'The961 (English)', url: 'https://www.the961.com/feed' }
+  { name: 'Annahar (Arabic)', url: 'https://www.annahar.com/rss/article.xml', fallback: googleNews('annahar.com', 'ar') },
+  { name: "L'Orient Today (English)", url: 'https://today.lorientlejour.com/feed.xml', fallback: googleNews('today.lorientlejour.com', 'en') },
+  { name: 'Al-Manar English', url: 'https://eng.almanar.com.lb/feed.php', fallback: googleNews('almanar.com.lb', 'en') },
+  { name: 'The961 (English)', url: 'https://www.the961.com/feed/', fallback: googleNews('the961.com', 'en') }
 ];
 
 const ITEMS_PER_FEED = 6;
 const NEWS_TTL_MS = 10 * 60 * 1000;        // refresh news every 10 minutes
 const RADIO_TTL_MS = 6 * 60 * 60 * 1000;   // refresh station list every 6 hours
 
-const parser = new Parser({
-  timeout: 10000,
-  headers: { 'User-Agent': USER_AGENT }
-});
+// A browser-like User-Agent: several outlets reject unknown bots outright.
+const FEED_HEADERS = {
+  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36 Warde/1.2',
+  'Accept': 'application/rss+xml, application/atom+xml, application/xml;q=0.9, text/xml;q=0.8, */*;q=0.5',
+  'Accept-Language': 'ar,en;q=0.8,fr;q=0.6'
+};
+
+const parser = new Parser({ timeout: 8000, headers: FEED_HEADERS });
 
 // Plain text only: drop tags, decode the common entities, collapse spaces.
 function cleanText(value, max = 300) {
@@ -82,23 +96,51 @@ function cached(ttl, load) {
   };
 }
 
-const getNews = cached(NEWS_TTL_MS, async () => {
-  const results = await Promise.allSettled(FEEDS.map(f => parser.parseURL(f.url)));
-  const sources = results.map((result, i) => {
-    if (result.status !== 'fulfilled') {
-      console.warn(`[news] ${FEEDS[i].name} failed: ${result.reason && result.reason.message}`);
-      return { source: FEEDS[i].name, ok: false, items: [] };
-    }
-    const items = (result.value.items || [])
-      .map(item => ({
-        title: cleanText(item.title),
+function toItems(feed, fromGoogle) {
+  return (feed.items || [])
+    .map(item => {
+      let title = cleanText(item.title);
+      // Google News appends " - Publisher" to every headline; drop it.
+      if (fromGoogle) title = title.replace(/\s+[-–]\s+[^-–]+$/, '').trim();
+      return {
+        title,
         link: safeUrl(item.link),
         date: toIsoDate(item.isoDate || item.pubDate)
-      }))
-      .filter(item => item.title && item.link)
-      .slice(0, ITEMS_PER_FEED);
-    return { source: FEEDS[i].name, ok: true, items };
-  });
+      };
+    })
+    .filter(item => item.title && item.link)
+    .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+    .slice(0, ITEMS_PER_FEED);
+}
+
+async function loadSource(feed) {
+  let directError = null;
+  try {
+    const items = toItems(await parser.parseURL(feed.url), false);
+    if (items.length) return { source: feed.name, ok: true, via: 'direct', items };
+    directError = 'feed returned no items';
+  } catch (err) {
+    directError = err.message;
+  }
+  console.warn(`[news] ${feed.name} direct feed failed (${directError}); trying Google News`);
+
+  try {
+    const items = toItems(await parser.parseURL(feed.fallback), true);
+    if (items.length) return { source: feed.name, ok: true, via: 'google-news', items };
+    throw new Error('fallback returned no items');
+  } catch (err) {
+    console.warn(`[news] ${feed.name} fallback failed: ${err.message}`);
+    return {
+      source: feed.name,
+      ok: false,
+      items: [],
+      error: cleanText(`direct: ${directError}; fallback: ${err.message}`, 200)
+    };
+  }
+}
+
+const getNews = cached(NEWS_TTL_MS, async () => {
+  const sources = await Promise.all(FEEDS.map(loadSource));
   return { updatedAt: new Date().toISOString(), sources };
 });
 
@@ -113,6 +155,40 @@ const RADIO_MIRRORS = [
   'https://fi1.api.radio-browser.info'
 ];
 const MAX_STATIONS = 24;
+
+// Signed links (zeno "zt=", radiojar "rj-tok=") expire within minutes, so a
+// cached copy would stop playing. Those are dropped in favour of the station's
+// permanent link, which redirects to a fresh signed URL each time.
+const EXPIRING_PARAMS = ['zt', 'rj-tok', 'rj-ttl', 'token', 'expires'];
+
+function hasExpiringToken(url) {
+  try {
+    const params = new URL(url).searchParams;
+    return EXPIRING_PARAMS.some(p => params.has(p));
+  } catch {
+    return true;
+  }
+}
+
+// Playlist files (.pls/.m3u/.asx) can't be played by an <audio> element.
+function isPlaylist(url) {
+  return /\.(pls|m3u|asx|xspf)$/i.test(new URL(url).pathname);
+}
+
+function pickStreamUrl(station) {
+  // Prefer the resolved stream; fall back to the station's own link when the
+  // resolved one is signed and about to expire.
+  const candidates = [station.url_resolved, station.url]
+    .map(safeUrl)
+    .filter(u => u && u.startsWith('https:') && !hasExpiringToken(u) && !isPlaylist(u));
+  return candidates[0] || null;
+}
+
+// Same stream listed twice under different names (e.g. "Al Bal Radio" / "راديو عالبال").
+function streamKey(url) {
+  const u = new URL(url);
+  return (u.host + u.pathname).toLowerCase().replace(/\/+$/, '');
+}
 
 async function fetchJson(url) {
   const res = await fetch(url, {
@@ -137,15 +213,18 @@ const getStations = cached(RADIO_TTL_MS, async () => {
   for (const base of RADIO_MIRRORS) {
     try {
       const raw = await fetchJson(`${base}/json/stations/search?${query}`);
-      const seen = new Set();
+      const seenNames = new Set();
+      const seenUrls = new Set();
       const stations = [];
       for (const s of raw) {
-        const url = safeUrl(s.url_resolved || s.url);
+        const url = pickStreamUrl(s);
         const name = cleanText(s.name, 80);
-        if (!url || !url.startsWith('https:') || !name || s.lastcheckok !== 1) continue;
-        const key = name.toLowerCase();
-        if (seen.has(key)) continue;
-        seen.add(key);
+        if (!url || !name || s.lastcheckok !== 1) continue;
+        const nameKey = name.toLowerCase();
+        const urlKey = streamKey(url);
+        if (seenNames.has(nameKey) || seenUrls.has(urlKey)) continue;
+        seenNames.add(nameKey);
+        seenUrls.add(urlKey);
         stations.push({
           id: s.stationuuid,
           name,
