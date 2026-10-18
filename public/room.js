@@ -24,9 +24,14 @@
       tearNext: 'اقلب الورقة', tearBack: 'رجوع لليوم', sea: 'البحر المتوسط',
       daysLeft: n => n === 0 ? 'اليوم' : n === 1 ? 'بكرا' : `بعد ${S.num(n)} يوم`,
       close: 'سكّر',
-      scenes: { sunrise: 'طلوع الشمس', day: 'الضهر', afternoon: 'بعد الضهر', sunset: 'المغرب', night: 'الليل' },
+      scenes: { night: 'الليل', day: 'النهار', winter: 'الشتي', summer: 'الصيف' },
       sceneManual: 'اضغط لتغيّر الوقت والطقس',
-      timeLabel: 'الوقت', weatherLabel: 'الطقس', autoBeirut: 'متل بيروت هلّق', clearW: 'صحو', rainW: 'شتي',
+      timeLabel: 'الجوّ', weatherLabel: 'الطقس', autoBeirut: 'متل بيروت هلّق', clearW: 'صحو', rainW: 'شتي',
+      extrasLabel: 'بالبيت', soundsW: 'أصوات البيت', cutsW: 'انقطاع الكهربا', tryCut: 'جرّب الموتير',
+      cutToast: 'قطعت الكهربا…', motorToast: 'اشتغل الموتير 😄', backToast: 'إجت الكهربا!',
+      simple: 'كبّر', simpleTitle: 'أهلا وسهلا', backToRoom: 'رجوع عالصالون', radioOn: 'شغّل الراديو', radioOff: 'طفّي الراديو', nextSt: 'المحطة الجاية',
+      myPhotos: 'حطّ صور العيلة عالحيط', removePhotos: 'شيل صوري', photosNote: 'الصور بتضل على جهازك بس، ما منرفعها لحدا.',
+      onTheTv: 'شوف عالتلفزيون',
       beirut: 'بيروت',
       here: 'عندك',
       objects: {
@@ -66,9 +71,14 @@
       tearNext: 'Tear the page', tearBack: 'Back to today', sea: 'Mediterranean Sea',
       daysLeft: n => n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : `In ${n} days`,
       close: 'Close',
-      scenes: { sunrise: 'Sunrise', day: 'Midday', afternoon: 'Afternoon', sunset: 'Sunset', night: 'Night' },
+      scenes: { night: 'Night', day: 'Day', winter: 'Winter', summer: 'Summer' },
       sceneManual: 'Tap to change the time and weather',
-      timeLabel: 'Time of day', weatherLabel: 'Weather', autoBeirut: 'Like Beirut now', clearW: 'Clear', rainW: 'Rain',
+      timeLabel: 'Mood', weatherLabel: 'Weather', autoBeirut: 'Like Beirut now', clearW: 'Clear', rainW: 'Rain',
+      extrasLabel: 'In the house', soundsW: 'Room sounds', cutsW: 'Power cuts', tryCut: 'Try the generator',
+      cutToast: 'The power just went…', motorToast: 'The generator kicked in 😄', backToast: 'The electricity is back!',
+      simple: 'Simple', simpleTitle: 'Welcome home', backToRoom: 'Back to the room', radioOn: 'Turn the radio on', radioOff: 'Turn the radio off', nextSt: 'Next station',
+      myPhotos: 'Hang your family photos', removePhotos: 'Remove my photos', photosNote: 'Your photos stay on this device only. Nothing is uploaded.',
+      onTheTv: 'Watch on the TV',
       beirut: 'Beirut',
       here: 'Where you are',
       objects: {
@@ -108,9 +118,14 @@
       tearNext: 'Arracher la page', tearBack: 'Revenir à aujourd’hui', sea: 'Mer Méditerranée',
       daysLeft: n => n === 0 ? 'Aujourd’hui' : n === 1 ? 'Demain' : `Dans ${n} jours`,
       close: 'Fermer',
-      scenes: { sunrise: 'Lever du soleil', day: 'Midi', afternoon: 'Après-midi', sunset: 'Coucher du soleil', night: 'Nuit' },
+      scenes: { night: 'Nuit', day: 'Jour', winter: 'Hiver', summer: 'Été' },
       sceneManual: 'Touchez pour changer l’heure et la météo',
-      timeLabel: 'Moment', weatherLabel: 'Météo', autoBeirut: 'Comme à Beyrouth', clearW: 'Dégagé', rainW: 'Pluie',
+      timeLabel: 'Ambiance', weatherLabel: 'Météo', autoBeirut: 'Comme à Beyrouth', clearW: 'Dégagé', rainW: 'Pluie',
+      extrasLabel: 'À la maison', soundsW: 'Sons de la maison', cutsW: 'Coupures de courant', tryCut: 'Essayer le générateur',
+      cutToast: 'Le courant vient de sauter…', motorToast: 'Le générateur a démarré 😄', backToast: 'L’électricité est revenue !',
+      simple: 'Simple', simpleTitle: 'Bienvenue à la maison', backToRoom: 'Retour au salon', radioOn: 'Allumer la radio', radioOff: 'Éteindre la radio', nextSt: 'Station suivante',
+      myPhotos: 'Accrocher vos photos de famille', removePhotos: 'Retirer mes photos', photosNote: 'Vos photos restent sur cet appareil. Rien n’est envoyé.',
+      onTheTv: 'Regarder sur la télé',
       beirut: 'Beyrouth',
       here: 'Chez vous',
       objects: {
@@ -151,17 +166,21 @@
     { id: 'calendar', yaw: -176.8, pitch: 10.4 },
     { id: 'clock', yaw: -145.6, pitch: 27.0 },
     { id: 'phone', yaw: -104.9, pitch: -12.6 },
-    { id: 'photos', yaw: -69.4, pitch: 14.3 },
+    { id: 'photos', yaw: -53.0, pitch: 14.7 },
     { id: 'lamp', yaw: -46.9, pitch: -3.5 },
     { id: 'coffee', yaw: -38.8, pitch: -18.4 },
     { id: 'books', yaw: -24.3, pitch: -36.7 },
-    { id: 'window', yaw: -10.6, pitch: 10.5 },
+    { id: 'window', yaw: -8.9, pitch: 1.8 },
     { id: 'news', yaw: 0.8, pitch: -28.1 },
     { id: 'tv', yaw: 34.6, pitch: -8.0 },
     { id: 'cassettes', yaw: 82.7, pitch: -2.0 },
     { id: 'radio', yaw: 85.0, pitch: -12.7 }
   ];
   const hidden = new Set(); // objects switched off by the server config
+  // where things are in the panorama (from the render): the TV picture and the photo frames
+  const TV_SCREEN = [[27.728, -4.23], [40.089, -4.28], [40.089, -13.361], [27.728, -13.211]];
+  const PHOTO_FRAMES = [[[-97.739, 13.81], [-92.1, 13.923], [-97.739, 20.723], [-92.1, 20.884]], [[-54.968, 11.676], [-51.031, 11.101], [-54.968, 18.278], [-51.031, 17.412]], [[-96.522, 4.534], [-91.853, 4.561], [-96.522, 9.131], [-91.853, 9.185]], [[-54.474, 4.117], [-50.882, 3.925], [-54.474, 7.896], [-50.882, 7.531]], [[-106.917, 9.029], [-102.054, 9.226], [-106.917, 15.568], [-102.054, 15.896]]];
+  const STEAM = { tea: [-2.3, -24.5], kettle: [18.4, -5.5] };
 
   // ================================================================== Beirut's sun
 
@@ -182,17 +201,20 @@
     return { alt: alt / RAD, H };
   }
 
+  // Four versions of the room. After dark it is night; in the day the
+  // season and Beirut's real weather choose between day, winter and summer.
   function sceneFor(date = new Date()) {
     const { alt, H } = sun(date);
-    if (H < 0) { // morning
-      if (alt < -6) return 'night';
-      if (alt < 10) return 'sunrise';
-      return 'day';
-    }
-    if (alt > 35) return 'day';
-    if (alt > 8) return 'afternoon';
-    if (alt > -6) return 'sunset';
-    return 'night';
+    if (alt < -3) return 'night';
+    const month = Number(beirutDate(date).slice(5, 7));
+    const w = S.weather && S.weather();
+    const c = w && (w.cities || []).find(x => x.id === 'beirut');
+    const code = c ? c.code : null;
+    const wet = code !== null && (code === 3 || code === 45 || code === 48 || code >= 51);
+    if (wet || month === 12 || month <= 2) return 'winter';
+    if (month >= 6 && month <= 9) return 'summer';
+    if (H > 0 && alt < 18 && month >= 4 && month <= 10) return 'summer';   // golden hour in the warm months
+    return 'day';
   }
 
   // Sunrise and sunset around a given moment (searched minute by minute).
@@ -221,7 +243,7 @@
 
   // ================================================================== images
 
-  const SCENES = ['sunrise', 'day', 'afternoon', 'sunset', 'night'];
+  const SCENES = ['night', 'day', 'winter', 'summer'];
   const small = Math.min(screen.width, screen.height) < 700;
   let maxTex = 4096;
   function panoUrl(scene) { return `/room/pano-${scene}-${small || maxTex < 4096 ? 2 : 4}k.jpg`; }
@@ -264,8 +286,27 @@
     uniform float rain;        // 0 dry .. 1 pouring
     uniform float time;
     uniform float flash;       // lightning
-    const float PI = 3.14159265;
+    uniform float power;       // 1 = mains, 0 = power cut
+    uniform float motor;       // 1 = running on the neighbourhood generator
+    uniform vec4 steamA;       // yaw, pitch (radians), strength, -
+    uniform vec4 steamB;
+    uniform sampler2D td;      // seasonal decorations (see-through overlay)
+    uniform float decor;
     float h21(vec2 q) { q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }
+    float vn(vec2 q) { vec2 i = floor(q), f = fract(q); f = f * f * (3.0 - 2.0 * f);
+      return mix(mix(h21(i), h21(i + vec2(1.0, 0.0)), f.x), mix(h21(i + vec2(0.0, 1.0)), h21(i + vec2(1.0, 1.0)), f.x), f.y); }
+    float steam(vec4 s, float lon, float lat, float t) {
+      if (s.z <= 0.0) return 0.0;
+      vec2 q = vec2((lon - s.x) * cos(lat), lat - s.y) * 57.2958;    // degrees around the source
+      if (q.y < -0.3 || q.y > 9.0 || abs(q.x) > 4.0) return 0.0;
+      float w = 0.5 + q.y * 0.28;
+      float sway = sin(q.y * 0.9 - t * 1.3) * 0.35 * q.y * 0.25;
+      float body = smoothstep(w, 0.0, abs(q.x - sway));
+      float n = vn(vec2(q.x * 1.6, q.y * 1.1 - t * 1.8)) * vn(vec2(q.x * 3.1 + 4.0, q.y * 2.3 - t * 2.6));
+      float fade = smoothstep(-0.3, 0.6, q.y) * smoothstep(9.0, 2.0, q.y);
+      return body * n * fade * s.z;
+    }
+    const float PI = 3.14159265;
     // Running drops with trails on glass (after Martijn Steinrucken's "Heartfelt" idea).
     vec3 drops(vec2 g0, float t) {
       vec2 aspect = vec2(2.0, 1.0);
@@ -324,7 +365,13 @@
           c.rgb += flash * m * 0.9;
         }
       }
+      if (decor > 0.0) { vec4 dd = texture2D(td, uv); c.rgb = mix(c.rgb, dd.rgb, dd.a * decor); }
       c.rgb += flash * 0.06;
+      float st = steam(steamA, lon, lat, time) + steam(steamB, lon, lat, time);
+      c.rgb = mix(c.rgb, vec3(0.96, 0.94, 0.9), clamp(st * 0.55, 0.0, 0.35));
+      vec3 mains = vec3(1.0);
+      vec3 gen = vec3(1.0, 0.84, 0.66) * 0.78;
+      c.rgb *= mix(vec3(0.03, 0.03, 0.05), mix(mains, gen, motor), power);
       gl_FragColor = vec4(c.rgb, 1.0);
     }`;
 
@@ -354,10 +401,11 @@
     const a = gl.getAttribLocation(prog, 'a');
     gl.enableVertexAttribArray(a);
     gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    for (const n of ['rot', 'th', 't0', 't1', 'mixv', 'tm', 'rain', 'time', 'flash']) uni[n] = gl.getUniformLocation(prog, n);
+    for (const n of ['rot', 'th', 't0', 't1', 'mixv', 'tm', 'rain', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor']) uni[n] = gl.getUniformLocation(prog, n);
     gl.uniform1i(uni.t0, 0);
     gl.uniform1i(uni.t1, 1);
     gl.uniform1i(uni.tm, 2);
+    gl.uniform1i(uni.td, 3);
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); }, false);
     canvas.addEventListener('webglcontextrestored', () => { initGL(); if (currentImg) setTexture(0, currentImg); needsDraw = true; });
     return true;
@@ -365,10 +413,12 @@
 
   function setTexture(unit, img) {
     if (!tex[unit]) tex[unit] = gl.createTexture();
-    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2][unit]);
+    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3][unit]);
+    const rgba = unit === 3;
     gl.bindTexture(gl.TEXTURE_2D, tex[unit]);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, rgba ? gl.RGBA : gl.RGB, rgba ? gl.RGBA : gl.RGB, gl.UNSIGNED_BYTE, img);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -406,9 +456,16 @@
       gl.uniform1f(uni.rain, tex[2] ? rainNow : 0);
       gl.uniform1f(uni.time, (performance.now() / 1000) % 3600);
       gl.uniform1f(uni.flash, flashNow);
+      gl.uniform1f(uni.power, powerNow);
+      gl.uniform1f(uni.motor, motorNow);
+      const hot = scene === 'night' || scene === 'winter';
+      gl.uniform4f(uni.steamA, STEAM.tea[0] * RAD, STEAM.tea[1] * RAD, hot ? 1 : 0, 0);
+      gl.uniform4f(uni.steamB, STEAM.kettle[0] * RAD, STEAM.kettle[1] * RAD, hot ? 0.8 : 0, 0);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[0]);
       if (tex[1]) { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[1]); }
       if (tex[2]) { gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, tex[2]); }
+      gl.uniform1f(uni.decor, tex[3] && decorFor === scene ? 1 : 0);
+      if (tex[3]) { gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, tex[3]); }
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     } else if (!gl && currentImg) {
       // No WebGL: slide a flat strip of the panorama instead.
@@ -500,7 +557,7 @@
   function degPerPx() { return view.fov / Math.max(1, canvas.clientHeight); }
   function clampView() {
     view.pitch = Math.max(-75, Math.min(75, view.pitch));
-    view.fov = Math.max(38, Math.min(100, view.fov));
+    view.fov = Math.max(22, Math.min(100, view.fov));
     view.yaw = ((view.yaw + 540) % 360) - 180;
   }
 
@@ -609,7 +666,10 @@
     // weather: ease the rain in and out; keep the drops moving (about 30 fps)
     const target = rainTarget();
     if (Math.abs(rainNow - target) > 0.002) { rainNow += (target - rainNow) * 0.03; needsDraw = true; }
-    if (rainNow > 0.01 && !document.hidden && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
+    const animated = rainNow > 0.01 || scene === 'night' || scene === 'winter';
+    if (animated && !document.hidden && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
+    stepPower(now);
+    if (frameHooks.size) frameHooks.forEach(f => f(now));
     if (stormy() && rainNow > 0.5 && now > nextFlash) {
       flashNow = 1; nextFlash = now + 9000 + Math.random() * 22000;
     }
@@ -620,6 +680,44 @@
 
   // ------------------------------------------------------------------ weather on the window
   let rainNow = 0, flashNow = 0, lastRainDraw = 0, nextFlash = performance.now() + 6000;
+  const frameHooks = new Set();
+
+  // ------------------------------------------------------------------ "عالموتير": the power cut
+  // Now and then the power goes, the room drops dark, and the neighbourhood
+  // generator kicks in with its warmer, weaker light. Then the mains come back.
+  let powerNow = 1, motorNow = 0, cut = null;
+  let cutsOn = S.store.get('powerCuts', true);
+  let nextCut = performance.now() + (4 + Math.random() * 5) * 60e3;
+  function startCut() {
+    if (cut || introOn) return;
+    cut = { t0: performance.now(), phase: 'drop' };
+    S.toast(r('cutToast'));
+  }
+  function stepPower(now) {
+    if (!cut) {
+      if (cutsOn && now > nextCut && !document.hidden) startCut();
+      return;
+    }
+    const t = now - cut.t0;
+    needsDraw = true;
+    if (cut.phase === 'drop') {                     // flicker, then dark
+      powerNow = t < 260 ? (Math.random() < 0.5 ? 1 : 0.2) : 0;
+      if (t > 2000) { cut.phase = 'motor'; cut.t0 = now; S.toast(r('motorToast')); }
+    } else if (cut.phase === 'motor') {             // the generator coughs into life
+      const k = Math.min(1, t / 700);
+      powerNow = k < 1 ? k * (0.6 + 0.4 * Math.random()) : 1;
+      motorNow = 1;
+      if (t > 25000 + Math.random() * 10) { cut.phase = 'back'; cut.t0 = now; }
+    } else if (cut.phase === 'back') {              // the state electricity returns
+      powerNow = t < 300 ? (Math.random() < 0.5 ? 1 : 0.4) : 1;
+      motorNow = Math.max(0, 1 - t / 400);
+      if (t > 600) {
+        cut = null; powerNow = 1; motorNow = 0;
+        nextCut = now + (14 + Math.random() * 12) * 60e3;
+        S.toast(r('backToast'));
+      }
+    }
+  }
   let weatherMode = 'auto';              // auto | clear | rain
   function beirutCode() {
     const w = S.weather();
@@ -631,19 +729,45 @@
     return code !== null && ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || code >= 95);
   }
   function stormy() { const c = beirutCode(); return weatherMode === 'auto' && c !== null && c >= 95; }
-  function isRaining() { return weatherMode === 'rain' || (weatherMode === 'auto' && rainingInBeirut()); }
+  function isRaining() { return weatherMode === 'rain' || (weatherMode === 'auto' && (rainingInBeirut() || scene === 'winter')); }
   function rainTarget() {
     if (!isRaining()) return 0;
+    if (weatherMode === 'auto' && !rainingInBeirut()) return 0.45;   // the winter version: a few drops on the glass
     const code = beirutCode();
     if (weatherMode === 'rain' || code === null) return 0.85;
     if (code === 51 || code === 56 || code === 61 || code === 80) return 0.55;    // light
     return 0.95;
   }
+  // ------------------------------------------------------------------ the calendar dresses the room
+  let decorFor = null;
+  function season(date = new Date()) {
+    const d = beirutDate(date), md = d.slice(5);
+    const R0 = C.ramadan;
+    if (md >= '12-01' || md <= '01-07') return 'xmas';
+    if (R0) {
+      const end = new Date(Date.parse(R0.end) + 3 * 864e5).toISOString().slice(0, 10);   // and the days of Eid
+      if (d >= R0.start && d <= end) return 'ramadan';
+    }
+    if (md >= '11-15' && md <= '11-23') return 'independence';
+    return null;
+  }
+  function loadDecor() {
+    const kind = season();
+    if (!kind || !gl) return;
+    const want = scene;
+    loadImage(`/room/decor-${kind}-${want}.png`).then(img => {
+      if (want !== scene) return;
+      setTexture(3, img); decorFor = want; needsDraw = true;
+    }).catch(() => {});
+  }
   function loadMask() {
     if (!gl) return;
     loadImage('/room/mask.png').then(img => { setTexture(2, img); needsDraw = true; }).catch(() => {});
   }
-  document.addEventListener('sawt:weather', () => { renderSceneChip(); needsDraw = true; });
+  document.addEventListener('sawt:weather', () => {
+    if (!manualScene) { const sc = sceneFor(); if (sc !== scene) showScene(sc, true); }
+    renderSceneChip(); needsDraw = true;
+  });
 
   // ------------------------------------------------------------------ hint
 
@@ -667,23 +791,28 @@
   let currentImg = null;
   let fade = null;
 
+  // The light 2K picture comes first; on big screens the sharp 4K one replaces it when it arrives.
   async function showScene(name, animate) {
     scene = name;
     renderSceneChip();
     let img;
-    try { img = await loadImage(panoUrl(name)); }
+    try { img = await loadImage(`/room/pano-${name}-2k.jpg`); }
     catch { return; }
     if (name !== scene) return; // a newer choice won
-    if (!gl) { currentImg = img; needsDraw = true; return; }
-    if (!currentImg || !animate || reduceMotion) {
-      setTexture(0, img);
-      currentImg = img;
-      needsDraw = true;
-      return;
+    if (!gl) { currentImg = img; needsDraw = true; }
+    else if (!currentImg || !animate || reduceMotion) {
+      setTexture(0, img); currentImg = img; needsDraw = true;
+    } else {
+      setTexture(1, img); currentImg = img; fade = { img, t0: performance.now() };
     }
-    setTexture(1, img);
-    currentImg = img;
-    fade = { img, t0: performance.now() };
+    loadDecor();
+    if (!small && maxTex >= 4096 && gl) {
+      loadImage(`/room/pano-${name}-4k.jpg`).then(big => {
+        if (name !== scene) return;
+        const apply = () => { if (name !== scene) return; if (fade) { setTimeout(apply, 200); return; } setTexture(0, big); currentImg = big; needsDraw = true; };
+        apply();
+      }).catch(() => {});
+    }
   }
 
   const chip = $('scene-chip');
@@ -724,6 +853,12 @@
         opt(r('autoBeirut'), weatherMode === 'auto', () => { weatherMode = 'auto'; }, 'is-auto'),
         opt(r('clearW'), weatherMode === 'clear', () => { weatherMode = 'clear'; }),
         opt(r('rainW'), weatherMode === 'rain', () => { weatherMode = 'rain'; })
+      ]),
+      el('p', { className: 'pop-k', text: r('extrasLabel') }),
+      el('div', { className: 'pop-row' }, [
+        opt('🔊 ' + r('soundsW'), !!(window.SawtAmbience && window.SawtAmbience.on()), () => { if (window.SawtAmbience) window.SawtAmbience.toggle(); }),
+        opt('💡 ' + r('cutsW'), cutsOn, () => { cutsOn = !cutsOn; S.store.set('powerCuts', cutsOn); }),
+        opt('⚡ ' + r('tryCut'), false, () => { pop.hidden = true; startCut(); })
       ])
     );
   }
@@ -856,7 +991,7 @@
   document.addEventListener('sawt:config', e => {
     const cfg = e.detail || {};
     hidden.clear();
-    if (!cfg.dedications) { hidden.add('phone'); hidden.add('photos'); }
+    if (!cfg.dedications) hidden.add('phone');   // the photos stay: you can hang your own
     renderHotspots(); renderGrid(); setFocus(null); needsDraw = true;
   });
 
@@ -1207,6 +1342,64 @@
       Promise.race([ready, new Promise(res => setTimeout(res, 2500))]).then(() => setTimeout(enterRoom, reduceMotion ? 0 : 500));
     }
   }
+
+  // ------------------------------------------------------------------ shared with music.js / ambience.js
+  function project(yaw, pitch) {
+    const { r: rr, u, f } = basis();
+    const [tx, ty] = tanHalf();
+    const y = yaw * RAD, p = pitch * RAD;
+    const h = [Math.sin(y) * Math.cos(p), Math.sin(p), -Math.cos(y) * Math.cos(p)];
+    const z = h[0] * f[0] + h[1] * f[1] + h[2] * f[2];
+    const x = (h[0] * rr[0] + h[1] * rr[1] + h[2] * rr[2]) / z / tx;
+    const yy = (h[0] * u[0] + h[1] * u[1] + h[2] * u[2]) / z / ty;
+    return { x: (x + 1) / 2 * canvas.clientWidth, y: (1 - yy) / 2 * canvas.clientHeight, front: z > 0.15 };
+  }
+  // CSS matrix3d that maps a w×h box onto any four screen points (tl, tr, br, bl)
+  function quadTransform(w, h, q) {
+    const src = [[0, 0], [w, 0], [w, h], [0, h]];
+    const A = [], B = [];
+    for (let i = 0; i < 4; i++) {
+      const [x, y] = src[i], [X, Y] = q[i];
+      A.push([x, y, 1, 0, 0, 0, -X * x, -X * y]); B.push(X);
+      A.push([0, 0, 0, x, y, 1, -Y * x, -Y * y]); B.push(Y);
+    }
+    // Gaussian elimination
+    for (let c = 0; c < 8; c++) {
+      let m = c; for (let r2 = c + 1; r2 < 8; r2++) if (Math.abs(A[r2][c]) > Math.abs(A[m][c])) m = r2;
+      [A[c], A[m]] = [A[m], A[c]]; [B[c], B[m]] = [B[m], B[c]];
+      for (let r2 = c + 1; r2 < 8; r2++) {
+        const k = A[r2][c] / A[c][c];
+        for (let j = c; j < 8; j++) A[r2][j] -= k * A[c][j];
+        B[r2] -= k * B[c];
+      }
+    }
+    const X = new Array(8);
+    for (let i = 7; i >= 0; i--) { let sum = B[i]; for (let j = i + 1; j < 8; j++) sum -= A[i][j] * X[j]; X[i] = sum / A[i][i]; }
+    const [a, b, c, d, e, f2, g, h2] = X;
+    return `matrix3d(${a},${d},0,${g},${b},${e},0,${h2},0,0,1,0,${c},${f2},0,1)`;
+  }
+  // order four projected points as tl, tr, br, bl on screen
+  function orderQuad(pts) {
+    const byY = [...pts].sort((p, q) => p.y - q.y);
+    const top = byY.slice(0, 2).sort((p, q) => p.x - q.x), bot = byY.slice(2).sort((p, q) => p.x - q.x);
+    return [top[0], top[1], bot[1], bot[0]].map(p => [p.x, p.y]);
+  }
+  window.SawtRoom = {
+    project, quadTransform, orderQuad,
+    tvCorners: () => TV_SCREEN,
+    photoFrames: () => PHOTO_FRAMES,
+    scene: () => scene,
+    rain: () => rainNow,
+    motor: () => motorNow,
+    power: () => powerNow,
+    onFrame: f => frameHooks.add(f),
+    offFrame: f => frameHooks.delete(f),
+    redraw: () => { needsDraw = true; },
+    open: id => openObject(id, true),
+    lookAt(yaw, pitch, fov) { turnTo(yaw, pitch); if (fov) { view.fov = fov; clampView(); } needsDraw = true; },
+    isOpen: () => openId,
+    inRoom: () => !introOn
+  };
 
   start();
 })();

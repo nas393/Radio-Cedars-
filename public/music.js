@@ -21,9 +21,9 @@
   };
 
   const W = {
-    ar: { close: 'سكّر', youtube: 'يوتيوب', spotify: 'سبوتيفاي', onYouTube: 'افتح على يوتيوب', onSpotify: 'افتح على سبوتيفاي', live: 'مباشر', tape: 'كاسيت', spotifyNote: 'على سبوتيفاي: الأغاني كاملة إذا كنت مسجّل دخول، وإلا ٣٠ ثانية من كل أغنية.', expand: 'كبّر' },
-    en: { close: 'Close', youtube: 'YouTube', spotify: 'Spotify', onYouTube: 'Open on YouTube', onSpotify: 'Open in Spotify', live: 'Live', tape: 'Tape', spotifyNote: 'On Spotify: full songs if you’re logged in to Spotify in this browser, 30-second previews otherwise.', expand: 'Expand' },
-    fr: { close: 'Fermer', youtube: 'YouTube', spotify: 'Spotify', onYouTube: 'Ouvrir sur YouTube', onSpotify: 'Ouvrir dans Spotify', live: 'Direct', tape: 'Cassette', spotifyNote: 'Sur Spotify : titres complets si vous êtes connecté à Spotify dans ce navigateur, sinon extraits de 30 secondes.', expand: 'Agrandir' }
+    ar: { close: 'سكّر', youtube: 'يوتيوب', spotify: 'سبوتيفاي', onYouTube: 'افتح على يوتيوب', onSpotify: 'افتح على سبوتيفاي', live: 'مباشر', tape: 'كاسيت', spotifyNote: 'على سبوتيفاي: الأغاني كاملة إذا كنت مسجّل دخول، وإلا ٣٠ ثانية من كل أغنية.', expand: 'كبّر', onTv: 'شوف عالتلفزيون' },
+    en: { close: 'Close', youtube: 'YouTube', spotify: 'Spotify', onYouTube: 'Open on YouTube', onSpotify: 'Open in Spotify', live: 'Live', tape: 'Tape', spotifyNote: 'On Spotify: full songs if you’re logged in to Spotify in this browser, 30-second previews otherwise.', expand: 'Expand', onTv: 'Watch on the TV' },
+    fr: { close: 'Fermer', youtube: 'YouTube', spotify: 'Spotify', onYouTube: 'Ouvrir sur YouTube', onSpotify: 'Ouvrir dans Spotify', live: 'Direct', tape: 'Cassette', spotifyNote: 'Sur Spotify : titres complets si vous êtes connecté à Spotify dans ce navigateur, sinon extraits de 30 secondes.', expand: 'Agrandir', onTv: 'Regarder sur la télé' }
   };
   const w = k => (W[S.lang()] || W.ar)[k];
 
@@ -34,6 +34,7 @@
       el('span', { className: 'screen-title', id: 'screen-title' }),
       el('span', { className: 'screen-src', id: 'screen-src', role: 'group' }),
       el('a', { className: 'screen-out', id: 'screen-out', target: '_blank', rel: 'noopener noreferrer' }),
+      el('button', { type: 'button', className: 'screen-btn screen-tv', id: 'screen-tv' }),
       el('button', { type: 'button', className: 'screen-btn', id: 'screen-expand' }),
       el('button', { type: 'button', className: 'screen-btn', id: 'screen-close' })
     ]),
@@ -41,7 +42,11 @@
     el('p', { className: 'screen-note', id: 'screen-note', hidden: true })
   ]);
   document.body.appendChild(player);
+  const setOff = el('button', { type: 'button', className: 'onset-off', id: 'onset-off', hidden: true });
+  document.body.appendChild(setOff);
+  setOff.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8M6.3 6.8a8 8 0 1 0 11.4 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
   $('screen-close').innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  $('screen-tv').innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="6" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M9 3l3 3 3-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
   $('screen-expand').innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   let current = null;       // { kind: 'live'|'tape', src: 'yt'|'sp', mood, channel, name, home: 'tv'|'cassettes' }
@@ -143,6 +148,9 @@
     out.href = outLink(c);
     out.textContent = c.src === 'sp' ? w('onSpotify') : w('onYouTube');
     $('screen-close').setAttribute('aria-label', w('close'));
+    $('screen-tv').hidden = !(window.SawtRoom && (c.kind === 'live' || (c.kind === 'tape' && c.src === 'yt')));
+    $('screen-tv').setAttribute('aria-label', w('onTv'));
+    setOff.setAttribute('aria-label', w('close'));
     $('screen-expand').setAttribute('aria-label', w('expand'));
     player.setAttribute('aria-label', c.name);
   }
@@ -157,6 +165,8 @@
 
   function close() {
     stopMedia();
+    setOff.hidden = true;
+    player.classList.remove('on-set'); player.style.transform = '';
     ['tv-slot', 'tape-slot'].forEach(id => { const n = $(id); if (n) n.style.height = ''; });
     current = null;
     player.hidden = true;
@@ -164,6 +174,23 @@
     document.querySelectorAll('.tape.is-playing, #channels .is-playing').forEach(t => t.classList.remove('is-playing'));
   }
   $('screen-close').addEventListener('click', close);
+  setOff.addEventListener('click', close);
+  // put the picture on the TV in the room: close the drawer, turn and zoom to the set
+  $('screen-tv').addEventListener('click', () => {
+    if (!current || !window.SawtRoom) return;
+    current.onSet = true;
+    player.classList.remove('is-big');
+    const sheetClose = $('sheet-close');
+    if ($('sheet').classList.contains('is-open')) sheetClose.click();
+    const c = window.SawtRoom.tvCorners();
+    const yaw = c.reduce((a, p) => a + p[0], 0) / 4, pitch = c.reduce((a, p) => a + p[1], 0) / 4;
+    const tvW = Math.abs(c[1][0] - c[0][0]);
+    const aspect = innerWidth / innerHeight;
+    const targetPx = Math.min(innerWidth * 0.8, Math.max(320, innerWidth * 0.42));
+    const hfov = tvW * innerWidth / targetPx;
+    const vfov = 2 * Math.atan(Math.tan(hfov * Math.PI / 360) / aspect) * 180 / Math.PI;
+    window.SawtRoom.lookAt(yaw, pitch, Math.max(22, Math.min(100, vfov)));
+  });
   $('screen-expand').addEventListener('click', () => { player.classList.toggle('is-big'); place(); });
 
   // The radio and the screen never talk over each other.
@@ -185,6 +212,26 @@
     const slot = $(home === 'tv' ? 'tv-slot' : 'tape-slot');
     const docked = !player.classList.contains('is-big') && sheet.classList.contains('is-open') && sheet.dataset.panel === home && slot && slot.offsetParent;
     player.classList.toggle('is-docked', !!docked);
+    // on the TV set itself, when the TV is big enough on screen (YouTube needs at least 200×200 px)
+    let onSet = false;
+    if (!docked && current.onSet && window.SawtRoom && window.SawtRoom.inRoom() && !$('sheet').classList.contains('is-open') && !player.classList.contains('is-big')) {
+      const pts = window.SawtRoom.tvCorners().map(p => window.SawtRoom.project(p[0], p[1]));
+      if (pts.every(p => p.front)) {
+        const q = window.SawtRoom.orderQuad(pts);
+        const wq = Math.min(q[1][0] - q[0][0], q[2][0] - q[3][0]);
+        const hq = Math.min(q[3][1] - q[0][1], q[2][1] - q[1][1]);
+        if (wq >= 266 && hq >= 200) {
+          onSet = true;
+          player.style.left = '0px'; player.style.top = '0px'; player.style.width = '400px';
+          player.style.transform = window.SawtRoom.quadTransform(400, 300, q);
+          setOff.hidden = false;
+          setOff.style.transform = `translate(${(q[2][0] + q[3][0]) / 2 - 22}px, ${Math.max(q[2][1], q[3][1]) + 10}px)`;
+        }
+      }
+    }
+    player.classList.toggle('on-set', onSet);
+    if (!onSet) { player.style.transform = ''; setOff.hidden = true; }
+    if (onSet) return;
     if (docked) {
       const r = slot.getBoundingClientRect();
       player.style.left = r.left + 'px';
@@ -198,7 +245,7 @@
   }
   // Keep the screen glued to its slot while a drawer is open (cheap: one rect read per frame).
   (function follow() {
-    if (current && $('sheet').classList.contains('is-open')) place();
+    if (current && ($('sheet').classList.contains('is-open') || current.onSet)) place();
     requestAnimationFrame(follow);
   })();
   new MutationObserver(place).observe($('sheet'), { attributes: true, attributeFilter: ['class', 'data-panel', 'hidden'] });
