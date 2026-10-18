@@ -1,7 +1,7 @@
 {
   "name": "صوت البيت · Sawt el Beit",
   "short_name": "صوت البيت",
-  "description": "إذاعات لبنان، أغاني الزمن الجميل وإهداءات للأهل، أينما كنت. Lebanese radio, classics and dedications home, wherever you are.",
+  "description": "صالون بيت لبناني: إذاعات لبنان، التلفزيون، الأخبار، الطاولة، إهداءات بصوتك وأغاني الزمن الجميل. A Lebanese living room: radio, TV, news, tawleh, voice dedications and classics.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
@@ -40,6 +40,17 @@
   ],
   "shortcuts": [
     {
+      "name": "الراديو · Radio",
+      "short_name": "الراديو",
+      "url": "/#radio",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
       "name": "فيروز · Fairuz",
       "url": "/?station=fairuz",
       "icons": [
@@ -48,6 +59,42 @@
           "sizes": "192x192"
         }
       ]
+    },
+    {
+      "name": "الطاولة · Tawleh",
+      "short_name": "الطاولة",
+      "url": "/#tawleh",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "إهداء بصوتك · Voice dedication",
+      "short_name": "إهداء",
+      "url": "/#phone",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "screenshots": [
+    {
+      "src": "/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "صالون صوت البيت"
     }
   ]
 }

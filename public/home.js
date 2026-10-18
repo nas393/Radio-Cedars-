@@ -11,13 +11,13 @@
 
   const T = {
     ar: { simple: 'كبّر', title: 'أهلا وسهلا', back: 'رجوع عالصالون', on: 'شغّل الراديو', off: 'طفّي الراديو', next: 'المحطة الجاية',
-      news: 'الأخبار', tv: 'التلفزيون', tapes: 'أغاني', phone: 'إهداء', myPhotos: 'حطّ صور العيلة عالحيط', remove: 'شيل صوري',
+      news: 'الأخبار', tv: 'التلفزيون', tapes: 'أغاني', phone: 'إهداء', tawleh: 'طاولة', together: 'قعدة سوا', myPhotos: 'حطّ صور العيلة عالحيط', remove: 'شيل صوري',
       note: 'الصور بتضل على جهازك بس، ما منرفعها لحدا.', added: n => `تعلّقت ${S.num(n)} صور عالحيط` },
     en: { simple: 'Simple', title: 'Welcome home', back: 'Back to the room', on: 'Radio on', off: 'Radio off', next: 'Next station',
-      news: 'News', tv: 'TV', tapes: 'Songs', phone: 'Dedication', myPhotos: 'Hang your family photos', remove: 'Remove my photos',
+      news: 'News', tv: 'TV', tapes: 'Songs', phone: 'Dedication', tawleh: 'Tawleh', together: 'Listen together', myPhotos: 'Hang your family photos', remove: 'Remove my photos',
       note: 'Your photos stay on this device only. Nothing is uploaded.', added: n => `${n} photos hung on the wall` },
     fr: { simple: 'Simple', title: 'Bienvenue à la maison', back: 'Retour au salon', on: 'Allumer la radio', off: 'Éteindre la radio', next: 'Station suivante',
-      news: 'Infos', tv: 'Télé', tapes: 'Chansons', phone: 'Dédicace', myPhotos: 'Accrocher vos photos de famille', remove: 'Retirer mes photos',
+      news: 'Infos', tv: 'Télé', tapes: 'Chansons', phone: 'Dédicace', tawleh: 'Tawlé', together: 'Ensemble', myPhotos: 'Accrocher vos photos de famille', remove: 'Retirer mes photos',
       note: 'Vos photos restent sur cet appareil. Rien n’est envoyé.', added: n => `${n} photos accrochées au mur` }
   };
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
@@ -55,7 +55,9 @@
           bigTile('📰', t('news'), () => R() && R().open('news')),
           bigTile('📺', t('tv'), () => R() && R().open('tv')),
           bigTile('📼', t('tapes'), () => R() && R().open('cassettes')),
-          bigTile('☎️', t('phone'), () => R() && R().open('phone'))
+          bigTile('🎙️', t('phone'), () => R() && R().open('phone')),
+          bigTile('🎲', t('tawleh'), () => R() && R().open('tawleh')),
+          bigTile('🛋️', t('together'), () => R() && R().open('together'))
         ]),
         (() => { const b = el('button', { type: 'button', className: 'btn simple-back', text: t('back') }); b.addEventListener('click', () => setSimple(false)); return b; })()
       ])

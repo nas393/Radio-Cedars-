@@ -161,6 +161,7 @@
     player.hidden = false;
     mount();
     place();
+    document.dispatchEvent(new CustomEvent('sawt:screen', { detail: c }));
   }
 
   function close() {
@@ -173,6 +174,7 @@
     player.hidden = true;
     player.classList.remove('is-big');
     document.querySelectorAll('.tape.is-playing, #channels .is-playing').forEach(t => t.classList.remove('is-playing'));
+    document.dispatchEvent(new CustomEvent('sawt:screen', { detail: null }));
   }
   $('screen-close').addEventListener('click', close);
   setOff.addEventListener('click', close);
@@ -183,14 +185,7 @@
     player.classList.remove('is-big');
     const sheetClose = $('sheet-close');
     if ($('sheet').classList.contains('is-open')) sheetClose.click();
-    const c = window.SawtRoom.tvCorners();
-    const yaw = c.reduce((a, p) => a + p[0], 0) / 4, pitch = c.reduce((a, p) => a + p[1], 0) / 4;
-    const tvW = Math.abs(c[1][0] - c[0][0]);
-    const aspect = innerWidth / innerHeight;
-    const targetPx = Math.min(innerWidth * 0.8, Math.max(320, innerWidth * 0.42));
-    const hfov = tvW * innerWidth / targetPx;
-    const vfov = 2 * Math.atan(Math.tan(hfov * Math.PI / 360) / aspect) * 180 / Math.PI;
-    window.SawtRoom.lookAt(yaw, pitch, Math.max(22, Math.min(100, vfov)));
+    setTimeout(() => window.SawtRoom.focusTv(), 60);
   });
   $('screen-expand').addEventListener('click', () => { player.classList.toggle('is-big'); place(); });
 
@@ -297,6 +292,10 @@
   window.SawtScreen = {
     playTape(mood, src) {
       play({ kind: 'tape', src: src || 'yt', mood, name: mood[S.lang()] || mood.en, home: 'cassettes' });
+    },
+    playLive(id) {
+      const name = Object.keys(CHANNELS).find(k => CHANNELS[k] === id);
+      if (name) play({ kind: 'live', src: 'yt', channel: id, name, home: 'tv' });
     },
     close,
     place,

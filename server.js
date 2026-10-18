@@ -6,10 +6,15 @@ const store = require('./lib/store');
 const alerts = require('./lib/alerts');
 const dedications = require('./lib/dedications');
 const admin = require('./lib/admin');
+const together = require('./lib/together');
+const voice = require('./lib/voice');
 
 const app = express();
 app.disable('x-powered-by');
-app.use(express.json({ limit: '10kb' }));
+// Small JSON bodies everywhere, except voice notes (a few hundred KB of audio).
+const smallJson = express.json({ limit: '10kb' });
+const voiceJson = express.json({ limit: '700kb' });
+app.use((req, res, next) => (req.path === '/api/voice' ? voiceJson : smallJson)(req, res, next));
 const PORT = process.env.PORT || 3000;
 const USER_AGENT = 'SawtElBeit/2.0 (Lebanese radio and news for the diaspora)';
 
@@ -446,6 +451,30 @@ app.get('/d/:id', async (req, res) => {
   sendPreview(req, res, meta, `dedication=${encodeURIComponent(req.params.id)}`);
 });
 
+app.get('/v/:id', async (req, res) => {
+  let meta = {
+    title: '🎙️ رسالة بصوت حدا بيحبّك · صوت البيت',
+    description: 'إهداء بالصوت مع أغنية. A voice dedication with a song, on Sawt el Beit.'
+  };
+  try {
+    if (store.enabled) {
+      const v = await voice.one(req.params.id);
+      if (v) meta = {
+        title: `🎙️ من ${v.fromName} لـ ${v.toName} · صوت البيت`,
+        description: `رسالة بصوت ${v.fromName}${v.song && v.song.name ? ` مع ${v.song.name}` : ''}. A voice dedication from ${v.fromName} to ${v.toName}.`
+      };
+    }
+  } catch { /* generic preview */ }
+  sendPreview(req, res, meta, `v=${encodeURIComponent(req.params.id)}`);
+});
+
+app.get('/q/:id', (req, res) => {
+  sendPreview(req, res, {
+    title: '🛋️ تعا نقعد سوا · صوت البيت',
+    description: 'نفس الإذاعة، بنفس اللحظة، ولو كل واحد ببلد. Come and listen together on Sawt el Beit.'
+  }, `listen=${encodeURIComponent(req.params.id)}`);
+});
+
 app.get('/admin', (req, res) => res.redirect(302, '/admin.html'));
 
 // ---------------------------------------------------------------------------
@@ -523,6 +552,65 @@ app.post('/api/dedications', noStore, needStore, async (req, res) => {
 });
 
 // ---- admin
+// ---------------------------------------------------------------------------
+// Listen together (rooms), voice dedications, exchange rates
+// ---------------------------------------------------------------------------
+app.post('/api/q', noStore, needStore, async (req, res) => {
+  try { res.json(await together.create(req.body, clientIp(req))); } catch (err) { fail(res, err); }
+});
+app.get('/api/q/:id', noStore, needStore, async (req, res) => {
+  try { res.json(await together.read(req.params.id, req.query.since)); } catch (err) { fail(res, err); }
+});
+app.post('/api/q/:id/hello', noStore, needStore, async (req, res) => {
+  try { res.json(await together.hello(req.params.id, req.body)); } catch (err) { fail(res, err); }
+});
+app.post('/api/q/:id/say', noStore, needStore, async (req, res) => {
+  try { res.json(await together.say(req.params.id, req.body, clientIp(req))); } catch (err) { fail(res, err); }
+});
+app.post('/api/q/:id/play', noStore, needStore, async (req, res) => {
+  try { res.json(await together.play(req.params.id, req.body)); } catch (err) { fail(res, err); }
+});
+
+app.post('/api/voice', noStore, needStore, async (req, res) => {
+  try { res.json(await voice.save(req.body, clientIp(req))); } catch (err) { fail(res, err); }
+});
+app.get('/api/voice/:id', noStore, needStore, async (req, res) => {
+  try {
+    const v = await voice.one(req.params.id);
+    if (!v) return res.status(404).json({ error: 'gone', code: 'gone' });
+    const { audio, ...meta } = v;
+    res.json(meta);
+  } catch (err) { fail(res, err); }
+});
+app.get('/api/voice/:id/audio', needStore, async (req, res) => {
+  try {
+    const v = await voice.one(req.params.id);
+    if (!v) return res.status(404).end();
+    res.set('Cache-Control', 'private, max-age=86400');
+    res.type(v.type).send(Buffer.from(v.audio, 'base64'));
+  } catch (err) { fail(res, err); }
+});
+
+// The dollar and a few currencies in Lebanese pounds, for the expat corner.
+let ratesCache = null;
+app.get('/api/rates', async (req, res) => {
+  const fresh = ratesCache && Date.now() - ratesCache.fetched < 6 * 3600e3;
+  if (!fresh) {
+    try {
+      const r = await fetch('https://open.er-api.com/v6/latest/USD', { headers: { 'User-Agent': USER_AGENT }, signal: AbortSignal.timeout(6000) });
+      const data = await r.json();
+      if (data && data.rates && data.rates.LBP) {
+        const keep = ['LBP', 'EUR', 'GBP', 'CAD', 'AUD', 'AED', 'SAR', 'QAR', 'KWD', 'CHF', 'SEK', 'BRL', 'MXN', 'NGN', 'CIV', 'XOF', 'TRY', 'EGP', 'JOD', 'CNY', 'JPY'];
+        const rates = {};
+        keep.forEach(k => { if (data.rates[k]) rates[k] = data.rates[k]; });
+        ratesCache = { fetched: Date.now(), body: { base: 'USD', rates, updated: data.time_last_update_unix ? data.time_last_update_unix * 1000 : Date.now(), source: 'open.er-api.com' } };
+      }
+    } catch (err) { console.error('[rates]', err.message); }
+  }
+  res.set('Cache-Control', 'public, max-age=1800, s-maxage=3600');
+  res.json(ratesCache ? ratesCache.body : { base: 'USD', rates: { LBP: 89500 }, updated: null, source: null });
+});
+
 app.get('/api/admin/status', noStore, needStore, async (req, res) => {
   try { res.json({ setUp: await admin.isSetUp(), signedIn: await admin.check(req) }); }
   catch (err) { fail(res, err); }

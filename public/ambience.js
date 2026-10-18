@@ -1,6 +1,6 @@
 /* Room sounds, all made here with Web Audio (no recordings to download):
-   the wall clock, rain on the glass, the kettle on the sobia, crickets on a
-   summer night, cicadas in the summer afternoon, the generator during a power cut.
+   the wall clock, rain on the glass, the kettle on the sobia in winter, crickets
+   at night, cicadas on summer afternoons, the generator during a power cut.
    Off until switched on; quieter whenever the radio or a tape is playing. */
 (() => {
   'use strict';
@@ -104,14 +104,16 @@
     const set = (g, v) => g.gain.setTargetAtTime(v, t, 0.6);
     set(master, busy() ? 0.25 : 0.9);
     set(layers.rain, rain * 0.9);
-    set(layers.kettle, (scene === 'night' || scene === 'winter') ? 0.05 : 0);
-    set(layers.cicada, scene === 'summer' ? 0.035 : 0);
+    const mood = R && R.mood ? R.mood() : 'clear';
+    const cold = mood === 'winter' || mood === 'grey';
+    set(layers.kettle, scene !== 'day' && cold ? 0.05 : 0);
+    set(layers.cicada, mood === 'summer' && scene !== 'night' ? 0.035 : 0);
     set(layers.motor, motor * 0.12);
-    set(layers.air, scene === 'day' ? 0.08 : (scene === 'summer' ? 0.05 : 0.02));
+    set(layers.air, scene === 'day' ? 0.08 : (scene === 'sunset' ? 0.05 : 0.02));
     // the clock: tick, tock
     layers.tock = !layers.tock;
     click(layers.tock ? 2600 : 2100, 0.03, 0.06);
-    if (scene === 'night' && Math.random() < 0.55) setTimeout(chirp, Math.random() * 600);
+    if (scene === 'night' && !cold && Math.random() < 0.55) setTimeout(chirp, Math.random() * 600);
     if (rain > 0.1) for (let k = 0; k < Math.round(rain * 3); k++) setTimeout(drop, Math.random() * 1000);
   }
 

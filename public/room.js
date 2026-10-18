@@ -1,5 +1,6 @@
-/* The salon: a photographed 1990s Beirut living room you can look around.
-   Each object opens one part of the app. The light follows Beirut's sun. */
+/* The salon: a 1990s Beirut living room in three lights (day, sunset, night).
+   Slide and pinch to look around; every object opens one part of the app.
+   The light follows Beirut's sun and the rain follows Beirut's weather. */
 (() => {
   'use strict';
 
@@ -8,6 +9,7 @@
   const $ = id => document.getElementById(id);
   const el = S.el;
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   // ================================================================== words
 
@@ -16,37 +18,37 @@
       introTitle: 'تفضّل، البيت بيتك',
       introSub: 'صالون بيت لبناني من التسعينات. كل غرض فيه بيشتغل.',
       introEnter: 'ادخل',
-      dragHint: 'اسحب لتتفرّج على الغرفة',
+      dragHint: 'اسحب لتتفرّج على الصالون، ودوس على أيّ غرض',
       dockLabel: 'أغراض الغرفة',
-      turnLeft: 'لفّ عالشمال', turnRight: 'لفّ عاليمين', tapToOpen: 'اضغط لتفتح',
-      lookAround: 'اسحب لتتفرّج', allObjects: 'الصالون', allObjectsTitle: 'شو في بالصالون؟',
+      turnLeft: 'الغرض اللي قبل', turnRight: 'الغرض اللي بعد', tapToOpen: 'اضغط لتفتح',
+      lookAround: 'شو في بالصالون؟', allObjects: 'الصالون', allObjectsTitle: 'شو في بالصالون؟',
       paperName: 'جريدة البيت', paperPrice: 'الثمن ١٠٠٠ ل.ل.', comingUp: 'المناسبات الجايّة',
       tearNext: 'اقلب الورقة', tearBack: 'رجوع لليوم', sea: 'البحر المتوسط',
       daysLeft: n => n === 0 ? 'اليوم' : n === 1 ? 'بكرا' : `بعد ${S.num(n)} يوم`,
       close: 'سكّر',
-      scenes: { night: 'الليل', day: 'النهار', winter: 'الشتي', summer: 'الصيف' },
+      scenes: { day: 'النهار', sunset: 'المغرب', night: 'الليل' },
       sceneManual: 'اضغط لتغيّر الوقت والطقس',
-      timeLabel: 'الجوّ', weatherLabel: 'الطقس', autoBeirut: 'متل بيروت هلّق', clearW: 'صحو', rainW: 'شتي',
+      timeLabel: 'الوقت', weatherLabel: 'الطقس', autoBeirut: 'متل بيروت هلّق', clearW: 'صحو', rainW: 'شتي',
       extrasLabel: 'بالبيت', soundsW: 'أصوات البيت', cutsW: 'انقطاع الكهربا', tryCut: 'جرّب الموتير',
       cutToast: 'قطعت الكهربا…', motorToast: 'اشتغل الموتير 😄', backToast: 'إجت الكهربا!',
-      simple: 'كبّر', simpleTitle: 'أهلا وسهلا', backToRoom: 'رجوع عالصالون', radioOn: 'شغّل الراديو', radioOff: 'طفّي الراديو', nextSt: 'المحطة الجاية',
-      myPhotos: 'حطّ صور العيلة عالحيط', removePhotos: 'شيل صوري', photosNote: 'الصور بتضل على جهازك بس، ما منرفعها لحدا.',
       onTheTv: 'شوف عالتلفزيون',
       beirut: 'بيروت',
       here: 'عندك',
       objects: {
-        radio: 'الراديو', tv: 'التلفزيون', news: 'الجريدة', phone: 'التلفون', photos: 'صور العيلة',
-        cassettes: 'الكاسيتات', clock: 'الساعة', lamp: 'اللمبادير', window: 'الشبّاك', calendar: 'الروزنامة',
-        coffee: 'فنجان القهوة', books: 'دفتر تيتا'
+        radio: 'الراديو', tv: 'التلفزيون', news: 'الجريدة', phone: 'إهداء للأهل', photos: 'صور العيلة',
+        cassettes: 'الشرايط', clock: 'الساعة', lamp: 'اللمبادير', window: 'البلكون', calendar: 'المناسبات',
+        coffee: 'فنجان القهوة', books: 'سفرة تيتا', expat: 'الغربة', tawleh: 'الطاولة', together: 'قعدة سوا',
+        teta: 'كرسي تيتا', ac: 'المكيّف'
       },
       hints: {
-        radio: 'محطات لبنان مباشرة', tv: 'البث المباشر', news: 'أخبار اليوم', phone: 'ابعت إهداء', photos: 'حائط الإهداءات',
-        cassettes: 'الزمن الجميل', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'الطقس', calendar: 'المناسبات',
-        coffee: 'نقرا الفنجان؟', books: 'طبخات تيتا'
+        radio: 'محطات لبنان مباشرة', tv: 'البث المباشر', news: 'أخبار اليوم', phone: 'بصوتك أو بكلمة', photos: 'علّق صورك',
+        cassettes: 'أغاني لكل جوّ', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'الطقس بلبنان', calendar: 'الأعياد والمناسبات',
+        coffee: 'نقرا الفنجان؟', books: 'طبخات تيتا', expat: 'بيروت من بعيد', tawleh: 'شي دقّ طاولة؟', together: 'اسمعوا سوا من بعيد',
+        teta: 'كبير وسهل', ac: 'الوقت والطقس'
       },
       tvLede: 'اختار قناة، وبتشتغل هون عالتلفزيون.',
       photosLede: 'رسائل من الغربة لأهلنا بلبنان.',
-      cassettesLede: 'كاسيت لكل جوّ. اضغط وبتشتغل هون بالبيت.',
+      cassettesLede: 'شريط لكل جوّ. اضغط وبيشتغل هون بالبيت.',
       lampLede: 'سكّر الراديو لحاله بعد شوي، وإنت عم تغفى.',
       approxNote: 'الأعياد الهجرية تقريبية وبتتأكد مع رؤية الهلال.',
       coffeeLede: 'اشرب القهوة، اقلب الفنجان، وخلّينا نشوف شو مكتوبلك. (للتسلية بس!)',
@@ -57,39 +59,39 @@
       serves: n => `لـ ${S.num(n)} أشخاص`, minutes: n => `${S.num(n)} دقيقة`, ingredients: 'المكوّنات', method: 'الطريقة',
       playOnSpotify: 'شغّل', listen: 'اسمع',
       nowOutside: (w, t) => `هلّق ببيروت: ${w}، ${t}°`,
-      credits: 'مجسّمات من Khronos glTF Sample Assets (CC BY 4.0 وCC0).'
+      credits: ''
     },
     en: {
       introTitle: 'Come in, make yourself at home',
       introSub: 'A 1990s Lebanese living room. Everything in it works.',
       introEnter: 'Come in',
-      dragHint: 'Drag to look around the room',
+      dragHint: 'Slide to look around, then tap anything',
       dockLabel: 'Things in the room',
-      turnLeft: 'Turn left', turnRight: 'Turn right', tapToOpen: 'Tap to open',
-      lookAround: 'Drag to look around', allObjects: 'The room', allObjectsTitle: 'What’s in the room',
+      turnLeft: 'Previous object', turnRight: 'Next object', tapToOpen: 'Tap to open',
+      lookAround: 'What’s in the room?', allObjects: 'The room', allObjectsTitle: 'What’s in the room',
       paperName: 'The Home Gazette', paperPrice: 'LBP 1,000', comingUp: 'Coming up',
       tearNext: 'Tear the page', tearBack: 'Back to today', sea: 'Mediterranean Sea',
       daysLeft: n => n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : `In ${n} days`,
       close: 'Close',
-      scenes: { night: 'Night', day: 'Day', winter: 'Winter', summer: 'Summer' },
+      scenes: { day: 'Day', sunset: 'Sunset', night: 'Night' },
       sceneManual: 'Tap to change the time and weather',
-      timeLabel: 'Mood', weatherLabel: 'Weather', autoBeirut: 'Like Beirut now', clearW: 'Clear', rainW: 'Rain',
+      timeLabel: 'Time', weatherLabel: 'Weather', autoBeirut: 'Like Beirut now', clearW: 'Clear', rainW: 'Rain',
       extrasLabel: 'In the house', soundsW: 'Room sounds', cutsW: 'Power cuts', tryCut: 'Try the generator',
       cutToast: 'The power just went…', motorToast: 'The generator kicked in 😄', backToast: 'The electricity is back!',
-      simple: 'Simple', simpleTitle: 'Welcome home', backToRoom: 'Back to the room', radioOn: 'Turn the radio on', radioOff: 'Turn the radio off', nextSt: 'Next station',
-      myPhotos: 'Hang your family photos', removePhotos: 'Remove my photos', photosNote: 'Your photos stay on this device only. Nothing is uploaded.',
       onTheTv: 'Watch on the TV',
       beirut: 'Beirut',
       here: 'Where you are',
       objects: {
-        radio: 'Radio', tv: 'Television', news: 'Newspaper', phone: 'Telephone', photos: 'Family photos',
-        cassettes: 'Cassettes', clock: 'Clock', lamp: 'Lamp', window: 'Window', calendar: 'Calendar',
-        coffee: 'Coffee cup', books: 'Teta’s notebook'
+        radio: 'Radio', tv: 'Television', news: 'Newspaper', phone: 'Dedication', photos: 'Family photos',
+        cassettes: 'Tapes', clock: 'Clock', lamp: 'Lamp', window: 'Balcony', calendar: 'Occasions',
+        coffee: 'Coffee cup', books: 'Teta’s table', expat: 'Far from home', tawleh: 'Tawleh', together: 'Listen together',
+        teta: 'Teta’s chair', ac: 'Air conditioner'
       },
       hints: {
-        radio: 'Lebanese stations, live', tv: 'Live channels', news: 'Today’s headlines', phone: 'Send a dedication', photos: 'Dedications wall',
-        cassettes: 'Golden-age classics', clock: 'Alarm', lamp: 'Sleep timer', window: 'Weather', calendar: 'Occasions',
-        coffee: 'Read my cup?', books: 'Teta’s recipes'
+        radio: 'Lebanese stations, live', tv: 'Live channels', news: 'Today’s headlines', phone: 'In your voice or in words', photos: 'Hang your photos',
+        cassettes: 'A song for every mood', clock: 'Alarm', lamp: 'Sleep timer', window: 'Weather in Lebanon', calendar: 'Feasts and holidays',
+        coffee: 'Read my cup?', books: 'Teta’s recipes', expat: 'Beirut from afar', tawleh: 'Fancy a game?', together: 'Same song, miles apart',
+        teta: 'Big and simple', ac: 'Time and weather'
       },
       tvLede: 'Pick a channel and it plays right here on the TV.',
       photosLede: 'Messages from abroad to family in Lebanon.',
@@ -104,39 +106,39 @@
       serves: n => `Serves ${n}`, minutes: n => `${n} min`, ingredients: 'Ingredients', method: 'Method',
       playOnSpotify: 'Play', listen: 'Listen',
       nowOutside: (w, t) => `Beirut right now: ${w}, ${t}°`,
-      credits: '3D models from Khronos glTF Sample Assets (CC BY 4.0 and CC0).'
+      credits: ''
     },
     fr: {
       introTitle: 'Entrez, vous êtes chez vous',
       introSub: 'Un salon libanais des années 90. Tout y fonctionne.',
       introEnter: 'Entrer',
-      dragHint: 'Faites glisser pour regarder autour',
+      dragHint: 'Glissez pour regarder, puis touchez un objet',
       dockLabel: 'Les objets du salon',
-      turnLeft: 'Tourner à gauche', turnRight: 'Tourner à droite', tapToOpen: 'Touchez pour ouvrir',
-      lookAround: 'Glissez pour regarder', allObjects: 'Le salon', allObjectsTitle: 'Dans le salon',
+      turnLeft: 'Objet précédent', turnRight: 'Objet suivant', tapToOpen: 'Touchez pour ouvrir',
+      lookAround: 'Qu’y a-t-il au salon ?', allObjects: 'Le salon', allObjectsTitle: 'Dans le salon',
       paperName: 'La Gazette de la maison', paperPrice: '1 000 L.L.', comingUp: 'À venir',
       tearNext: 'Arracher la page', tearBack: 'Revenir à aujourd’hui', sea: 'Mer Méditerranée',
       daysLeft: n => n === 0 ? 'Aujourd’hui' : n === 1 ? 'Demain' : `Dans ${n} jours`,
       close: 'Fermer',
-      scenes: { night: 'Nuit', day: 'Jour', winter: 'Hiver', summer: 'Été' },
+      scenes: { day: 'Jour', sunset: 'Coucher du soleil', night: 'Nuit' },
       sceneManual: 'Touchez pour changer l’heure et la météo',
-      timeLabel: 'Ambiance', weatherLabel: 'Météo', autoBeirut: 'Comme à Beyrouth', clearW: 'Dégagé', rainW: 'Pluie',
+      timeLabel: 'Moment', weatherLabel: 'Météo', autoBeirut: 'Comme à Beyrouth', clearW: 'Dégagé', rainW: 'Pluie',
       extrasLabel: 'À la maison', soundsW: 'Sons de la maison', cutsW: 'Coupures de courant', tryCut: 'Essayer le générateur',
       cutToast: 'Le courant vient de sauter…', motorToast: 'Le générateur a démarré 😄', backToast: 'L’électricité est revenue !',
-      simple: 'Simple', simpleTitle: 'Bienvenue à la maison', backToRoom: 'Retour au salon', radioOn: 'Allumer la radio', radioOff: 'Éteindre la radio', nextSt: 'Station suivante',
-      myPhotos: 'Accrocher vos photos de famille', removePhotos: 'Retirer mes photos', photosNote: 'Vos photos restent sur cet appareil. Rien n’est envoyé.',
       onTheTv: 'Regarder sur la télé',
       beirut: 'Beyrouth',
       here: 'Chez vous',
       objects: {
-        radio: 'Radio', tv: 'Télévision', news: 'Journal', phone: 'Téléphone', photos: 'Photos de famille',
-        cassettes: 'Cassettes', clock: 'Horloge', lamp: 'Lampe', window: 'Fenêtre', calendar: 'Calendrier',
-        coffee: 'Tasse de café', books: 'Le cahier de Teta'
+        radio: 'Radio', tv: 'Télévision', news: 'Journal', phone: 'Dédicace', photos: 'Photos de famille',
+        cassettes: 'Cassettes', clock: 'Horloge', lamp: 'Lampe', window: 'Balcon', calendar: 'Fêtes',
+        coffee: 'Tasse de café', books: 'La table de Teta', expat: 'Loin du pays', tawleh: 'Tawlé', together: 'Écouter ensemble',
+        teta: 'Le fauteuil de Teta', ac: 'Climatiseur'
       },
       hints: {
-        radio: 'Radios libanaises en direct', tv: 'Chaînes en direct', news: 'Les titres du jour', phone: 'Envoyer une dédicace', photos: 'Le mur des dédicaces',
-        cassettes: 'Les classiques', clock: 'Réveil', lamp: 'Minuterie', window: 'Météo', calendar: 'Fêtes',
-        coffee: 'Lire ma tasse ?', books: 'Les recettes de Teta'
+        radio: 'Radios libanaises en direct', tv: 'Chaînes en direct', news: 'Les titres du jour', phone: 'De vive voix ou par écrit', photos: 'Accrochez vos photos',
+        cassettes: 'Une chanson pour chaque humeur', clock: 'Réveil', lamp: 'Minuterie', window: 'La météo au Liban', calendar: 'Fêtes et jours fériés',
+        coffee: 'Lire ma tasse ?', books: 'Les recettes de Teta', expat: 'Beyrouth de loin', tawleh: 'Une partie ?', together: 'La même chanson, de loin',
+        teta: 'Grand et simple', ac: 'Heure et météo'
       },
       tvLede: 'Choisissez une chaîne, elle passe ici, sur la télé.',
       photosLede: 'Des messages de l’étranger pour la famille au Liban.',
@@ -151,7 +153,7 @@
       serves: n => `Pour ${n}`, minutes: n => `${n} min`, ingredients: 'Ingrédients', method: 'Préparation',
       playOnSpotify: 'Écouter', listen: 'Écouter',
       nowOutside: (w, t) => `À Beyrouth en ce moment : ${w}, ${t}°`,
-      credits: 'Modèles 3D : Khronos glTF Sample Assets (CC BY 4.0 et CC0).'
+      credits: ''
     }
   };
   const r = (key, ...args) => {
@@ -159,28 +161,53 @@
     return typeof v === 'function' ? v(...args) : v;
   };
 
-  // ================================================================== the objects
+  // ================================================================== the room in three lights
 
-  // yaw/pitch in degrees, measured in the panorama (0,0 = the window).
-  const OBJECTS = [
-    { id: 'calendar', yaw: -176.8, pitch: 10.4 },
-    { id: 'clock', yaw: -145.6, pitch: 27.0 },
-    { id: 'phone', yaw: -104.9, pitch: -12.6 },
-    { id: 'photos', yaw: -53.0, pitch: 14.7 },
-    { id: 'lamp', yaw: -46.9, pitch: -3.5 },
-    { id: 'coffee', yaw: -38.8, pitch: -18.4 },
-    { id: 'books', yaw: -24.3, pitch: -36.7 },
-    { id: 'window', yaw: -8.9, pitch: 1.8 },
-    { id: 'news', yaw: 0.8, pitch: -28.1 },
-    { id: 'tv', yaw: 34.6, pitch: -8.0 },
-    { id: 'cassettes', yaw: 82.7, pitch: -2.0 },
-    { id: 'radio', yaw: 85.0, pitch: -12.7 }
-  ];
-  const hidden = new Set(); // objects switched off by the server config
-  // where things are in the panorama (from the render): the TV picture and the photo frames
-  const TV_SCREEN = [[27.728, -4.23], [40.089, -4.28], [40.089, -13.361], [27.728, -13.211]];
-  const PHOTO_FRAMES = [[[-97.739, 13.81], [-92.1, 13.923], [-97.739, 20.723], [-92.1, 20.884]], [[-54.968, 11.676], [-51.031, 11.101], [-54.968, 18.278], [-51.031, 17.412]], [[-96.522, 4.534], [-91.853, 4.561], [-96.522, 9.131], [-91.853, 9.185]], [[-54.474, 4.117], [-50.882, 3.925], [-54.474, 7.896], [-50.882, 7.531]], [[-106.917, 9.029], [-102.054, 9.226], [-106.917, 15.568], [-102.054, 15.896]]];
-  const STEAM = { tea: [-2.3, -24.5], kettle: [18.4, -5.5] };
+  const SCENES = ['day', 'sunset', 'night'];
+  const SI = { day: 0, night: 1, sunset: 2 };          // index into the per-picture positions below
+  // Where things are in each picture, in % of its width and height ([day, night, sunset]).
+  const SPOTS = {
+    radio: [[25.5, 41.5], [25.5, 41.5], [25.5, 40]],
+    phone: [[20.3, 37.5], [20.5, 38], [20.5, 36.5]],
+    tv: [[91.5, 44], [91.5, 44], [90, 42]],
+    cassettes: [[89.5, 55.5], [77.5, 61.5], [77, 60]],
+    clock: [[21, 22], null, null],
+    calendar: [[27, 20], [26.8, 20], [27, 22]],
+    expat: [[12.6, 23.5], [14.5, 23.5], [14.5, 23]],
+    window: [[55, 33], [55, 33], [53, 36]],
+    lamp: [[10, 38.5], [10, 39], [9.8, 37.5]],
+    coffee: [[57.5, 58.5], [44.8, 56.5], [44.6, 54.5]],
+    tawleh: [[47, 57], [61, 82], [56, 59.5]],
+    news: [[30, 87], [35, 86], [13, 93]],
+    books: [[88, 80], [88, 80], [90, 74]],
+    photos: [[77, 27.5], [77, 27.5], [77, 27.5]],
+    together: [[16, 64], [12, 58], [22, 62]],
+    teta: [[71.5, 51], [71.5, 51], [70, 50]],
+    ac: [[9, 2.5], [9, 2.5], [9, 2.5]]
+  };
+  // The objects in the order they sit in the room, left to right.
+  const OBJECT_IDS = ['ac', 'lamp', 'expat', 'phone', 'clock', 'radio', 'calendar', 'together', 'news', 'tawleh', 'window', 'coffee', 'teta', 'photos', 'cassettes', 'tv', 'books'];
+  const OBJECTS = OBJECT_IDS.map(id => ({ id }));
+  const ACTION_ONLY = { teta: true, ac: true };          // these do something instead of opening a drawer
+  const PX = { day: [1264, 843], night: [1264, 843], sunset: [1536, 1024] };
+  const TV = {
+    day: [[1088.3, 320], [1204, 319.3], [1202.7, 419.3], [1089.3, 418.3]],
+    night: [[1094, 321], [1204, 319.5], [1203, 416], [1092, 411]],
+    sunset: [[1330, 381], [1459, 379.5], [1457.5, 490], [1330, 481]]
+  };
+  const FRAMES = {
+    day: [[959, 213, 991, 268], [304, 286, 332, 318], [247, 303, 268, 330], [373, 236, 400, 278], [1161, 133, 1197, 166]],
+    night: [[958, 212, 992, 270], [306, 286, 334, 318], [262, 304, 282, 330], [375, 238, 400, 275], [1158, 132, 1196, 168]],
+    sunset: [[1163, 251, 1203, 318], [371, 337, 404, 374], [285, 373, 303, 392], [455, 282, 485, 325], [1402, 153, 1468, 200]]
+  };
+  const GLASS = { day: [44.5, 21, 60.9, 55.8], night: [44.5, 21, 60.9, 55.8], sunset: [44.9, 20.7, 60.2, 54.7] };
+  const STEAM = { night: [[44.7, 55.6, 1], [48, 59.3, 0]], sunset: [[44.6, 54.2, 1], [53, 57.8, 0.7]], day: [[0, 0, 0], [0, 0, 0]] };
+  const PELMET = { day: [32.6, 66.4, 9.6, 11.4], night: [32.6, 66.4, 9.6, 11.4], sunset: [32.6, 66.6, 9, 10.5] };   // x0, x1, y at the ends
+
+  const hidden = new Set();   // objects switched off by the server config
+  const norm = (scene, [x, y]) => [x / PX[scene][0], y / PX[scene][1]];
+  function spot(id, sc = scene) { const p = SPOTS[id] && SPOTS[id][SI[sc]]; return p ? [p[0] / 100, p[1] / 100] : null; }
+  function visibleObjects(sc = scene) { return OBJECTS.filter(o => !hidden.has(o.id) && spot(o.id, sc)); }
 
   // ================================================================== Beirut's sun
 
@@ -201,21 +228,28 @@
     return { alt: alt / RAD, H };
   }
 
-  // Four versions of the room. After dark it is night; in the day the
-  // season and Beirut's real weather choose between day, winter and summer.
+  // After dark it is night; the golden hour before (and just after) sunset is the sunset room.
   function sceneFor(date = new Date()) {
     const { alt, H } = sun(date);
-    if (alt < -3) return 'night';
-    const month = Number(beirutDate(date).slice(5, 7));
-    const w = S.weather && S.weather();
-    const c = w && (w.cities || []).find(x => x.id === 'beirut');
-    const code = c ? c.code : null;
-    const wet = code !== null && (code === 3 || code === 45 || code === 48 || code >= 51);
-    if (wet || month === 12 || month <= 2) return 'winter';
-    if (month >= 6 && month <= 9) return 'summer';
-    if (H > 0 && alt < 18 && month >= 4 && month <= 10) return 'summer';   // golden hour in the warm months
+    if (alt < -5) return 'night';
+    if (H > 0 && alt < 9) return 'sunset';
+    if (H <= 0 && alt < 1.5) return 'sunset';
     return 'day';
   }
+  // The season and the weather tint the light: grey and cool in winter, warmer in summer.
+  function moodNow() {
+    const month = Number(beirutDate(new Date()).slice(5, 7));
+    const code = beirutCode();
+    const wet = weatherMode === 'rain' || (weatherMode === 'auto' && code !== null && (code === 3 || code === 45 || code === 48 || code >= 51));
+    if (weatherMode === 'clear') return month >= 6 && month <= 9 ? 'summer' : 'clear';
+    if (wet) return 'grey';
+    if (month === 12 || month <= 2) return 'winter';
+    if (month >= 6 && month <= 9) return 'summer';
+    return 'clear';
+  }
+  const GRADE = {                       // multiply rgb, saturation
+    clear: [1, 1, 1, 1], summer: [1.045, 1.0, 0.93, 1.06], winter: [0.97, 0.99, 1.03, 0.92], grey: [0.86, 0.9, 0.97, 0.78]
+  };
 
   // Sunrise and sunset around a given moment (searched minute by minute).
   function sunTimes(date = new Date()) {
@@ -241,14 +275,10 @@
     return new Intl.DateTimeFormat(S.locale(), { hour: 'numeric', minute: '2-digit', timeZone: tz }).format(d);
   }
 
-  // ================================================================== images
+  // ================================================================== pictures
 
-  const SCENES = ['night', 'day', 'winter', 'summer'];
-  const small = Math.min(screen.width, screen.height) < 700;
-  let maxTex = 4096;
-  function panoUrl(scene) { return `/room/pano-${scene}-${small || maxTex < 4096 ? 2 : 4}k.jpg`; }
-  function doorUrl(scene) { return `/room/door-${scene}${small ? '-m' : ''}.jpg`; }
-
+  const sharp = Math.max(screen.width, screen.height) * (window.devicePixelRatio || 1) > 1400;
+  function picUrl(sc, small) { return `/room/${sc}${small ? '-s' : ''}.jpg`; }
   function loadImage(src) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -262,42 +292,45 @@
   // ================================================================== the viewer
 
   const canvas = $('view');
-  const view = { yaw: 10, pitch: -6, fov: 0, vy: 0, vp: 0 };
-  let gl = null, prog = null, tex = [null, null], mixAmount = 0, uni = {};
+  // cx, cy: the point of the picture in the middle of the screen (0..1); z: zoom over "just fills the screen"
+  const view = { cx: 0.5, cy: 0.5, z: 1, vx: 0, vy: 0 };
+  let gl = null, prog = null, tex = [null, null, null], mixAmount = 0, uni = {};
   let needsDraw = true;
+  let aspect = 1.5;                       // of the picture on show
+  let maxTex = 4096;
 
-  function defaultFov() { return innerWidth < innerHeight ? 88 : 68; }
-  view.fov = defaultFov();
-
-  const VERT = 'attribute vec2 a;varying vec2 p;void main(){p=a;gl_Position=vec4(a,0.,1.);}';
+  const VERT = 'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
   const FRAG = `
     #ifdef GL_FRAGMENT_PRECISION_HIGH
     precision highp float;
     #else
     precision mediump float;
     #endif
-    varying vec2 p;
-    uniform mat3 rot;
-    uniform vec2 th;
+    uniform vec2 res;          // canvas size in device pixels
+    uniform vec4 cam;          // cx, cy, uv per device pixel (x, y)
+    uniform float asp;         // picture aspect
     uniform sampler2D t0;
     uniform sampler2D t1;
     uniform float mixv;
-    uniform sampler2D tm;      // where the window glass is
+    uniform vec4 glass;        // the balcony glass (u0, v0, u1, v1)
     uniform float rain;        // 0 dry .. 1 pouring
     uniform float time;
     uniform float flash;       // lightning
     uniform float power;       // 1 = mains, 0 = power cut
-    uniform float motor;       // 1 = running on the neighbourhood generator
-    uniform vec4 steamA;       // yaw, pitch (radians), strength, -
+    uniform float motor;       // 1 = on the neighbourhood generator
+    uniform vec4 steamA;       // u, v, strength
     uniform vec4 steamB;
-    uniform sampler2D td;      // seasonal decorations (see-through overlay)
+    uniform sampler2D td;      // seasonal decorations
     uniform float decor;
+    uniform float glow;        // night: decorations and city lights glow and twinkle
+    uniform vec4 grade;        // rgb multiply, saturation
+    uniform float vign;
     float h21(vec2 q) { q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }
     float vn(vec2 q) { vec2 i = floor(q), f = fract(q); f = f * f * (3.0 - 2.0 * f);
       return mix(mix(h21(i), h21(i + vec2(1.0, 0.0)), f.x), mix(h21(i + vec2(0.0, 1.0)), h21(i + vec2(1.0, 1.0)), f.x), f.y); }
-    float steam(vec4 s, float lon, float lat, float t) {
+    float steam(vec4 s, vec2 uv, float t) {
       if (s.z <= 0.0) return 0.0;
-      vec2 q = vec2((lon - s.x) * cos(lat), lat - s.y) * 57.2958;    // degrees around the source
+      vec2 q = vec2((uv.x - s.x) * asp, s.y - uv.y) * 260.0;
       if (q.y < -0.3 || q.y > 9.0 || abs(q.x) > 4.0) return 0.0;
       float w = 0.5 + q.y * 0.28;
       float sway = sin(q.y * 0.9 - t * 1.3) * 0.35 * q.y * 0.25;
@@ -306,7 +339,6 @@
       float fade = smoothstep(-0.3, 0.6, q.y) * smoothstep(9.0, 2.0, q.y);
       return body * n * fade * s.z;
     }
-    const float PI = 3.14159265;
     // Running drops with trails on glass (after Martijn Steinrucken's "Heartfelt" idea).
     vec3 drops(vec2 g0, float t) {
       vec2 aspect = vec2(2.0, 1.0);
@@ -330,7 +362,7 @@
       trail *= fog;
       return vec3(drop * dp + trail * tp, max(drop, trail));
     }
-    vec3 beads(vec2 g) {      // small still droplets
+    vec3 beads(vec2 g) {
       vec2 id = floor(g); vec2 gv = fract(g) - 0.5;
       float n = h21(id);
       vec2 c = vec2(n - 0.5, fract(n * 7.3) - 0.5) * 0.7;
@@ -340,38 +372,48 @@
       return vec3(d * m * 0.6, m);
     }
     void main(){
-      vec3 d = normalize(rot * vec3(p.x * th.x, p.y * th.y, -1.0));
-      float lon = atan(d.x, -d.z);
-      float lat = asin(clamp(d.y, -1.0, 1.0));
-      vec2 uv = vec2(0.5 + lon / (2.0 * PI), 0.5 - lat / PI);
+      vec2 fc = gl_FragCoord.xy - res * 0.5;
+      vec2 uv = vec2(cam.x + fc.x * cam.z, cam.y - fc.y * cam.w);
       vec4 c = texture2D(t0, uv);
       if (mixv > 0.0) c = mix(c, texture2D(t1, uv), mixv);
-      if (rain > 0.001) {
-        float m = texture2D(tm, uv).r;
-        if (m > 0.02) {
-          vec2 st = vec2(lon, lat) * 6.0;
-          vec3 a = drops(st, time);
-          vec3 b = drops(st * 1.65 + vec2(7.54, 2.1), time * 1.1);
-          vec3 e = beads(st * 6.0);
-          vec2 o = (a.xy + b.xy * 0.7 + e.xy) * rain;
-          float wetness = max(max(a.z, b.z), e.z);
-          vec2 u2 = uv + o * 0.045;
-          float bl = 0.0024 * (1.0 - wetness);    // drops are clear, the fogged glass between is soft
-          vec3 g = (texture2D(t0, u2 + vec2(bl, 0.0)).rgb + texture2D(t0, u2 - vec2(bl, 0.0)).rgb +
-                    texture2D(t0, u2 + vec2(0.0, bl)).rgb + texture2D(t0, u2 - vec2(0.0, bl)).rgb) * 0.25;
-          g *= mix(vec3(0.72, 0.78, 0.9), vec3(1.05), wetness);
-          g += wetness * 0.06 + pow(wetness, 3.0) * 0.08;
-          c.rgb = mix(c.rgb, g, clamp(m, 0.0, 1.0) * rain);
-          c.rgb += flash * m * 0.9;
-        }
+      float m = smoothstep(glass.x, glass.x + 0.006, uv.x) * smoothstep(glass.z, glass.z - 0.006, uv.x) *
+                smoothstep(glass.y, glass.y + 0.006, uv.y) * smoothstep(glass.w, glass.w - 0.006, uv.y);
+      if (glow > 0.0 && m > 0.0) {            // the city lights across the bay shimmer a little
+        float l = dot(c.rgb, vec3(0.3, 0.55, 0.15));
+        float tw = vn(uv * vec2(asp, 1.0) * 220.0 + vec2(time * 0.9, time * 0.35)) * 2.0 - 1.0;
+        c.rgb *= 1.0 + glow * m * smoothstep(0.5, 0.85, l) * tw * 0.28;
       }
-      if (decor > 0.0) { vec4 dd = texture2D(td, uv); c.rgb = mix(c.rgb, dd.rgb, dd.a * decor); }
+      if (rain > 0.001 && m > 0.0) {
+        vec2 st = vec2(uv.x * asp, uv.y) * 9.0;
+        vec3 a = drops(st, time);
+        vec3 b = drops(st * 1.65 + vec2(7.54, 2.1), time * 1.1);
+        vec3 e = beads(st * 6.0);
+        vec2 o = (a.xy + b.xy * 0.7 + e.xy) * rain;
+        float wetness = max(max(a.z, b.z), e.z);
+        vec2 u2 = uv + o * 0.03;
+        float bl = 0.0028 * (1.0 - wetness);
+        vec3 g = (texture2D(t0, u2 + vec2(bl, 0.0)).rgb + texture2D(t0, u2 - vec2(bl, 0.0)).rgb +
+                  texture2D(t0, u2 + vec2(0.0, bl)).rgb + texture2D(t0, u2 - vec2(0.0, bl)).rgb) * 0.25;
+        g *= mix(vec3(0.74, 0.79, 0.88), vec3(1.05), wetness);
+        g += wetness * 0.05 + pow(wetness, 3.0) * 0.07;
+        c.rgb = mix(c.rgb, g, m * rain);
+        c.rgb += flash * m * 0.9;
+      }
+      if (decor > 0.0) {
+        vec4 dd = texture2D(td, uv);
+        float tw = 1.0;
+        if (glow > 0.0) tw = 0.8 + 0.2 * sin(time * 1.7 + vn(uv * vec2(asp, 1.0) * 30.0) * 14.0);
+        c.rgb = mix(c.rgb, dd.rgb * mix(1.0, tw, glow), dd.a * decor);
+      }
       c.rgb += flash * 0.06;
-      float st = steam(steamA, lon, lat, time) + steam(steamB, lon, lat, time);
-      c.rgb = mix(c.rgb, vec3(0.96, 0.94, 0.9), clamp(st * 0.55, 0.0, 0.35));
-      vec3 mains = vec3(1.0);
-      vec3 gen = vec3(1.0, 0.84, 0.66) * 0.78;
-      c.rgb *= mix(vec3(0.03, 0.03, 0.05), mix(mains, gen, motor), power);
+      float st = steam(steamA, uv, time) + steam(steamB, uv, time);
+      c.rgb = mix(c.rgb, vec3(0.96, 0.94, 0.9), clamp(st * 0.5, 0.0, 0.32));
+      float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
+      c.rgb = mix(vec3(l), c.rgb, grade.w) * grade.rgb;
+      vec2 sp = gl_FragCoord.xy / res - 0.5;
+      c.rgb *= 1.0 - vign * dot(sp, sp) * 1.1;
+      vec3 gen = vec3(1.0, 0.84, 0.66) * 0.74;
+      c.rgb *= mix(vec3(0.025, 0.025, 0.04), mix(vec3(1.0), gen, motor), power);
       gl_FragColor = vec4(c.rgb, 1.0);
     }`;
 
@@ -393,7 +435,7 @@
       gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
       gl.linkProgram(prog);
       if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error('link');
-    } catch { gl = null; return false; }
+    } catch (err) { console.warn(err); gl = null; return false; }
     gl.useProgram(prog);
     const buf = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, buf);
@@ -401,20 +443,19 @@
     const a = gl.getAttribLocation(prog, 'a');
     gl.enableVertexAttribArray(a);
     gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    for (const n of ['rot', 'th', 't0', 't1', 'mixv', 'tm', 'rain', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor']) uni[n] = gl.getUniformLocation(prog, n);
+    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign']) uni[n] = gl.getUniformLocation(prog, n);
     gl.uniform1i(uni.t0, 0);
     gl.uniform1i(uni.t1, 1);
-    gl.uniform1i(uni.tm, 2);
-    gl.uniform1i(uni.td, 3);
+    gl.uniform1i(uni.td, 2);
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); }, false);
-    canvas.addEventListener('webglcontextrestored', () => { initGL(); if (currentImg) setTexture(0, currentImg); needsDraw = true; });
+    canvas.addEventListener('webglcontextrestored', () => { tex = [null, null, null]; initGL(); if (currentImg) setTexture(0, currentImg); decorFor = null; loadDecor(); needsDraw = true; });
     return true;
   }
 
   function setTexture(unit, img) {
     if (!tex[unit]) tex[unit] = gl.createTexture();
-    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3][unit]);
-    const rgba = unit === 3;
+    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2][unit]);
+    const rgba = unit === 2;
     gl.bindTexture(gl.TEXTURE_2D, tex[unit]);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -425,54 +466,78 @@
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
 
-  function basis() {
-    const y = view.yaw * RAD, p = view.pitch * RAD;
-    const cy = Math.cos(y), sy = Math.sin(y), cp = Math.cos(p), sp = Math.sin(p);
-    return {
-      r: [cy, 0, sy],
-      u: [-sy * sp, cp, cy * sp],
-      f: [sy * cp, sp, -cy * cp]
-    };
+  // ------------------------------------------------------------------ geometry
+  function vw() { return canvas.clientWidth || innerWidth; }
+  function vh() { return canvas.clientHeight || innerHeight; }
+  function baseScale() { return Math.max(vw() / aspect, vh()); }        // px per picture-height at z = 1
+  function pxW() { return aspect * baseScale() * view.z; }              // picture width on screen
+  function pxH() { return baseScale() * view.z; }
+  const ZMAX = 3.2;
+  function clampView(v = view) {
+    v.z = Math.max(1, Math.min(ZMAX, v.z));
+    const s = baseScale() * v.z;
+    const hw = vw() / 2 / (aspect * s), hh = vh() / 2 / s;
+    v.cx = hw >= 0.5 ? 0.5 : Math.max(hw, Math.min(1 - hw, v.cx));
+    v.cy = hh >= 0.5 ? 0.5 : Math.max(hh, Math.min(1 - hh, v.cy));
+    return v;
   }
-  function tanHalf() {
-    const ty = Math.tan(view.fov * RAD / 2);
-    return [ty * canvas.clientWidth / Math.max(1, canvas.clientHeight), ty];
+  function project(u, v) {
+    return { x: (u - view.cx) * pxW() + vw() / 2, y: (v - view.cy) * pxH() + vh() / 2, front: true };
+  }
+  function unproject(x, y) {
+    return [(x - vw() / 2) / pxW() + view.cx, (y - vh() / 2) / pxH() + view.cy];
+  }
+  // The view that puts picture point (u, v) at screen point (sx, sy) with zoom z.
+  function viewFor(u, v, z, sx = vw() / 2, sy = vh() / 2) {
+    const s = baseScale() * z;
+    return clampView({ cx: u - (sx - vw() / 2) / (aspect * s), cy: v - (sy - vh() / 2) / s, z });
+  }
+  function startView() {
+    const portrait = vh() > vw();
+    return clampView({ cx: portrait ? 0.53 : 0.5, cy: 0.5, z: 1 });
   }
 
   function resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, small ? 2 : 1.75);
-    const w = Math.round(canvas.clientWidth * dpr), h = Math.round(canvas.clientHeight * dpr);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.round(vw() * dpr), h = Math.round(vh() * dpr);
     if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+    clampView();
     needsDraw = true;
   }
 
   function draw() {
     if (gl && tex[0]) {
-      const { r: rr, u, f } = basis();
+      const dpr = canvas.width / Math.max(1, vw());
       gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.uniformMatrix3fv(uni.rot, false, [...rr, ...u, -f[0], -f[1], -f[2]]);
-      gl.uniform2fv(uni.th, tanHalf());
+      gl.uniform2f(uni.res, canvas.width, canvas.height);
+      gl.uniform4f(uni.cam, view.cx, view.cy, 1 / (pxW() * dpr), 1 / (pxH() * dpr));
+      gl.uniform1f(uni.asp, aspect);
       gl.uniform1f(uni.mixv, mixAmount);
-      gl.uniform1f(uni.rain, tex[2] ? rainNow : 0);
+      const g = GLASS[scene];
+      gl.uniform4f(uni.glass, g[0] / 100, g[1] / 100, g[2] / 100, g[3] / 100);
+      gl.uniform1f(uni.rain, rainNow);
       gl.uniform1f(uni.time, (performance.now() / 1000) % 3600);
       gl.uniform1f(uni.flash, flashNow);
       gl.uniform1f(uni.power, powerNow);
       gl.uniform1f(uni.motor, motorNow);
-      const hot = scene === 'night' || scene === 'winter';
-      gl.uniform4f(uni.steamA, STEAM.tea[0] * RAD, STEAM.tea[1] * RAD, hot ? 1 : 0, 0);
-      gl.uniform4f(uni.steamB, STEAM.kettle[0] * RAD, STEAM.kettle[1] * RAD, hot ? 0.8 : 0, 0);
+      const [sa, sb] = STEAM[scene];
+      gl.uniform4f(uni.steamA, sa[0] / 100, sa[1] / 100, sa[2], 0);
+      gl.uniform4f(uni.steamB, sb[0] / 100, sb[1] / 100, sb[2], 0);
+      gl.uniform1f(uni.glow, scene === 'day' ? 0 : scene === 'sunset' ? 0.6 : 1);
+      const gr = GRADE[mood] || GRADE.clear;
+      gl.uniform4f(uni.grade, gr[0], gr[1], gr[2], gr[3]);
+      gl.uniform1f(uni.vign, 0.32);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[0]);
       if (tex[1]) { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[1]); }
+      gl.uniform1f(uni.decor, tex[2] && decorFor === scene ? 1 : 0);
       if (tex[2]) { gl.activeTexture(gl.TEXTURE2); gl.bindTexture(gl.TEXTURE_2D, tex[2]); }
-      gl.uniform1f(uni.decor, tex[3] && decorFor === scene ? 1 : 0);
-      if (tex[3]) { gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, tex[3]); }
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     } else if (!gl && currentImg) {
-      // No WebGL: slide a flat strip of the panorama instead.
-      const w = canvas.clientHeight * 2.2;
+      // No WebGL: the picture as a plain background that slides the same way.
       canvas.style.backgroundImage = `url("${currentImg.src}")`;
-      canvas.style.backgroundSize = `${w}px auto`;
-      canvas.style.backgroundPosition = `${-(0.5 + view.yaw / 360) * w + canvas.clientWidth / 2}px ${50 - view.pitch}%`;
+      canvas.style.backgroundSize = `${pxW()}px ${pxH()}px`;
+      canvas.style.backgroundPosition = `${vw() / 2 - view.cx * pxW()}px ${vh() / 2 - view.cy * pxH()}px`;
+      canvas.style.filter = powerNow < 0.5 ? 'brightness(.06)' : motorNow > 0.5 ? 'brightness(.75) sepia(.3)' : '';
     }
     placeHotspots();
   }
@@ -484,41 +549,43 @@
 
   function renderHotspots() {
     hotLayer.replaceChildren(...OBJECTS.filter(o => !hidden.has(o.id)).map(o => {
-      const b = el('button', { type: 'button', className: 'hot', tabIndex: -1 }, [
+      const b = el('button', { type: 'button', className: 'hot hot-' + o.id, tabIndex: -1 }, [
         el('span', { className: 'hot-dot' }),
         el('span', { className: 'hot-label', text: r('objects')[o.id] })
       ]);
       b.dataset.id = o.id;
       b.setAttribute('aria-hidden', 'true');
       b.addEventListener('click', e => { e.stopPropagation(); openObject(o.id, true); });
+      if (finePointer) {
+        b.addEventListener('pointerenter', () => { hoverId = o.id; setFocus(o.id); });
+        b.addEventListener('pointerleave', () => { if (hoverId === o.id) { hoverId = null; } });
+      }
       hotEls.set(o.id, b);
       return b;
     }));
     needsDraw = true;
   }
 
-  // The object closest to the middle of the view is "in focus": it gets its
-  // label, and the card at the bottom offers to open it.
-  let focusId = null;
+  // On touch screens the object nearest the middle of the screen is "in focus": it shows
+  // its name and the card at the bottom offers to open it. With a mouse, hovering does it.
+  let focusId = null, hoverId = null;
   function placeHotspots() {
-    const { r: rr, u, f } = basis();
-    let best = null, bestDot = Math.cos(25 * RAD);
-    const [tx, ty] = tanHalf();
-    const W = canvas.clientWidth, H = canvas.clientHeight;
+    const W = vw(), H = vh();
+    const cx = W / 2, cy = H * (innerWidth < 900 && sheetOpen() ? 0.28 : 0.5);
+    let best = null, bestD = Math.min(W, H) * 0.3;
     for (const o of OBJECTS) {
       const b = hotEls.get(o.id);
       if (!b || !b.isConnected) continue;
-      const y = o.yaw * RAD, p = o.pitch * RAD;
-      const h = [Math.sin(y) * Math.cos(p), Math.sin(p), -Math.cos(y) * Math.cos(p)];
-      const z = h[0] * f[0] + h[1] * f[1] + h[2] * f[2];
-      if (z > bestDot) { bestDot = z; best = o.id; }
-      if (z < 0.2) { b.style.visibility = 'hidden'; continue; }
-      const x = (h[0] * rr[0] + h[1] * rr[1] + h[2] * rr[2]) / z / tx;
-      const yy = (h[0] * u[0] + h[1] * u[1] + h[2] * u[2]) / z / ty;
-      if (Math.abs(x) > 1.15 || Math.abs(yy) > 1.15) { b.style.visibility = 'hidden'; continue; }
+      const p = spot(o.id);
+      if (!p) { b.style.visibility = 'hidden'; continue; }
+      const s = project(p[0], p[1]);
+      if (s.x < -30 || s.x > W + 30 || s.y < -30 || s.y > H + 30) { b.style.visibility = 'hidden'; continue; }
       b.style.visibility = 'visible';
-      b.style.transform = `translate(${((x + 1) / 2 * W).toFixed(1)}px, ${((1 - yy) / 2 * H).toFixed(1)}px)`;
+      b.style.transform = `translate(${s.x.toFixed(1)}px, ${s.y.toFixed(1)}px)`;
+      const d = Math.hypot(s.x - cx, s.y - cy);
+      if (d < bestD) { bestD = d; best = o.id; }
     }
+    if (finePointer) best = hoverId || focusId;
     if (best !== focusId) setFocus(best);
   }
 
@@ -533,66 +600,77 @@
     card.classList.remove('is-new'); void card.offsetWidth; if (id) card.classList.add('is-new');
   }
 
-  // Step to the next object to the left or right.
+  // Step to the next object to the left or right (in the room, not in reading order).
   function step(dir) {
-    const list = OBJECTS.filter(o => !hidden.has(o.id));
-    let bestO = null, bestD = 1e9;
-    for (const o of list) {
-      let d = ((o.yaw - view.yaw) * dir + 720) % 360;
-      if (o.id === focusId || d < 4) d += 360;
-      if (d < bestD) { bestD = d; bestO = o; }
-    }
-    if (bestO) { hideHint(); turnTo(bestO.yaw, Math.max(-22, Math.min(14, bestO.pitch * 0.85))); }
+    const list = visibleObjects().map(o => ({ id: o.id, u: spot(o.id)[0] })).sort((a, b) => a.u - b.u);
+    if (!list.length) return;
+    let i = list.findIndex(o => o.id === focusId);
+    if (i < 0) {
+      const c = view.cx;
+      i = dir > 0 ? list.findIndex(o => o.u > c) : list.length - 1 - [...list].reverse().findIndex(o => o.u < c);
+      if (i < 0 || i >= list.length) i = dir > 0 ? 0 : list.length - 1;
+    } else i = (i + dir + list.length) % list.length;
+    const o = list[i];
+    hideHint();
+    const p = spot(o.id);
+    glideTo(viewFor(p[0], p[1], Math.max(view.z, vh() > vw() ? 1 : 1.25)));
+    if (finePointer) { hoverId = null; setFocus(o.id); }
   }
-  $('focus-prev').addEventListener('click', () => step(-1));
-  $('focus-next').addEventListener('click', () => step(1));
+  $('focus-prev').addEventListener('click', () => step(document.documentElement.dir === 'rtl' ? 1 : -1));
+  $('focus-next').addEventListener('click', () => step(document.documentElement.dir === 'rtl' ? -1 : 1));
   $('focus-card').addEventListener('click', () => { if (focusId) openObject(focusId, true); else openGrid(); });
 
-  // ------------------------------------------------------------------ looking around
+  // ------------------------------------------------------------------ sliding and zooming
 
   let dragging = false, moved = 0, lastX = 0, lastY = 0, lastT = 0;
   const pointers = new Map();
-  let pinchStart = 0, fovStart = 0;
-
-  function degPerPx() { return view.fov / Math.max(1, canvas.clientHeight); }
-  function clampView() {
-    view.pitch = Math.max(-75, Math.min(75, view.pitch));
-    view.fov = Math.max(22, Math.min(100, view.fov));
-    view.yaw = ((view.yaw + 540) % 360) - 180;
-  }
+  let pinch = null;
 
   canvas.addEventListener('pointerdown', e => {
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    canvas.setPointerCapture(e.pointerId);
+    try { canvas.setPointerCapture(e.pointerId); } catch { /* fine */ }
+    stopGlide();
     if (pointers.size === 2) {
       const [a, b] = [...pointers.values()];
-      pinchStart = Math.hypot(a.x - b.x, a.y - b.y); fovStart = view.fov;
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      pinch = { d: Math.hypot(a.x - b.x, a.y - b.y), z: view.z, at: unproject(mid.x, mid.y) };
       dragging = false;
       return;
     }
     dragging = true; moved = 0;
     lastX = e.clientX; lastY = e.clientY; lastT = performance.now();
-    view.vy = view.vp = 0;
-    stopTurn();
+    view.vx = view.vy = 0;
   });
   canvas.addEventListener('pointermove', e => {
+    if (finePointer && !pointers.size) {
+      // hovering with a mouse: light up whatever is under it
+      let near = null, nd = 34;
+      for (const o of visibleObjects()) {
+        const p = spot(o.id), s = project(p[0], p[1]);
+        const d = Math.hypot(s.x - e.clientX, s.y - e.clientY);
+        if (d < nd) { nd = d; near = o.id; }
+      }
+      canvas.style.cursor = near ? 'pointer' : '';
+      if (near !== hoverId) { hoverId = near; if (near) setFocus(near); }
+    }
     if (!pointers.has(e.pointerId)) return;
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pointers.size === 2) {
+    if (pointers.size === 2 && pinch) {
       const [a, b] = [...pointers.values()];
       const d = Math.hypot(a.x - b.x, a.y - b.y);
-      if (pinchStart) { view.fov = fovStart * pinchStart / d; clampView(); needsDraw = true; }
+      const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+      Object.assign(view, viewFor(pinch.at[0], pinch.at[1], pinch.z * d / pinch.d, mid.x, mid.y));
+      moved += 20; needsDraw = true;
       return;
     }
     if (!dragging) return;
     const now = performance.now();
     const dx = e.clientX - lastX, dy = e.clientY - lastY;
     moved += Math.abs(dx) + Math.abs(dy);
-    const k = degPerPx();
-    view.yaw -= dx * k;
-    view.pitch += dy * k;
+    view.cx -= dx / pxW();
+    view.cy -= dy / pxH();
     const dt = Math.max(1, now - lastT);
-    view.vy = -dx * k / dt * 16; view.vp = dy * k / dt * 16;
+    view.vx = -dx / pxW() / dt * 16; view.vy = -dy / pxH() / dt * 16;
     lastX = e.clientX; lastY = e.clientY; lastT = now;
     clampView();
     needsDraw = true;
@@ -600,62 +678,100 @@
   });
   const endPointer = e => {
     pointers.delete(e.pointerId);
-    if (pointers.size < 2) pinchStart = 0;
+    if (pointers.size < 2) pinch = null;
+    if (pointers.size === 1) {               // back to one finger after a pinch: carry on sliding from here
+      const p = [...pointers.values()][0];
+      lastX = p.x; lastY = p.y; lastT = performance.now(); dragging = true;
+    }
     if (pointers.size === 0) {
       dragging = false;
-      if (performance.now() - lastT > 80) view.vy = view.vp = 0;
+      if (performance.now() - lastT > 80) view.vx = view.vy = 0;
     }
   };
   canvas.addEventListener('pointerup', endPointer);
   canvas.addEventListener('pointercancel', endPointer);
   canvas.addEventListener('wheel', e => {
     e.preventDefault();
-    view.fov *= Math.exp(e.deltaY * 0.0012);
-    clampView(); needsDraw = true;
+    stopGlide();
+    const at = unproject(e.clientX, e.clientY);
+    Object.assign(view, viewFor(at[0], at[1], view.z * Math.exp(-e.deltaY * 0.0015), e.clientX, e.clientY));
+    needsDraw = true;
   }, { passive: false });
+  canvas.addEventListener('dblclick', e => {
+    const at = unproject(e.clientX, e.clientY);
+    glideTo(viewFor(at[0], at[1], view.z > 1.4 ? 1 : 2, e.clientX, e.clientY));
+  });
+  // Tap on the picture near an object opens it (the dots are small on phones).
+  canvas.addEventListener('click', e => {
+    if (moved > 8 || introOn) return;
+    let near = null, nd = finePointer ? 34 : 30;
+    for (const o of visibleObjects()) {
+      const p = spot(o.id), s = project(p[0], p[1]);
+      const d = Math.hypot(s.x - e.clientX, s.y - e.clientY);
+      if (d < nd) { nd = d; near = o.id; }
+    }
+    if (near) { openObject(near, true); return; }
+    if (sheetOpen() && innerWidth < 900) closeSheet();
+  });
 
   document.addEventListener('keydown', e => {
     if (!document.body.classList.contains('in-room') || sheetOpen() || introOn) return;
     if (e.target.closest && e.target.closest('input, textarea, select')) return;
-    const step = e.shiftKey ? 30 : 10;
-    const dir = document.documentElement.dir === 'rtl' ? 1 : 1;
-    if (e.key === 'ArrowLeft') view.yaw -= step * dir;
-    else if (e.key === 'ArrowRight') view.yaw += step * dir;
-    else if (e.key === 'ArrowUp') view.pitch += step / 2;
-    else if (e.key === 'ArrowDown') view.pitch -= step / 2;
-    else if (e.key === '+' || e.key === '=') view.fov -= 6;
-    else if (e.key === '-') view.fov += 6;
+    const k = e.shiftKey ? 0.25 : 0.08;
+    if (e.key === 'ArrowLeft') view.cx -= k / view.z;
+    else if (e.key === 'ArrowRight') view.cx += k / view.z;
+    else if (e.key === 'ArrowUp') view.cy -= k / view.z;
+    else if (e.key === 'ArrowDown') view.cy += k / view.z;
+    else if (e.key === '+' || e.key === '=') view.z *= 1.2;
+    else if (e.key === '-') view.z /= 1.2;
     else return;
     clampView(); needsDraw = true; hideHint();
   });
 
-  // Smooth turn towards an object.
-  let turn = null;
-  function turnTo(yaw, pitch, done) {
-    if (reduceMotion) { view.yaw = yaw; view.pitch = pitch; clampView(); needsDraw = true; if (done) done(); return; }
-    let dy = ((yaw - view.yaw + 540) % 360) - 180;
-    turn = { y0: view.yaw, dy, p0: view.pitch, dp: pitch - view.pitch, t0: performance.now(), dur: 450 + Math.min(500, Math.abs(dy) * 4), done };
+  // Smooth glide to another view.
+  let glide = null;
+  function glideTo(to, done) {
+    clampView(to);
+    if (reduceMotion) { Object.assign(view, to); needsDraw = true; if (done) done(); return; }
+    const dist = Math.hypot((to.cx - view.cx) * aspect, to.cy - view.cy) + Math.abs(Math.log(to.z / view.z)) * 0.5;
+    glide = { from: { cx: view.cx, cy: view.cy, z: view.z }, to, t0: performance.now(), dur: 500 + Math.min(600, dist * 900), done };
+    view.vx = view.vy = 0;
   }
-  function stopTurn() { turn = null; }
+  function stopGlide() { glide = null; }
+
+  // A gentle breath when nobody is touching anything: the room is alive, not a photo.
+  let idleSince = performance.now();
+  ['pointerdown', 'wheel', 'keydown'].forEach(t => window.addEventListener(t, () => { idleSince = performance.now(); }, { passive: true }));
+  let breath = 0;
 
   function frame(now) {
-    if (turn) {
-      const k = Math.min(1, (now - turn.t0) / turn.dur);
-      const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
-      view.yaw = turn.y0 + turn.dy * e;
-      view.pitch = turn.p0 + turn.dp * e;
+    if (glide) {
+      const k = Math.min(1, (now - glide.t0) / glide.dur);
+      const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+      const f = glide.from, t = glide.to;
+      view.z = Math.exp(Math.log(f.z) + (Math.log(t.z) - Math.log(f.z)) * e);
+      view.cx = f.cx + (t.cx - f.cx) * e;
+      view.cy = f.cy + (t.cy - f.cy) * e;
       clampView();
       needsDraw = true;
-      if (k >= 1) { const d = turn.done; turn = null; if (d) d(); }
-    } else if (!dragging && (Math.abs(view.vy) > 0.01 || Math.abs(view.vp) > 0.01)) {
-      view.yaw += view.vy; view.pitch += view.vp;
-      view.vy *= 0.92; view.vp *= 0.92;
+      if (k >= 1) { const d = glide.done; glide = null; if (d) d(); }
+    } else if (!dragging && (Math.abs(view.vx) > 1e-5 || Math.abs(view.vy) > 1e-5)) {
+      view.cx += view.vx; view.cy += view.vy;
+      view.vx *= 0.92; view.vy *= 0.92;
       clampView();
       needsDraw = true;
     }
+    if (!reduceMotion && !introOn && !dragging && !glide && now - idleSince > 7000 && !document.hidden) {
+      const target = 0.012 * (0.5 - 0.5 * Math.cos((now - idleSince - 7000) / 9000));
+      const prev = breath;
+      breath = target;
+      view.z = Math.max(1, view.z * (1 + breath) / (1 + prev));
+      clampView();
+      needsDraw = true;
+    } else if (breath) { breath = 0; }
     if (fade) {
-      const k = Math.min(1, (now - fade.t0) / 1400);
-      mixAmount = k;
+      const k = Math.min(1, (now - fade.t0) / 1600);
+      mixAmount = k * k * (3 - 2 * k);
       needsDraw = true;
       if (k >= 1) {
         setTexture(0, fade.img);
@@ -663,10 +779,10 @@
         fade = null;
       }
     }
-    // weather: ease the rain in and out; keep the drops moving (about 30 fps)
+    // weather: ease the rain in and out; keep drops, steam and lights moving (about 30 fps)
     const target = rainTarget();
     if (Math.abs(rainNow - target) > 0.002) { rainNow += (target - rainNow) * 0.03; needsDraw = true; }
-    const animated = rainNow > 0.01 || scene === 'night' || scene === 'winter';
+    const animated = rainNow > 0.01 || scene !== 'day' || (decorFor === scene);
     if (animated && !document.hidden && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
     stepPower(now);
     if (frameHooks.size) frameHooks.forEach(f => f(now));
@@ -678,7 +794,7 @@
     requestAnimationFrame(frame);
   }
 
-  // ------------------------------------------------------------------ weather on the window
+  // ------------------------------------------------------------------ weather on the glass
   let rainNow = 0, flashNow = 0, lastRainDraw = 0, nextFlash = performance.now() + 6000;
   const frameHooks = new Set();
 
@@ -707,7 +823,7 @@
       const k = Math.min(1, t / 700);
       powerNow = k < 1 ? k * (0.6 + 0.4 * Math.random()) : 1;
       motorNow = 1;
-      if (t > 25000 + Math.random() * 10) { cut.phase = 'back'; cut.t0 = now; }
+      if (t > 25000) { cut.phase = 'back'; cut.t0 = now; }
     } else if (cut.phase === 'back') {              // the state electricity returns
       powerNow = t < 300 ? (Math.random() < 0.5 ? 1 : 0.4) : 1;
       motorNow = Math.max(0, 1 - t / 400);
@@ -729,18 +845,22 @@
     return code !== null && ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || code >= 95);
   }
   function stormy() { const c = beirutCode(); return weatherMode === 'auto' && c !== null && c >= 95; }
-  function isRaining() { return weatherMode === 'rain' || (weatherMode === 'auto' && (rainingInBeirut() || scene === 'winter')); }
+  function isRaining() { return weatherMode === 'rain' || (weatherMode === 'auto' && rainingInBeirut()); }
   function rainTarget() {
     if (!isRaining()) return 0;
-    if (weatherMode === 'auto' && !rainingInBeirut()) return 0.45;   // the winter version: a few drops on the glass
     const code = beirutCode();
     if (weatherMode === 'rain' || code === null) return 0.85;
     if (code === 51 || code === 56 || code === 61 || code === 80) return 0.55;    // light
     return 0.95;
   }
+  let mood = 'clear';
+  function updateMood() { const m = moodNow(); if (m !== mood) { mood = m; needsDraw = true; } }
+
   // ------------------------------------------------------------------ the calendar dresses the room
   let decorFor = null;
   function season(date = new Date()) {
+    const forced = new URLSearchParams(location.search).get('decor');
+    if (forced) return forced;
     const d = beirutDate(date), md = d.slice(5);
     const R0 = C.ramadan;
     if (md >= '12-01' || md <= '01-07') return 'xmas';
@@ -751,21 +871,95 @@
     if (md >= '11-15' && md <= '11-23') return 'independence';
     return null;
   }
+  // Decorations are drawn here, on the picture itself: lights along the curtain box,
+  // lanterns for Ramadan, flags for Independence Day.
+  function drawDecor(kind, sc) {
+    const W = 1600, H = Math.round(W / (PX[sc][0] / PX[sc][1]));
+    const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+    const g = cv.getContext('2d');
+    const night = sc !== 'day';
+    const [x0, x1, ya, yb] = PELMET[sc];
+    const X = v => v / 100 * W, Y = v => v / 100 * H;
+    const swags = 3, sag = 3.2;
+    const pts = [];
+    for (let i = 0; i <= 180; i++) {
+      const t = i / 180;
+      const x = x0 + (x1 - x0) * t;
+      const local = (t * swags) % 1;
+      const y = ya + (yb - ya) * t + sag * 4 * local * (1 - local);
+      pts.push([X(x), Y(y)]);
+    }
+    const wire = () => { g.strokeStyle = night ? 'rgba(40,30,20,.85)' : 'rgba(60,50,40,.9)'; g.lineWidth = 1.6; g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke(); };
+    const bulb = (x, y, col, rad = 4.2) => {
+      if (night) {
+        const gr = g.createRadialGradient(x, y, 0, x, y, rad * 5);
+        gr.addColorStop(0, col.replace('1)', '.85)')); gr.addColorStop(1, col.replace('1)', '0)'));
+        g.fillStyle = gr; g.beginPath(); g.arc(x, y, rad * 5, 0, 7); g.fill();
+      }
+      g.fillStyle = col; g.beginPath(); g.ellipse(x, y + rad * 0.4, rad * 0.75, rad, 0, 0, 7); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.7)'; g.beginPath(); g.arc(x - rad * 0.2, y, rad * 0.28, 0, 7); g.fill();
+    };
+    if (kind === 'xmas' || kind === 'ramadan') {
+      wire();
+      const cols = kind === 'xmas'
+        ? ['rgba(255,70,60,1)', 'rgba(80,220,120,1)', 'rgba(255,200,80,1)', 'rgba(90,150,255,1)']
+        : ['rgba(255,214,130,1)', 'rgba(255,190,90,1)', 'rgba(255,236,170,1)'];
+      for (let i = 4; i < pts.length - 2; i += 7) bulb(pts[i][0], pts[i][1] + 5, cols[(i / 7 | 0) % cols.length]);
+    }
+    if (kind === 'xmas') {                         // a star where the swags meet in the middle
+      const [sx, sy] = [X((x0 + x1) / 2), Y(ya) + 4];
+      g.save(); g.translate(sx, sy + 26);
+      if (night) { const gr = g.createRadialGradient(0, 0, 0, 0, 0, 60); gr.addColorStop(0, 'rgba(255,220,120,.7)'); gr.addColorStop(1, 'rgba(255,220,120,0)'); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 60, 0, 7); g.fill(); }
+      g.strokeStyle = 'rgba(80,60,30,.8)'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, -26); g.lineTo(0, -12); g.stroke();
+      g.fillStyle = 'rgba(255,214,90,1)'; g.beginPath();
+      for (let k = 0; k < 10; k++) { const a = k * Math.PI / 5 - Math.PI / 2, rr = k % 2 ? 6 : 14; g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); }
+      g.closePath(); g.fill(); g.restore();
+    }
+    if (kind === 'ramadan') {                      // three lanterns and a crescent
+      const lantern = (x, y, s) => {
+        g.save(); g.translate(x, y);
+        g.strokeStyle = 'rgba(70,50,30,.9)'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, -40 * s); g.lineTo(0, -16 * s); g.stroke();
+        if (night) { const gr = g.createRadialGradient(0, 6 * s, 0, 0, 6 * s, 48 * s); gr.addColorStop(0, 'rgba(255,190,90,.75)'); gr.addColorStop(1, 'rgba(255,190,90,0)'); g.fillStyle = gr; g.beginPath(); g.arc(0, 6 * s, 48 * s, 0, 7); g.fill(); }
+        g.fillStyle = 'rgba(176,128,52,1)';
+        g.beginPath(); g.moveTo(-6 * s, -16 * s); g.lineTo(6 * s, -16 * s); g.lineTo(10 * s, -8 * s); g.lineTo(-10 * s, -8 * s); g.closePath(); g.fill();
+        g.fillStyle = night ? 'rgba(255,206,120,1)' : 'rgba(214,160,80,1)';
+        g.beginPath(); g.moveTo(-10 * s, -8 * s); g.lineTo(10 * s, -8 * s); g.lineTo(8 * s, 18 * s); g.lineTo(-8 * s, 18 * s); g.closePath(); g.fill();
+        g.strokeStyle = 'rgba(150,100,40,1)'; g.lineWidth = 1.4 * s;
+        g.beginPath(); g.moveTo(0, -8 * s); g.lineTo(0, 18 * s); g.moveTo(-9 * s, 5 * s); g.lineTo(9 * s, 5 * s); g.stroke();
+        g.fillStyle = 'rgba(176,128,52,1)';
+        g.beginPath(); g.moveTo(-8 * s, 18 * s); g.lineTo(8 * s, 18 * s); g.lineTo(0, 28 * s); g.closePath(); g.fill();
+        g.restore();
+      };
+      lantern(X(x0 + (x1 - x0) * 0.17), Y(ya + sag) + 50, 1.1);
+      lantern(X(x0 + (x1 - x0) * 0.83), Y(yb + sag) + 50, 1.1);
+      lantern(X((x0 + x1) / 2), Y((ya + yb) / 2 + sag) + 60, 1.35);
+      const [mx, my] = [X(x0 + (x1 - x0) * 0.33), Y(ya + sag * 0.9) + 46];
+      g.save(); g.translate(mx, my);
+      if (night) { const gr = g.createRadialGradient(0, 0, 0, 0, 0, 40); gr.addColorStop(0, 'rgba(255,230,160,.6)'); gr.addColorStop(1, 'rgba(255,230,160,0)'); g.fillStyle = gr; g.beginPath(); g.arc(0, 0, 40, 0, 7); g.fill(); }
+      g.fillStyle = 'rgba(255,224,140,1)'; g.beginPath(); g.arc(0, 0, 13, 0, 7); g.fill();
+      g.globalCompositeOperation = 'destination-out'; g.beginPath(); g.arc(5, -3, 11, 0, 7); g.fill();
+      g.restore();
+    }
+    if (kind === 'independence') {                // bunting: red, white, red, with a little cedar
+      g.strokeStyle = 'rgba(70,55,40,.9)'; g.lineWidth = 1.4; g.beginPath(); pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y))); g.stroke();
+      for (let i = 3, k = 0; i < pts.length - 6; i += 8, k++) {
+        const [ax, ay] = pts[i], [bx, by] = pts[i + 6];
+        const mx = (ax + bx) / 2;
+        g.fillStyle = k % 3 === 1 ? 'rgba(246,242,232,1)' : 'rgba(214,40,40,1)';
+        g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.lineTo(mx, Math.max(ay, by) + 26); g.closePath(); g.fill();
+        if (k % 3 === 1) { g.fillStyle = 'rgba(30,140,70,1)'; g.beginPath(); g.moveTo(mx, Math.max(ay, by) + 2); g.lineTo(mx + 6, Math.max(ay, by) + 13); g.lineTo(mx - 6, Math.max(ay, by) + 13); g.closePath(); g.fill(); }
+      }
+    }
+    if (!night) { g.globalCompositeOperation = 'source-atop'; g.fillStyle = 'rgba(255,240,215,.08)'; g.fillRect(0, 0, W, H); }
+    return cv;
+  }
   function loadDecor() {
     const kind = season();
-    if (!kind || !gl) return;
-    const want = scene;
-    loadImage(`/room/decor-${kind}-${want}.png`).then(img => {
-      if (want !== scene) return;
-      setTexture(3, img); decorFor = want; needsDraw = true;
-    }).catch(() => {});
-  }
-  function loadMask() {
-    if (!gl) return;
-    loadImage('/room/mask.png').then(img => { setTexture(2, img); needsDraw = true; }).catch(() => {});
+    if (!kind || !gl) { decorFor = null; return; }
+    try { setTexture(2, drawDecor(kind, scene)); decorFor = scene; needsDraw = true; } catch { decorFor = null; }
   }
   document.addEventListener('sawt:weather', () => {
-    if (!manualScene) { const sc = sceneFor(); if (sc !== scene) showScene(sc, true); }
+    updateMood();
     renderSceneChip(); needsDraw = true;
   });
 
@@ -791,28 +985,32 @@
   let currentImg = null;
   let fade = null;
 
-  // The light 2K picture comes first; on big screens the sharp 4K one replaces it when it arrives.
+  // The light picture comes first; the sharp one replaces it when it arrives.
   async function showScene(name, animate) {
     scene = name;
+    updateMood();
     renderSceneChip();
     let img;
-    try { img = await loadImage(`/room/pano-${name}-2k.jpg`); }
+    try { img = await loadImage(picUrl(name, true)); }
     catch { return; }
     if (name !== scene) return; // a newer choice won
-    if (!gl) { currentImg = img; needsDraw = true; }
-    else if (!currentImg || !animate || reduceMotion) {
-      setTexture(0, img); currentImg = img; needsDraw = true;
-    } else {
-      setTexture(1, img); currentImg = img; fade = { img, t0: performance.now() };
-    }
+    const apply = (im, anim) => {
+      if (name !== scene) return;
+      aspect = im.naturalWidth / im.naturalHeight;
+      if (!gl) { currentImg = im; clampView(); needsDraw = true; return; }
+      if (!currentImg || !anim || reduceMotion) { setTexture(0, im); currentImg = im; fade = null; mixAmount = 0; }
+      else { setTexture(1, im); currentImg = im; fade = { img: im, t0: performance.now() }; }
+      clampView(); needsDraw = true;
+    };
+    apply(img, animate);
     loadDecor();
-    if (!small && maxTex >= 4096 && gl) {
-      loadImage(`/room/pano-${name}-4k.jpg`).then(big => {
-        if (name !== scene) return;
-        const apply = () => { if (name !== scene) return; if (fade) { setTimeout(apply, 200); return; } setTexture(0, big); currentImg = big; needsDraw = true; };
-        apply();
+    if (sharp && (!gl || maxTex >= 3072)) {
+      loadImage(picUrl(name, false)).then(big => {
+        const go = () => { if (name !== scene) return; if (fade) { setTimeout(go, 200); return; } apply(big, false); };
+        go();
       }).catch(() => {});
     }
+    if (window.SawtScreen) window.SawtScreen.place();
   }
 
   const chip = $('scene-chip');
@@ -845,14 +1043,14 @@
     pop.replaceChildren(
       el('p', { className: 'pop-k', text: r('timeLabel') }),
       el('div', { className: 'pop-row' }, [
-        opt(r('autoBeirut'), !manualScene, () => { manualScene = false; showScene(sceneFor(), true); }, 'is-auto'),
-        ...SCENES.map(sc => opt(r('scenes')[sc], manualScene && scene === sc, () => { manualScene = true; showScene(sc, true); }, 'scene-opt-' + sc))
+        opt(r('autoBeirut'), !manualScene, () => { manualScene = false; const s = sceneFor(); if (s !== scene) showScene(s, true); }, 'is-auto'),
+        ...SCENES.map(sc => opt(r('scenes')[sc], manualScene && scene === sc, () => { manualScene = true; if (sc !== scene) showScene(sc, true); }, 'scene-opt-' + sc))
       ]),
       el('p', { className: 'pop-k', text: r('weatherLabel') }),
       el('div', { className: 'pop-row' }, [
-        opt(r('autoBeirut'), weatherMode === 'auto', () => { weatherMode = 'auto'; }, 'is-auto'),
-        opt(r('clearW'), weatherMode === 'clear', () => { weatherMode = 'clear'; }),
-        opt(r('rainW'), weatherMode === 'rain', () => { weatherMode = 'rain'; })
+        opt(r('autoBeirut'), weatherMode === 'auto', () => { weatherMode = 'auto'; updateMood(); }, 'is-auto'),
+        opt(r('clearW'), weatherMode === 'clear', () => { weatherMode = 'clear'; updateMood(); }),
+        opt(r('rainW'), weatherMode === 'rain', () => { weatherMode = 'rain'; updateMood(); })
       ]),
       el('p', { className: 'pop-k', text: r('extrasLabel') }),
       el('div', { className: 'pop-row' }, [
@@ -862,16 +1060,17 @@
       ])
     );
   }
-  chip.addEventListener('click', e => {
-    e.stopPropagation();
-    pop.hidden = !pop.hidden;
+  function togglePop(force) {
+    pop.hidden = force === undefined ? !pop.hidden : !force;
     renderSceneChip();
     if (!pop.hidden) { const f = pop.querySelector('[aria-pressed="true"]'); if (f) f.focus({ preventScroll: true }); }
-  });
-  document.addEventListener('click', e => { if (!pop.hidden && !pop.contains(e.target)) { pop.hidden = true; renderSceneChip(); } });
+  }
+  chip.addEventListener('click', e => { e.stopPropagation(); togglePop(); });
+  document.addEventListener('click', e => { if (!pop.hidden && !pop.contains(e.target) && e.target !== chip) { pop.hidden = true; renderSceneChip(); } });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !pop.hidden) { pop.hidden = true; renderSceneChip(); chip.focus(); } });
   setInterval(() => {
     renderSceneChip();
+    updateMood();
     if (!manualScene) {
       const s = sceneFor();
       if (s !== scene) showScene(s, true);
@@ -882,7 +1081,8 @@
 
   const grid = $('objects');
   function renderGrid() {
-    $('objects-grid').replaceChildren(...OBJECTS.filter(o => !hidden.has(o.id)).map((o, i) => {
+    const order = ['radio', 'tv', 'cassettes', 'tawleh', 'together', 'phone', 'news', 'expat', 'window', 'calendar', 'clock', 'coffee', 'books', 'photos', 'lamp', 'teta', 'ac'];
+    $('objects-grid').replaceChildren(...order.map(id => ({ id })).filter(o => !hidden.has(o.id)).map((o, i) => {
       const img = el('img', { className: 'tile-img', alt: '', loading: 'lazy', decoding: 'async', src: `/room/thumb-${o.id}.jpg` });
       img.addEventListener('error', () => img.remove());
       const b = el('button', { type: 'button', className: 'tile' }, [
@@ -922,23 +1122,34 @@
   const sheet = $('sheet');
   let openId = null;
   let returnFocus = null;
+  let beforeOpen = null;          // where we were looking before a drawer opened
   function sheetOpen() { return !sheet.hidden; }
 
-  function openObject(id, look) {
-    const o = OBJECTS.find(x => x.id === id);
-    if (!o || hidden.has(id)) return;
-    returnFocus = document.activeElement;
-    if (look && !introOn) {
-      // On wide screens the drawer covers one side: centre the object in what is left.
-      let yaw = o.yaw;
-      if (innerWidth >= 900) {
-        const W = canvas.clientWidth;
-        const sheetW = Math.min(460, W * 0.42) + 16;
-        const hfov = 2 * Math.atan(tanHalf()[0]) / RAD;
-        yaw += (document.documentElement.dir === 'rtl' ? -1 : 1) * (sheetW / 2) / W * hfov;
-      }
-      turnTo(yaw, Math.max(-20, Math.min(15, o.pitch)));
+  // Bring an object into the part of the screen the drawer leaves free, a little closer.
+  function lookAtObject(id) {
+    const p = spot(id) || (id === 'clock' ? spot('radio') : null);
+    if (!p || introOn) return;
+    const W = vw(), H = vh();
+    let sx = W / 2, sy = H / 2, z = view.z;
+    if (innerWidth >= 900) {
+      const sheetW = Math.min(460, W * 0.42) + 16;
+      sx = W / 2 + (document.documentElement.dir === 'rtl' ? 1 : -1) * sheetW / 2;
+      z = Math.max(z, 1.35);
+    } else {
+      sy = H * 0.26;
+      z = Math.max(z, 1.15);
     }
+    glideTo(viewFor(p[0], p[1], z, sx, sy));
+  }
+
+  function openObject(id, look) {
+    if (hidden.has(id)) return;
+    if (id === 'teta') { const b = $('simple-btn'); if (b) b.click(); return; }
+    if (id === 'ac') { togglePop(true); return; }
+    if (!document.querySelector(`.pv[data-panel="${id}"]`)) return;
+    returnFocus = document.activeElement;
+    if (!openId) beforeOpen = { cx: view.cx, cy: view.cy, z: view.z };
+    if (look) lookAtObject(id);
     hideHint();
     openId = id;
     document.querySelectorAll('.pv').forEach(p => { p.hidden = p.dataset.panel !== id; });
@@ -949,8 +1160,9 @@
     document.body.classList.add('sheet-on');
     $('sheet-body').scrollTop = 0;
     hotEls.forEach((b, k) => b.classList.toggle('is-active', k === id));
-    if (history.replaceState) history.replaceState(null, '', location.pathname.startsWith('/d/') ? location.pathname : '#' + id);
+    if (history.replaceState && !/^\/(d|v|q)\//.test(location.pathname)) history.replaceState(null, '', location.pathname + location.search.replace(/([?&])(t|listen|q)=[^&]*/g, '$1').replace(/[?&]+$/, '') + '#' + id);
     onOpen(id);
+    document.dispatchEvent(new CustomEvent('sawt:panel', { detail: id }));
     setTimeout(() => $('sheet-close').focus({ preventScroll: true }), 30);
   }
 
@@ -958,11 +1170,15 @@
     if (!sheetOpen()) return;
     sheet.classList.remove('is-open');
     document.body.classList.remove('sheet-on');
+    const was = openId;
     openId = null;
     hotEls.forEach(b => b.classList.remove('is-active'));
     setTimeout(() => { if (!openId) sheet.hidden = true; }, reduceMotion ? 0 : 280);
-    if (history.replaceState) history.replaceState(null, '', location.pathname.startsWith('/d/') ? '/' : location.pathname + location.search);
+    if (history.replaceState && !/^\/(d|v|q)\//.test(location.pathname)) history.replaceState(null, '', location.pathname + location.search);
+    if (beforeOpen && !(window.SawtScreen && window.SawtScreen.current() && window.SawtScreen.current().onSet)) glideTo(beforeOpen);
+    beforeOpen = null;
     if (returnFocus && returnFocus.focus && document.contains(returnFocus)) returnFocus.focus({ preventScroll: true });
+    document.dispatchEvent(new CustomEvent('sawt:panel', { detail: null, was }));
   }
   $('sheet-close').addEventListener('click', closeSheet);
   document.addEventListener('keydown', e => {
@@ -970,7 +1186,6 @@
     if (!$('ring').hidden) return;
     closeSheet();
   });
-  canvas.addEventListener('click', () => { if (moved < 6 && sheetOpen() && innerWidth < 900) closeSheet(); });
 
   // Swipe the sheet down to close (phones).
   (() => {
@@ -990,8 +1205,8 @@
   document.addEventListener('sawt:open', e => openObject(e.detail, true));
   document.addEventListener('sawt:config', e => {
     const cfg = e.detail || {};
-    hidden.clear();
-    if (!cfg.dedications) hidden.add('phone');   // the photos stay: you can hang your own
+    // without the shared store, written dedications are off; voice notes still go by WhatsApp
+    document.querySelectorAll('.needs-store').forEach(n => { n.hidden = !cfg.dedications; });
     renderHotspots(); renderGrid(); setFocus(null); needsDraw = true;
   });
 
@@ -1285,17 +1500,22 @@
     setTimeout(showHint, 1400);
     const target = deepLink();
     if (target) setTimeout(() => openObject(target, true), reduceMotion ? 0 : 900);
+    document.dispatchEvent(new CustomEvent('sawt:entered'));
   }
   $('intro-btn').addEventListener('click', enterRoom);
 
   function deepLink() {
+    const q = new URLSearchParams(location.search);
     if (/^\/s\//.test(location.pathname)) return 'radio';
-    if (/^\/d\//.test(location.pathname) || new URLSearchParams(location.search).get('dedication')) return 'photos';
+    if (/^\/d\//.test(location.pathname) || q.get('dedication')) return 'photos';
+    if (/^\/v\//.test(location.pathname)) return 'phone';
+    if (/^\/q\//.test(location.pathname) || q.get('listen')) return 'together';
+    if (q.get('t')) return 'tawleh';
     const h = location.hash.slice(1);
-    if (OBJECTS.some(o => o.id === h)) return h;
+    if (OBJECTS.some(o => o.id === h) && !ACTION_ONLY[h]) return h;
     const legacy = { set: 'radio', classics: 'cassettes', dedications: 'phone' };
     if (legacy[h]) return legacy[h];
-    if (new URLSearchParams(location.search).get('station')) return 'radio';
+    if (q.get('station')) return 'radio';
     return null;
   }
 
@@ -1322,38 +1542,24 @@
   function start() {
     document.body.classList.add('intro-on');
     initGL();
+    Object.assign(view, startView());
     resize();
-    window.addEventListener('resize', () => {
-      if (!pointers.size) view.fov = Math.min(view.fov, 100);
-      resize();
-    });
+    window.addEventListener('resize', resize);
     applyRoomLanguage();
     requestAnimationFrame(frame);
 
     const img = $('intro-img');
-    img.src = doorUrl(scene);
-    img.addEventListener('error', () => { img.src = doorUrl('afternoon'); }, { once: true });
+    img.src = picUrl(scene, true);
 
-    const ready = showScene(scene, false);
-    loadMask();
+    const ready = showScene(scene, false).then(() => { Object.assign(view, startView()); needsDraw = true; });
     const fast = S.store.get('visited', false) || deepLink();
     if (fast) {
       intro.classList.add('is-quick');
-      Promise.race([ready, new Promise(res => setTimeout(res, 2500))]).then(() => setTimeout(enterRoom, reduceMotion ? 0 : 500));
+      Promise.race([ready, new Promise(res => setTimeout(res, 2500))]).then(() => setTimeout(enterRoom, reduceMotion ? 0 : 400));
     }
   }
 
-  // ------------------------------------------------------------------ shared with music.js / ambience.js
-  function project(yaw, pitch) {
-    const { r: rr, u, f } = basis();
-    const [tx, ty] = tanHalf();
-    const y = yaw * RAD, p = pitch * RAD;
-    const h = [Math.sin(y) * Math.cos(p), Math.sin(p), -Math.cos(y) * Math.cos(p)];
-    const z = h[0] * f[0] + h[1] * f[1] + h[2] * f[2];
-    const x = (h[0] * rr[0] + h[1] * rr[1] + h[2] * rr[2]) / z / tx;
-    const yy = (h[0] * u[0] + h[1] * u[1] + h[2] * u[2]) / z / ty;
-    return { x: (x + 1) / 2 * canvas.clientWidth, y: (1 - yy) / 2 * canvas.clientHeight, front: z > 0.15 };
-  }
+  // ------------------------------------------------------------------ shared with music.js / home.js / the games
   // CSS matrix3d that maps a w×h box onto any four screen points (tl, tr, br, bl)
   function quadTransform(w, h, q) {
     const src = [[0, 0], [w, 0], [w, h], [0, h]];
@@ -1384,11 +1590,21 @@
     const top = byY.slice(0, 2).sort((p, q) => p.x - q.x), bot = byY.slice(2).sort((p, q) => p.x - q.x);
     return [top[0], top[1], bot[1], bot[0]].map(p => [p.x, p.y]);
   }
+  // Zoom so the TV is big enough to play a picture on it (YouTube needs 200 px at least).
+  function focusTv() {
+    const c = TV[scene].map(p => norm(scene, p));
+    const u = (c[0][0] + c[1][0]) / 2, v = (c[0][1] + c[3][1]) / 2;
+    const w = c[1][0] - c[0][0], h = c[3][1] - c[0][1];
+    const wantW = Math.min(vw() * 0.86, Math.max(300, vw() * 0.46));
+    const z = Math.max(wantW / (w * aspect * baseScale()), 215 / (h * baseScale()), view.z);
+    glideTo(viewFor(u, v, Math.min(ZMAX, z)));
+  }
   window.SawtRoom = {
     project, quadTransform, orderQuad,
-    tvCorners: () => TV_SCREEN,
-    photoFrames: () => PHOTO_FRAMES,
+    tvCorners: () => TV[scene].map(p => norm(scene, p)),
+    photoFrames: () => FRAMES[scene].map(([a, b, c, d]) => [[a, b], [c, b], [c, d], [a, d]].map(p => norm(scene, p))),
     scene: () => scene,
+    mood: () => mood,
     rain: () => rainNow,
     motor: () => motorNow,
     power: () => powerNow,
@@ -1396,9 +1612,11 @@
     offFrame: f => frameHooks.delete(f),
     redraw: () => { needsDraw = true; },
     open: id => openObject(id, true),
-    lookAt(yaw, pitch, fov) { turnTo(yaw, pitch); if (fov) { view.fov = fov; clampView(); } needsDraw = true; },
+    close: closeSheet,
+    focusTv,
     isOpen: () => openId,
-    inRoom: () => !introOn
+    inRoom: () => !introOn,
+    sceneLabel: sc => r('scenes')[sc || scene]
   };
 
   start();

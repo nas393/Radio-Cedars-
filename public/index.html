@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>صوت البيت · راديو لبنان وأخبار لبنان</title>
-  <meta name="description" content="صوت البيت: ادخل على صالون بيت لبناني من التسعينات. الراديو، التلفزيون، الجريدة، التلفون وكاسيتات الزمن الجميل، كل شي فيه بيشتغل. Step into a 1990s Lebanese living room: radio, TV, news, dedications and classics, all working.">
+  <meta name="description" content="صوت البيت: ادخل على صالون بيت لبناني من التسعينات. الراديو، التلفزيون، الجريدة، الطاولة، إهداءات بصوتك وأغاني الزمن الجميل، كل شي فيه بيشتغل. Step into a 1990s Lebanese living room: radio, TV, news, dedications and classics, all working.">
   <link rel="canonical" href="https://radio-cedars.vercel.app/">
 
   <meta property="og:type" content="website">
@@ -185,6 +185,8 @@
 
       <!-- phone: send a dedication -->
       <section class="pv" data-panel="phone" id="dedications" hidden>
+        <div class="voice" id="voice"></div>
+        <div class="needs-store" hidden>
         <p class="airmail"><span>بريد جوي</span><span>PAR AVION</span><span>BY AIR MAIL</span></p>
         <p class="pv-lede" data-i18n="dedLede">أغنية ورسالة من الغربة لأهلك في لبنان. كل إهداء يُراجع قبل ما ينشر.</p>
         <form class="ded-form" id="ded-form" novalidate>
@@ -205,12 +207,16 @@
             <button type="button" class="link-btn" id="ded-again" data-i18n="dedAgain">أرسل إهداء آخر</button>
           </div>
         </form>
+        </div>
       </section>
 
       <!-- family photos: the dedications wall -->
       <section class="pv" data-panel="photos" hidden>
-        <p class="pv-lede" data-r="photosLede"></p>
-        <div class="ded-wall" id="ded-wall" aria-live="polite"></div>
+        <div class="needs-store" hidden>
+          <h3 class="pv-sub" data-i18n="wallHeading">حائط الإهداءات</h3>
+          <p class="pv-lede" data-r="photosLede"></p>
+          <div class="ded-wall" id="ded-wall" aria-live="polite"></div>
+        </div>
       </section>
 
       <!-- cassette shelf: moods + classics -->
@@ -284,6 +290,15 @@
         <article class="recipe" id="recipe" role="tabpanel"></article>
       </section>
 
+      <!-- the painting of the bay: life far from home -->
+      <section class="pv" data-panel="expat" hidden><div id="expat"></div></section>
+
+      <!-- tawleh on the coffee table -->
+      <section class="pv" data-panel="tawleh" hidden><div id="tawleh"></div></section>
+
+      <!-- the sofa: listen together -->
+      <section class="pv" data-panel="together" hidden><div id="together"></div></section>
+
       <p class="credits" id="credits"></p>
     </div>
   </aside>
@@ -354,6 +369,11 @@
   <script src="/music.js" defer></script>
   <script src="/ambience.js" defer></script>
   <script src="/home.js" defer></script>
+  <script src="/tawleh.js" defer></script>
+  <script src="/together.js" defer></script>
+  <script src="/voice.js" defer></script>
+  <script src="/expat.js" defer></script>
+  <script src="/install.js" defer></script>
   <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
