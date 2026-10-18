@@ -106,8 +106,15 @@ function cached(ttl, load) {
 // results, ads pages); keep only what reads like an actual headline.
 const NON_ARTICLE = /^(page \d+|search results?|advertise|about|contact|tag:|category:)|lebanon news, stories/i;
 
-function isRealHeadline(title) {
-  return title.split(/\s+/).length >= 4 && !NON_ARTICLE.test(title);
+const MAX_FALLBACK_AGE_MS = 8 * 24 * 60 * 60 * 1000;
+
+function isRealHeadline(item) {
+  // Index pages come back with old dates; real news from the last week only.
+  const fresh = item.date && Date.now() - new Date(item.date) < MAX_FALLBACK_AGE_MS;
+  return fresh
+    && item.title.split(/\s+/).length >= 4
+    && !NON_ARTICLE.test(item.title)
+    && !/page \d+ of \d+/i.test(item.title);
 }
 
 function toItems(feed, fromGoogle, titleSuffix) {
@@ -131,7 +138,7 @@ function toItems(feed, fromGoogle, titleSuffix) {
     .filter(item => item.title && item.link)
     // Google sometimes returns section pages ("Shopping - Lebanon News");
     // real headlines have at least four words.
-    .filter(item => !fromGoogle || isRealHeadline(item.title))
+    .filter(item => !fromGoogle || isRealHeadline(item))
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
     .slice(0, ITEMS_PER_FEED);
 }
