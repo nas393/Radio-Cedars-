@@ -12,18 +12,24 @@ const USER_AGENT = 'Warde/1.1 (Lebanese Diaspora Hub)';
 // Each outlet has its own feed plus a Google News fallback for the same site.
 // Many news sites block requests from cloud servers, so the fallback keeps
 // headlines flowing when the direct feed refuses us.
-function googleNews(site, lang) {
+function googleNews(site, lang, window = '2d') {
   const locale = lang === 'ar'
     ? 'hl=ar&gl=LB&ceid=LB:ar'
     : 'hl=en-US&gl=LB&ceid=LB:en';
-  return `https://news.google.com/rss/search?q=${encodeURIComponent('site:' + site + ' when:2d')}&${locale}`;
+  return `https://news.google.com/rss/search?q=${encodeURIComponent(`site:${site} when:${window}`)}&${locale}`;
 }
 
 const FEEDS = [
   { name: 'Annahar (Arabic)', url: 'https://www.annahar.com/rss/article.xml', fallback: googleNews('annahar.com', 'ar') },
   { name: "L'Orient Today (English)", url: 'https://today.lorientlejour.com/feed.xml', fallback: googleNews('today.lorientlejour.com', 'en') },
   { name: 'Al-Manar English', url: 'https://eng.almanar.com.lb/feed.php', fallback: googleNews('almanar.com.lb', 'en') },
-  { name: 'The961 (English)', url: 'https://www.the961.com/feed/', fallback: googleNews('the961.com', 'en') }
+  {
+    name: 'The961 (English)',
+    url: 'https://www.the961.com/feed/',
+    fallback: googleNews('the961.com', 'en', '7d'),
+    // The961's page titles end in "- 961 - Lebanon News".
+    titleSuffix: /\s[-–]\s(961\s[-–]\s)?Lebanon News$/i
+  }
 ];
 
 const ITEMS_PER_FEED = 6;
@@ -96,13 +102,16 @@ function cached(ttl, load) {
   };
 }
 
-function toItems(feed, fromGoogle) {
+function toItems(feed, fromGoogle, titleSuffix) {
   return (feed.items || [])
     .map(item => {
       let title = cleanText(item.title);
-      // Google News appends " - Publisher" to every headline; drop that last
-      // spaced segment (publisher names like "Al-Manar" keep their own hyphen).
-      if (fromGoogle) {
+      if (titleSuffix && titleSuffix.test(title)) {
+        // The outlet's own known suffix (covers Google's publisher tag too).
+        title = title.replace(titleSuffix, '').trim();
+      } else if (fromGoogle) {
+        // Google News appends " - Publisher" to every headline; drop that last
+        // spaced segment (names like "Al-Manar" keep their own hyphen).
         const parts = title.split(/\s[-–]\s/);
         if (parts.length > 1) title = parts.slice(0, -1).join(' - ').trim();
       }
@@ -123,7 +132,7 @@ function toItems(feed, fromGoogle) {
 async function loadSource(feed) {
   let directError = null;
   try {
-    const items = toItems(await parser.parseURL(feed.url), false);
+    const items = toItems(await parser.parseURL(feed.url), false, feed.titleSuffix);
     if (items.length) return { source: feed.name, ok: true, via: 'direct', items };
     directError = 'feed returned no items';
   } catch (err) {
@@ -132,7 +141,7 @@ async function loadSource(feed) {
   console.warn(`[news] ${feed.name} direct feed failed (${directError}); trying Google News`);
 
   try {
-    const items = toItems(await parser.parseURL(feed.fallback), true);
+    const items = toItems(await parser.parseURL(feed.fallback), true, feed.titleSuffix);
     if (items.length) return { source: feed.name, ok: true, via: 'google-news', items };
     throw new Error('fallback returned no items');
   } catch (err) {
