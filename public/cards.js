@@ -47,6 +47,9 @@
       noRooms: 'Pour jouer ensemble à distance, entrez dans une pièce sur le canapé (Pièces de famille), puis revenez ici.', suits: { S: 'Pique ♠', H: 'Cœur ♥', D: 'Carreau ♦', C: 'Trèfle ♣' }
     }
   };
+  Object.assign(T.ar, { autoStart: n => `منبلّش بعد ${S.num(n)} ثانية، والكراسي الفاضية للكمبيوتر`, away: n => `${n} مش هون، الكمبيوتر عم يلعب عنّو`, imBack: 'رجعت! بكمّل أنا', youAway: 'غبت شوي، فالكمبيوتر لعب عنّك.', other: k => `عالطاولة هلّق: ${k}`, playCardsHere: 'لعبوا شدّة بدالها', tookOver: 'صاحب الطاولة راح، فكمّلنا عندك.', trivia: 'أسئلة', tawleh: 'طاولة' });
+  Object.assign(T.en, { autoStart: n => `Starting in ${n}s; empty seats go to the computer`, away: n => `${n} is away; the computer is playing for them`, imBack: 'I’m back, my turn', youAway: 'You were away, so the computer played for you.', other: k => `On the table now: ${k}`, playCardsHere: 'Play cards instead', tookOver: 'The table host left, so the game carries on here.', trivia: 'Trivia', tawleh: 'Tawleh' });
+  Object.assign(T.fr, { autoStart: n => `On commence dans ${n} s ; les places vides vont à l’ordinateur`, away: n => `${n} est absent·e ; l’ordinateur joue pour lui/elle`, imBack: 'Je suis là, je reprends', youAway: 'Vous étiez absent·e, l’ordinateur a joué pour vous.', other: k => `Sur la table : ${k}`, playCardsHere: 'Jouer aux cartes à la place', tookOver: 'L’hôte est parti, la partie continue ici.', trivia: 'Quiz', tawleh: 'Tawlé' });
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
 
   // ================================================================== the rules (pure functions on a plain state object)
@@ -298,7 +301,38 @@
     kind = k; S.store.set('cardsKind', k);
     roomCtx = null; mySeat = 0; picks = [];
     G = newGame(k, names(), [false, true, true, true]);
+    G.gid = 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     render(); drive();
+  }
+  // a finished game counts on the scoreboard (once, whoever sees it first)
+  function recordEnd() {
+    if (!G || !G.over || !G.gid || recorded === G.gid || !window.SawtScores) return;
+    recorded = G.gid;
+    const humans = G.names.filter((n, s) => G.bots[s] !== true);
+    const winners = G.names.filter((n, s) => team(s) === G.over.winner && G.bots[s] !== true);
+    window.SawtScores.record(G.kind, { gid: G.gid, players: humans, winners, room: roomCtx ? roomCtx.room : null });
+  }
+  let recorded = null;
+  // ---- in a room: players who are away are played by the computer until they come back
+  let roomHere = [];
+  document.addEventListener('sawt:room', e => { roomHere = (e.detail && e.detail.here) || []; });
+  let turnKey = '', turnAt = 0;
+  function pendingSeats() {
+    if (!G || G.over || G.phase === 'handEnd') return [];
+    if (G.phase === 'pass') return [0, 1, 2, 3].filter(s => !G.picks[s] && !G.bots[s]);
+    return G.bots[G.turn] ? [] : [G.turn];
+  }
+  function checkAway() {
+    if (!roomCtx || !roomCtx.isHost || !G) return;
+    const pend = pendingSeats().filter(s => s !== mySeat);
+    const key = [G.phase, G.turn, G.handNo, G.trick.length, pend.join('')].join(':');
+    if (key !== turnKey) { turnKey = key; turnAt = Date.now(); return; }
+    let changed = false;
+    for (const s of pend) {
+      const gone = !roomHere.includes(G.names[s]);
+      if (Date.now() - turnAt > (gone ? 20000 : 75000)) { G.bots[s] = 'away'; changed = true; }
+    }
+    if (changed) { turnKey = ''; commit().then(drive); }
   }
 
   // the computer players move, one after another (on the host's device in a room)
@@ -334,6 +368,7 @@
   async function commit() {
     render();
     if (roomCtx && roomCtx.isHost) await pushRoom();
+    recordEnd();
   }
   async function act(a) {
     if (!G || busy) return;
@@ -354,8 +389,19 @@
     box.dir = lang === 'ar' ? 'rtl' : 'ltr';
     const kids = [];
     kids.push(whereRow());
+    if (roomCtx && roomCtx.other) {
+      const b = el('button', { type: 'button', className: 'btn btn-primary', text: '🃏 ' + t('playCardsHere') });
+      b.addEventListener('click', () => { roomCtx.other = null; hostNew(kind); });
+      kids.push(el('div', { className: 'cg-lobby' }, [el('p', { className: 'q-k', text: t('other', t(roomCtx.other) || roomCtx.other) }), b]));
+      box.replaceChildren(...kids); return;
+    }
     if (roomCtx && roomCtx.lobby) { kids.push(lobbyView()); box.replaceChildren(...kids); return; }
     if (!G) { kids.push(el('p', { className: 'quiet', text: '…' })); box.replaceChildren(...kids); return; }
+    if (roomCtx && G.bots[mySeat] === 'away') {
+      const b = el('button', { type: 'button', className: 'btn btn-primary', text: '🙋 ' + t('imBack') });
+      b.addEventListener('click', () => sendMove({ type: 'back', seat: mySeat }));
+      kids.push(el('div', { className: 'cg-away' }, [el('span', { text: t('youAway') }), b]));
+    }
     kids.push(scoreLine(), tableView(), handView(), controls());
     kids.push(el('p', { className: 'quiet small', text: G.kind === 'tarneeb' ? t('rulesT') : t('rulesL') }));
     box.replaceChildren(...kids);
@@ -396,7 +442,7 @@
       if (pos === 0) continue;
       const n = G.hands[s].length;
       const seat = el('div', { className: `cg-seat cg-p${pos}` + (G.turn === s && !G.over && G.phase !== 'handEnd' ? ' is-turn' : '') }, [
-        el('span', { className: 'cg-name', dir: 'auto', text: G.names[s] + (G.bots[s] ? ' 🤖' : '') }),
+        el('span', { className: 'cg-name', dir: 'auto', text: G.names[s] + (G.bots[s] ? ' 🤖' : ''), title: G.bots[s] === 'away' ? t('away', G.names[s]) : '' }),
         el('span', { className: 'cg-backs' }, Array.from({ length: Math.min(n, 13) }, back)),
         pos !== 2 ? el('span', { className: 'cg-count', text: '×' + S.num(n) }) : null,
         el('span', { className: 'cg-tricks', text: G.kind === 'tarneeb' ? `${S.num(G.won[s])} ${t('tricks')}` : `${S.num(G.taken[s])} ${t('points')}` })
@@ -482,7 +528,7 @@
   }
   async function hostNew(k) {
     kind = k;
-    const lobby = { kind: k, seats: [myRoomName(), null, null, null], host: myRoomName() };
+    const lobby = { kind: k, seats: [myRoomName(), null, null, null], host: myRoomName(), at: Date.now() };
     roomCtx.isHost = true; roomCtx.lobby = lobby; G = null;
     try { await R().api(roomCtx.room, '/game', { kind: k, state: { lobby }, fresh: true, takeOver: true }); } catch (e) { console.warn(e); }
     render();
@@ -502,6 +548,8 @@
       grid.appendChild(b);
     });
     wrap.appendChild(grid);
+    const left = Math.max(0, Math.ceil((LOBBY_MS - (Date.now() - (lb.at || Date.now()))) / 1000));
+    wrap.appendChild(el('p', { className: 'quiet small cg-auto', text: t('autoStart', left) }));
     if (roomCtx.isHost) {
       const go = el('button', { type: 'button', className: 'btn btn-primary', text: '🃏 ' + t('start') });
       go.addEventListener('click', hostStart);
@@ -509,10 +557,13 @@
     }
     return wrap;
   }
+  const LOBBY_MS = 60000;
   async function hostStart() {
     const lb = roomCtx.lobby;
+    if (!lb) return;
     const ns = lb.seats.map((n, i) => n || t('bot', i));
     G = newGame(lb.kind, ns, lb.seats.map(n => !n));
+    G.gid = roomCtx.room.id + '-' + Date.now().toString(36);
     roomCtx.lobby = null;
     mySeat = lb.seats.indexOf(myRoomName()); if (mySeat < 0) mySeat = 0;
     await pushRoom(true);
@@ -520,7 +571,8 @@
   }
   async function pushRoom(fresh) {
     if (!roomCtx || !roomCtx.isHost) return;
-    try { const d = await R().api(roomCtx.room, '/game', { kind: G ? G.kind : kind, state: G ? { game: G } : { lobby: roomCtx.lobby }, fresh: !!fresh }); roomCtx.v = d.v; } catch (e) { console.warn(e); }
+    try { const d = await R().api(roomCtx.room, '/game', { kind: G ? G.kind : kind, state: G ? { game: G } : { lobby: roomCtx.lobby }, fresh: !!fresh, takeOver: !!roomCtx.takeOver }); roomCtx.v = d.v; }
+    catch (e) { if (e.code === 'busy') { roomCtx.isHost = false; roomCtx.takeOver = false; roomCtx.seenV = 0; } else console.warn(e); }
   }
   async function sendMove(a) {
     if (!roomCtx) return;
@@ -539,7 +591,9 @@
     }
     if (!G) return;
     const seat = G.names.indexOf(m.name);
-    if (seat < 0 || G.bots[seat] || a.seat !== seat) return;     // you can only play your own seat
+    if (seat < 0 || G.bots[seat] === true || a.seat !== seat) return;     // you can only play your own seat
+    if (G.bots[seat] === 'away') { G.bots[seat] = false; if (a.type === 'back') { await pushRoom(); render(); return; } }
+    if (a.type === 'back') return;
     try {
       const before = G;
       G = apply(G, a);
@@ -554,10 +608,33 @@
     const open = window.SawtRoom && window.SawtRoom.isOpen() === 'tawleh';
     try {
       const d = await R().api(roomCtx.room, `?since=999999999&gv=${roomCtx.isHost ? roomCtx.v : (roomCtx.seenV || 0)}&moves=${roomCtx.movesSeen}`);
-      if (d.game) {
+      if (d.here) roomHere = d.here;
+      const mine = d.game && (d.game.kind === 'tarneeb' || d.game.kind === 'likha');
+      if (d.game && !mine) {
+        // someone set up another game on the table (tawleh, trivia)
+        roomCtx.isHost = false; roomCtx.lobby = null; G = null; roomCtx.other = d.game.kind; render();
+      } else if (d.game) {
+        roomCtx.other = null;
+        if (roomCtx.isHost && d.game.host !== myRoomName() && !roomCtx.takeOver) { roomCtx.isHost = false; roomCtx.seenV = 0; }
         if (roomCtx.isHost) {
           for (const m of d.moves || []) { roomCtx.movesSeen = Math.max(roomCtx.movesSeen, m.i); await applyRemote(m); }
-        } else if (d.game.state) {
+          if (roomCtx.lobby && Date.now() - (roomCtx.lobby.at || 0) > LOBBY_MS) await hostStart();
+          else if (roomCtx.lobby) render();
+          checkAway();
+        } else {
+          // the host has gone: the first one still here carries the table on
+          const hostGone = d.game.host && !(d.here || []).includes(d.game.host);
+          if (hostGone) { roomCtx.hostGoneAt = roomCtx.hostGoneAt || Date.now(); } else roomCtx.hostGoneAt = 0;
+          const humans = (G ? G.names.filter((n, s) => !G.bots[s]) : (roomCtx.lobby ? roomCtx.lobby.seats.filter(Boolean) : [])).filter(n => (d.here || []).includes(n)).sort();
+          if (roomCtx.hostGoneAt && Date.now() - roomCtx.hostGoneAt > 40000 && humans[0] === myRoomName() && (G || roomCtx.lobby)) {
+            roomCtx.isHost = true; roomCtx.takeOver = true; roomCtx.v = d.game.v;
+            if (G) { const hs = G.names.indexOf(d.game.host); if (hs >= 0 && G.bots[hs] !== true) G.bots[hs] = 'away'; }
+            if (roomCtx.lobby) { roomCtx.lobby.host = myRoomName(); }
+            S.toast(t('tookOver'));
+            await pushRoom(); render(); drive();
+          }
+        }
+        if (!roomCtx.isHost && d.game.state) {
           roomCtx.seenV = d.game.v;
           const s = d.game.state;
           if (s.lobby) { roomCtx.lobby = s.lobby; G = null; }
@@ -568,33 +645,40 @@
             if (prev && prev.trick.length && !G.trick.length && G.lastTrick) holdTrick(G.lastTrick);
           }
           if (d.moves && d.moves.length) roomCtx.movesSeen = d.moves[d.moves.length - 1].i;
+          // my own table (after a reload): carry on hosting it
+          if (d.game.host === myRoomName()) { roomCtx.isHost = true; roomCtx.v = d.game.v; setTimeout(drive, 50); }
+          recordEnd();
           render();
-        }
+        } else if (!roomCtx.isHost && roomCtx.lobby) render();
       } else if (!roomCtx.isHost && !roomCtx.lobby && !G) {
         // nobody has set up a table yet: you become the host
         await hostNew(kind);
       }
     } catch (e) { console.warn(e); }
-    if (roomCtx) gTimer = setTimeout(pollGame, document.hidden ? 15000 : open ? 1400 : 6000);
+    if (roomCtx) gTimer = setTimeout(pollGame, document.hidden ? 15000 : open ? 1500 : 5000);
   }
   document.addEventListener('sawt:cards-room', () => { const cur = R() && R().current(); if (cur) { joinRoomTable(cur); showTab('cards'); } });
 
   // ================================================================== tabs over the coffee table: tawleh / tarneeb / likha
   const tabs = $('games-tabs');
+  const PANES = { tawleh: 'tawleh', cards: 'cards', trivia: 'trivia', scores: 'scores' };
   function showTab(which) {
+    if (!PANES[which]) which = 'tawleh';
     S.store.set('gameTab', which);
-    $('tawleh').hidden = which !== 'tawleh';
-    box.hidden = which === 'tawleh';
+    Object.entries(PANES).forEach(([k, id]) => { const n = $(id); if (n) n.hidden = k !== which; });
     tabs.querySelectorAll('button').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === which || (which === 'cards' && b.dataset.tab === kind))));
-    if (which !== 'tawleh' && !G && !roomCtx) startLocal(kind);
+    if (which === 'cards' && !G && !roomCtx) startLocal(kind);
+    document.dispatchEvent(new CustomEvent('sawt:gametab', { detail: which }));
   }
   function renderTabs() {
-    const L = { ar: ['طاولة 🎲', 'طرنيب 🃏', 'ليخة ♠'], en: ['Tawleh 🎲', 'Tarneeb 🃏', 'Likha ♠'], fr: ['Tawlé 🎲', 'Tarneeb 🃏', 'Likha ♠'] }[S.lang()] || [];
-    tabs.replaceChildren(...['tawleh', 'tarneeb', 'likha'].map((k, i) => {
-      const b = el('button', { type: 'button', role: 'tab', className: 'gt-tab', text: L[i] });
+    const L = { ar: ['طاولة 🎲', 'طرنيب 🃏', 'ليخة ♠', 'أسئلة 🧠', '🏆'], en: ['Tawleh 🎲', 'Tarneeb 🃏', 'Likha ♠', 'Trivia 🧠', '🏆'], fr: ['Tawlé 🎲', 'Tarneeb 🃏', 'Likha ♠', 'Quiz 🧠', '🏆'] }[S.lang()] || [];
+    const LBL = { ar: 'النتايج', en: 'Scores', fr: 'Scores' }[S.lang()];
+    tabs.replaceChildren(...['tawleh', 'tarneeb', 'likha', 'trivia', 'scores'].map((k, i) => {
+      const b = el('button', { type: 'button', role: 'tab', className: 'gt-tab' + (k === 'scores' ? ' gt-icon' : ''), text: L[i] });
+      if (k === 'scores') { b.setAttribute('aria-label', LBL); b.title = LBL; }
       b.dataset.tab = k;
       b.addEventListener('click', () => {
-        if (k === 'tawleh') { showTab('tawleh'); return; }
+        if (k === 'tawleh' || k === 'trivia' || k === 'scores') { showTab(k); return; }
         if (!roomCtx && (!G || G.kind !== k)) startLocal(k);
         else if (roomCtx && roomCtx.isHost && (!G || G.kind !== k)) hostNew(k);
         kind = k; showTab('cards');
@@ -602,10 +686,11 @@
       return b;
     }));
     const cur = S.store.get('gameTab', 'tawleh');
-    showTab(cur);
+    showTab(cur === 'scores' ? 'tawleh' : cur);
   }
   document.addEventListener('sawt:lang', () => { renderTabs(); render(); });
   if (new URLSearchParams(location.search).get('t')) S.store.set('gameTab', 'tawleh');
-  window.SawtCards = { _engine: { newGame, apply, botAction, legalCards, nextHand, trickWinner } };
+  window.SawtCards = { showTab, _engine: { newGame, apply, botAction, legalCards, nextHand, trickWinner } };
+  document.addEventListener('sawt:gametab-open', e => showTab(e.detail));
   renderTabs();
 })();

@@ -208,7 +208,9 @@
     ctl.hidden = offscreen || document.body.classList.contains('intro-on');
     if (!ctl.hidden) {
       ctl.style.setProperty('--s', size + 'px');
-      const x = big ? innerWidth / 2 + Math.min(innerWidth * 0.46, 640) - size * 1.2 : q[1][0] + w * 0.035;
+      let x = big ? innerWidth / 2 + Math.min(innerWidth * 0.46, 640) - size * 1.2 : q[1][0] + w * 0.035;
+      // no room to the right of the set (the long shot on a phone): put the buttons on its left
+      if (!big && x + size > innerWidth - 4) x = Math.max(4, q[0][0] - w * 0.035 - size);
       const y = big ? innerHeight / 2 - size * 3 : q[1][1] + h * 0.02;
       ctl.style.transform = `translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)`;
       ctl.classList.toggle('is-tiny', size < 30 && !big);

@@ -13,7 +13,7 @@
       who: 'مين بالبيت؟', add: 'زيد حدا', you: 'إنت', name: 'الاسم', namePh: 'مثلاً: نسيم', icon: 'الصورة',
       pin: 'رمز سهل (٤ لـ ٨ أرقام)', pinPh: 'مثلاً: ١٩٧٥', setPin: 'قفل برمز', changePin: 'غيّر الرمز', removePin: 'شيل القفل',
       save: 'خلص', cancel: 'رجوع', enterPin: n => `الرمز تبع ${n}`, wrong: 'الرمز غلط، جرّب كمان مرة.', locked: 'مقفول',
-      greet: n => `أهلا يا ${n}، البيت بيتك`, askName: 'شو اسمك؟ (إذا بتحب)', switchTo: 'بدّل', edit: 'عدّل', del: 'امحي', delAsk: n => `أكيد بدك تمحي ${n} وكل شي محفوظ إلو عهالجهاز؟`,
+      greet: n => `أهلا يا ${n}، البيت بيتك`, askName: 'شو اسمك؟', needName: 'اكتب اسمك لتفوت 🙂', switchTo: 'بدّل', edit: 'عدّل', del: 'امحي', delAsk: n => `أكيد بدك تمحي ${n} وكل شي محفوظ إلو عهالجهاز؟`,
       sync: 'على كل أجهزتي', syncLede: 'اختار اسم مستخدم ورمز، وبتلاقي أغراضك (المفضلة، الضيعة، الطبخات، النتايج) على أيّ تلفون أو كمبيوتر.',
       user: 'اسم المستخدم', userPh: 'مثلاً: nassim.beirut', connect: 'وصّل', synced: u => `موصول باسم ${u} ✓`, disconnect: 'فكّ الوصل',
       have: 'عندي حساب من قبل', noStore: 'المزامنة بين الأجهزة بتشتغل بس تنشغّل قاعدة البيانات الصغيرة.',
@@ -24,7 +24,7 @@
       who: 'Who’s home?', add: 'Add someone', you: 'You', name: 'Name', namePh: 'e.g. Nassim', icon: 'Picture',
       pin: 'Easy passcode (4 to 8 digits)', pinPh: 'e.g. 1975', setPin: 'Lock with a passcode', changePin: 'Change passcode', removePin: 'Remove the lock',
       save: 'Done', cancel: 'Back', enterPin: n => `${n}’s passcode`, wrong: 'Wrong passcode, try again.', locked: 'Locked',
-      greet: n => `Welcome home, ${n}`, askName: 'What’s your name? (optional)', switchTo: 'Switch', edit: 'Edit', del: 'Delete', delAsk: n => `Delete ${n} and everything saved for them on this device?`,
+      greet: n => `Welcome home, ${n}`, askName: 'What’s your name?', needName: 'Type your name to come in 🙂', switchTo: 'Switch', edit: 'Edit', del: 'Delete', delAsk: n => `Delete ${n} and everything saved for them on this device?`,
       sync: 'On all my devices', syncLede: 'Pick a username and passcode, and find your things (favourites, village, recipes, scores) on any phone or computer.',
       user: 'Username', userPh: 'e.g. nassim.beirut', connect: 'Connect', synced: u => `Connected as ${u} ✓`, disconnect: 'Disconnect',
       have: 'I already have an account', noStore: 'Syncing between devices works once the small database is switched on.',
@@ -35,7 +35,7 @@
       who: 'Qui est à la maison ?', add: 'Ajouter quelqu’un', you: 'Vous', name: 'Prénom', namePh: 'ex. Nassim', icon: 'Image',
       pin: 'Code facile (4 à 8 chiffres)', pinPh: 'ex. 1975', setPin: 'Verrouiller par un code', changePin: 'Changer le code', removePin: 'Retirer le verrou',
       save: 'OK', cancel: 'Retour', enterPin: n => `Le code de ${n}`, wrong: 'Code erroné, réessayez.', locked: 'Verrouillé',
-      greet: n => `Bienvenue chez vous, ${n}`, askName: 'Votre prénom ? (facultatif)', switchTo: 'Changer', edit: 'Modifier', del: 'Supprimer', delAsk: n => `Supprimer ${n} et tout ce qui est gardé pour lui sur cet appareil ?`,
+      greet: n => `Bienvenue chez vous, ${n}`, askName: 'Votre prénom ?', needName: 'Écrivez votre prénom pour entrer 🙂', switchTo: 'Changer', edit: 'Modifier', del: 'Supprimer', delAsk: n => `Supprimer ${n} et tout ce qui est gardé pour lui sur cet appareil ?`,
       sync: 'Sur tous mes appareils', syncLede: 'Choisissez un nom d’utilisateur et un code, et retrouvez vos affaires (favoris, village, recettes, scores) sur n’importe quel appareil.',
       user: 'Nom d’utilisateur', userPh: 'ex. nassim.beyrouth', connect: 'Connecter', synced: u => `Connecté : ${u} ✓`, disconnect: 'Déconnecter',
       have: 'J’ai déjà un compte', noStore: 'La synchronisation marche une fois la petite base de données activée.',
@@ -315,9 +315,20 @@
     if (!intro || !btnIn) return;
     const input = el('input', { id: 'intro-name', className: 'intro-name', maxLength: 30, autocomplete: 'given-name', placeholder: t('askName'), 'aria-label': t('askName'), hidden: !!myName() });
     btnIn.before(input);
-    const take = () => {
-      const n = input.value.trim();
-      if (!n || myName()) return;
+    input.required = true;
+    input.addEventListener('input', () => input.removeAttribute('aria-invalid'));
+    const take = e => {
+      const n = input.value.trim().replace(/\s+/g, ' ');
+      if (myName()) return;
+      if (!n) {
+        // the name comes first: nobody walks in without one
+        e.preventDefault(); e.stopImmediatePropagation();
+        input.classList.remove('is-shake'); void input.offsetWidth; input.classList.add('is-shake');
+        input.setAttribute('aria-invalid', 'true');
+        S.toast(t('needName'));
+        input.focus();
+        return;
+      }
       list.push({ id: me, name: n, icon: ICONS[0], lock: null }); saveList();
       greet();
       S.toast(t('hello', n));
@@ -336,7 +347,7 @@
 
   document.addEventListener('sawt:config', e => { storeOn = !!(e.detail && e.detail.dedications); if (!panel.hidden && view === 'edit') render(); push(false); });
   document.addEventListener('sawt:lang', () => { greet(); if (!panel.hidden) render(); const i = $('intro-name'); if (i) { i.placeholder = t('askName'); i.setAttribute('aria-label', t('askName')); } });
-  window.SawtMe = { name: myName, id: () => me, icon: () => (current() || {}).icon || '🙂', open: openPanel, push };
+  window.SawtMe = { needName: () => !myName(), focusName: () => { const i = $('intro-name'); if (i) { i.hidden = false; i.focus(); } }, name: myName, id: () => me, icon: () => (current() || {}).icon || '🙂', open: openPanel, push };
   renderBtn();
   greet();
   gate();

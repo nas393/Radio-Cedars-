@@ -18,8 +18,10 @@ app.disable('x-powered-by');
 const smallJson = express.json({ limit: '10kb' });
 const bigJson = express.json({ limit: '700kb' });
 const midJson = express.json({ limit: '200kb' });
+const photoJson = express.json({ limit: '900kb' });
 app.use((req, res, next) => {
   const p = req.path;
+  if (/^\/api\/q\/[^/]+\/photo$/.test(p)) return photoJson(req, res, next);
   if (p === '/api/voice' || /^\/api\/q\/[^/]+\/voice$/.test(p)) return bigJson(req, res, next);
   if (p.startsWith('/api/profile') || p === '/api/recipes' || /^\/api\/q\/[^/]+\/game$/.test(p)) return midJson(req, res, next);
   return smallJson(req, res, next);
@@ -581,6 +583,20 @@ app.post('/api/q/:id/play', noStore, needStore, qRoute(req => together.play(req.
 app.post('/api/q/:id/game', noStore, needStore, qRoute(req => together.gameSet(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/move', noStore, needStore, qRoute(req => together.gameMove(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/game/end', noStore, needStore, qRoute(req => together.gameEnd(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/photo', noStore, needStore, qRoute(req => together.photo(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
+app.post('/api/q/:id/react', noStore, needStore, qRoute(req => together.react(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/typing', noStore, needStore, qRoute(req => together.typing(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/score', noStore, needStore, qRoute(req => together.score(req.params.id, { ...req.body, token: qTok(req) })));
+app.get('/api/q/:id/scores', noStore, needStore, qRoute(req => together.scores(req.params.id, qTok(req))));
+app.post('/api/q/:id/bday', noStore, needStore, qRoute(req => together.bday(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/greet', noStore, needStore, qRoute(req => together.greet(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
+app.get('/api/q/:id/photo/:pid', needStore, async (req, res) => {
+  try {
+    const a = await together.image(req.params.id, req.params.pid, qTok(req));
+    res.set('Cache-Control', 'private, max-age=604800, immutable');
+    res.type(a.type).send(Buffer.from(a.data, 'base64'));
+  } catch (err) { res.status(err.status || 500).end(); }
+});
 app.get('/api/q/:id/audio/:aid', needStore, async (req, res) => {
   try {
     const a = await together.audio(req.params.id, req.params.aid, qTok(req));

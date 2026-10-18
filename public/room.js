@@ -294,7 +294,7 @@
   const canvas = $('view');
   // cx, cy: the point of the picture in the middle of the screen (0..1); z: zoom over "just fills the screen"
   const view = { cx: 0.5, cy: 0.5, z: 1, vx: 0, vy: 0 };
-  let gl = null, prog = null, tex = [null, null, null], mixAmount = 0, uni = {};
+  let gl = null, prog = null, tex = [null, null, null, null], mixAmount = 0, uni = {};
   let needsDraw = true;
   let aspect = 1.5;                       // of the picture on show
   let maxTex = 4096;
@@ -325,6 +325,8 @@
     uniform float glow;        // night: decorations and city lights glow and twinkle
     uniform vec4 grade;        // rgb multiply, saturation
     uniform float vign;
+    uniform sampler2D tb;      // a tiny copy of the room: blurred when stretched, fills around the long shot
+    uniform vec2 bgs;          // uv per device pixel for that fill
     float h21(vec2 q) { q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }
     float vn(vec2 q) { vec2 i = floor(q), f = fract(q); f = f * f * (3.0 - 2.0 * f);
       return mix(mix(h21(i), h21(i + vec2(1.0, 0.0)), f.x), mix(h21(i + vec2(0.0, 1.0)), h21(i + vec2(1.0, 1.0)), f.x), f.y); }
@@ -374,6 +376,16 @@
     void main(){
       vec2 fc = gl_FragCoord.xy - res * 0.5;
       vec2 uv = vec2(cam.x + fc.x * cam.z, cam.y - fc.y * cam.w);
+      if (uv.x < 0.0 || uv.x > 1.0 || uv.y < 0.0 || uv.y > 1.0) {
+        vec2 bu = vec2(0.5) + vec2(fc.x, -fc.y) * bgs;
+        vec3 b = texture2D(tb, bu).rgb * 0.62;
+        float e = max(max(-uv.x, uv.x - 1.0) * asp, max(-uv.y, uv.y - 1.0));
+        b *= 0.5 + 0.5 * smoothstep(0.0, 0.1, e);
+        vec3 gen0 = vec3(1.0, 0.84, 0.66) * 0.74;
+        b *= mix(vec3(0.025, 0.025, 0.04), mix(vec3(1.0), gen0, motor), power);
+        gl_FragColor = vec4(b, 1.0);
+        return;
+      }
       vec4 c = texture2D(t0, uv);
       if (mixv > 0.0) c = mix(c, texture2D(t1, uv), mixv);
       float m = smoothstep(glass.x, glass.x + 0.006, uv.x) * smoothstep(glass.z, glass.z - 0.006, uv.x) *
@@ -443,18 +455,19 @@
     const a = gl.getAttribLocation(prog, 'a');
     gl.enableVertexAttribArray(a);
     gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign']) uni[n] = gl.getUniformLocation(prog, n);
+    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign', 'tb', 'bgs']) uni[n] = gl.getUniformLocation(prog, n);
     gl.uniform1i(uni.t0, 0);
     gl.uniform1i(uni.t1, 1);
     gl.uniform1i(uni.td, 2);
+    gl.uniform1i(uni.tb, 3);
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); }, false);
-    canvas.addEventListener('webglcontextrestored', () => { tex = [null, null, null]; initGL(); if (currentImg) setTexture(0, currentImg); decorFor = null; loadDecor(); needsDraw = true; });
+    canvas.addEventListener('webglcontextrestored', () => { tex = [null, null, null, null]; initGL(); if (currentImg) { setTexture(0, currentImg); setBlur(currentImg); } decorFor = null; loadDecor(); needsDraw = true; });
     return true;
   }
 
   function setTexture(unit, img) {
     if (!tex[unit]) tex[unit] = gl.createTexture();
-    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2][unit]);
+    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3][unit]);
     const rgba = unit === 2;
     gl.bindTexture(gl.TEXTURE_2D, tex[unit]);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -466,6 +479,19 @@
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
 
+  // the soft fill around the long shot: the room squeezed to a few pixels, then stretched
+  function setBlur(img) {
+    if (!gl) return;
+    try {
+      const w = 48, h = Math.max(8, Math.round(48 / (img.naturalWidth / img.naturalHeight)));
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d');
+      x.filter = 'blur(2px)';
+      x.drawImage(img, -3, -3, w + 6, h + 6);
+      setTexture(3, c);
+    } catch { /* plain dark fill */ }
+  }
+
   // ------------------------------------------------------------------ geometry
   function vw() { return canvas.clientWidth || innerWidth; }
   function vh() { return canvas.clientHeight || innerHeight; }
@@ -473,8 +499,10 @@
   function pxW() { return aspect * baseScale() * view.z; }              // picture width on screen
   function pxH() { return baseScale() * view.z; }
   const ZMAX = 3.2;
+  // the long shot: the whole room on screen (on a phone held upright, with a soft fill above and below)
+  function zMin() { return Math.min(1, Math.min(vw() / aspect, vh()) / baseScale()); }
   function clampView(v = view) {
-    v.z = Math.max(1, Math.min(ZMAX, v.z));
+    v.z = Math.max(zMin(), Math.min(ZMAX, v.z));
     const s = baseScale() * v.z;
     const hw = vw() / 2 / (aspect * s), hh = vh() / 2 / s;
     v.cx = hw >= 0.5 ? 0.5 : Math.max(hw, Math.min(1 - hw, v.cx));
@@ -494,7 +522,7 @@
   }
   function startView() {
     const portrait = vh() > vw();
-    return clampView({ cx: portrait ? 0.53 : 0.5, cy: 0.5, z: 1 });
+    return clampView({ cx: portrait ? 0.53 : 0.5, cy: 0.5, z: zMin() });
   }
 
   function resize() {
@@ -527,6 +555,8 @@
       const gr = GRADE[mood] || GRADE.clear;
       gl.uniform4f(uni.grade, gr[0], gr[1], gr[2], gr[3]);
       gl.uniform1f(uni.vign, 0.32);
+      { const cs = Math.max(canvas.width / aspect, canvas.height); gl.uniform2f(uni.bgs, 1 / (aspect * cs), 1 / cs); }
+      if (tex[3]) { gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, tex[3]); }
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[0]);
       if (tex[1]) { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[1]); }
       gl.uniform1f(uni.decor, tex[2] && decorFor === scene ? 1 : 0);
@@ -699,7 +729,7 @@
   }, { passive: false });
   canvas.addEventListener('dblclick', e => {
     const at = unproject(e.clientX, e.clientY);
-    glideTo(viewFor(at[0], at[1], view.z > 1.4 ? 1 : 2, e.clientX, e.clientY));
+    glideTo(viewFor(at[0], at[1], view.z > zMin() * 1.4 ? zMin() : Math.max(1.6, zMin() * 2.2), e.clientX, e.clientY));
   });
   // Tap on the picture near an object opens it (the dots are small on phones).
   canvas.addEventListener('click', e => {
@@ -765,7 +795,7 @@
       const target = 0.012 * (0.5 - 0.5 * Math.cos((now - idleSince - 7000) / 9000));
       const prev = breath;
       breath = target;
-      view.z = Math.max(1, view.z * (1 + breath) / (1 + prev));
+      view.z = Math.max(zMin(), view.z * (1 + breath) / (1 + prev));
       clampView();
       needsDraw = true;
     } else if (breath) { breath = 0; }
@@ -998,6 +1028,7 @@
       if (name !== scene) return;
       aspect = im.naturalWidth / im.naturalHeight;
       if (!gl) { currentImg = im; clampView(); needsDraw = true; return; }
+      if (im.naturalWidth < 1600 || !tex[3]) setBlur(im);
       if (!currentImg || !anim || reduceMotion) { setTexture(0, im); currentImg = im; fade = null; mixAmount = 0; }
       else { setTexture(1, im); currentImg = im; fade = { img: im, t0: performance.now() }; }
       clampView(); needsDraw = true;
@@ -1493,6 +1524,7 @@
 
   function enterRoom() {
     if (!introOn) return;
+    if (window.SawtMe && window.SawtMe.needName()) { intro.classList.remove('is-quick'); window.SawtMe.focusName(); return; }
     introOn = false;
     S.store.set('visited', true);
     intro.classList.add('is-leaving');

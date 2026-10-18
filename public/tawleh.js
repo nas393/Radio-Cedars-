@@ -56,6 +56,9 @@
       aiWin: 'Je te l’avais dit : personne ne bat Abou Samir ☕', aiLose: 'Quelle chance ! On remet ça ?'
     }
   };
+  Object.assign(T.ar, { vsRoom: 'مع العيلة بالغرفة 🛋️', lobby: r => `طاولة بغرفة "${r}"`, sit: 'اقعد هون', seatFree: 'كرسي فاضي (أبو سمير)', autoStart: n => `منبلّش بعد ${S.num(n)} ثانية، وإذا ما إجا حدا بيلعب أبو سمير`, startNow: 'بلّش هلّق', other: k => `عالطاولة هلّق: ${k}`, playHere: 'العبوا طاولة بدالها', away: 'غبت شوي، فأبو سمير لعب عنّك.', imBack: 'رجعت! بكمّل أنا', games: { tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'أسئلة' } });
+  Object.assign(T.en, { vsRoom: 'With the family 🛋️', lobby: r => `Tawleh in "${r}"`, sit: 'Sit here', seatFree: 'Empty seat (Abou Samir)', autoStart: n => `Starting in ${n}s; if nobody comes, Abou Samir plays`, startNow: 'Start now', other: k => `On the table now: ${k}`, playHere: 'Play tawleh instead', away: 'You were away, so Abou Samir played for you.', imBack: 'I’m back, my turn', games: { tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'Trivia' } });
+  Object.assign(T.fr, { vsRoom: 'En famille 🛋️', lobby: r => `Tawlé dans « ${r} »`, sit: 'S’asseoir ici', seatFree: 'Place libre (Abou Samir)', autoStart: n => `On commence dans ${n} s ; sinon Abou Samir joue`, startNow: 'Commencer', other: k => `Sur la table : ${k}`, playHere: 'Jouer au tawlé à la place', away: 'Vous étiez absent·e, Abou Samir a joué pour vous.', imBack: 'Je suis là, je reprends', games: { tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'Quiz' } });
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
   const pickOne = a => a[Math.floor(Math.random() * a.length)];
 
@@ -186,7 +189,8 @@
 
   // ================================================================== the game
 
-  let mode = S.store.get('tawlehMode', 'ai');      // ai | here | link
+  let mode = S.store.get('tawlehMode', 'ai');      // ai | here | link | room
+  if (mode === 'room') mode = 'ai';
   let G = null;                                   // the game in play
   let score = S.store.get('tawlehScore', { ai: [0, 0], here: [0, 0] });
   let msg = '';
@@ -198,15 +202,17 @@
     const st = START();
     G = { st, turn: 0, dice: null, played: [], options: null, before: null, lastDice: null, over: -1, mars: false };
     selected = null; msg = '';
+    G.gid = 'l' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     if (mode === 'ai' && Math.random() < 0.5) { G.turn = 1; setTimeout(aiTurn, 900); }
     if (!keepMode) mode = 'ai';
     save(); render();
   }
   function save() {
-    if (mode === 'link') return;
+    if (mode === 'link' || mode === 'room') return;
     try { S.store.set('tawlehGame', { mode, G }); } catch { /* full */ }
   }
   function names() {
+    if (mode === 'room' && rm) return rm.seats.map((n, i) => (n || '…') + (rm.bots[i] ? ' 🤖' : ''));
     if (mode === 'ai') return [t('you'), t('ai')];
     if (mode === 'link' && link) return link.names;
     return [t('p1'), t('p2')];
@@ -215,6 +221,7 @@
     if (G.over >= 0) return false;
     if (mode === 'ai') return G.turn === 0;
     if (mode === 'link') return link && G.turn === link.me;
+    if (mode === 'room') return !!rm && !rm.lobby && rm.me >= 0 && G.turn === rm.me && !rm.bots[rm.me] && !busy;
     return true;
   }
 
@@ -231,11 +238,11 @@
     msg = call(d);
     if (!G.options.length || !G.options[0].seq.length) {
       msg = (msg ? msg + ' ' : '') + t('noMove');
-      render();
+      render(); pushGame();
       setTimeout(endTurn, 1400);
       return;
     }
-    render();
+    render(); pushGame();
   }
   let rolling = 0;
 
@@ -261,6 +268,7 @@
     if (r.hit && mode === 'ai') msg = G.turn === 1 ? pickOne(t('aiHit')) : pickOne(t('aiHurt'));
     const w = winner(G.st);
     if (w >= 0) return finish(w);
+    pushGame();
     if (!nextMoves().length && mode !== 'ai') { render(); return; }      // humans press "done"
     if (!nextMoves().length && G.turn === 0) { render(); return; }
     render();
@@ -272,9 +280,10 @@
   function endTurn() {
     G.dice = null; G.options = null; G.played = []; G.before = null; selected = null;
     G.turn = 1 - G.turn;
+    G.turnAt = Date.now();
     if (mode === 'link') { save(); render(); share(); return; }
-    save(); render();
-    if (mode === 'ai' && G.turn === 1) setTimeout(aiTurn, 700);
+    save(); render(); pushGame();
+    if (aiSeat() >= 0) setTimeout(aiTurn, 700);
   }
   function finish(w) {
     G.over = w;
@@ -285,30 +294,49 @@
       sc[w] += pts; score[mode] = sc;
       S.store.set('tawlehScore', score);
     }
-    msg = t('won', names()[w]) + (G.mars ? ' ' + t('mars') : '');
+    msg = t('won', names()[w].replace(' 🤖', '')) + (G.mars ? ' ' + t('mars') : '');
     if (mode === 'ai') msg += ' ' + (w === 1 ? t('aiWin') : t('aiLose'));
     G.dice = null;
-    save(); render();
+    save(); render(); pushGame();
     if (mode === 'link') share();
+    recordEnd();
+  }
+  function recordEnd() {
+    if (!G || G.over < 0 || !G.gid || !window.SawtScores) return;
+    const me = (window.SawtMe && window.SawtMe.name()) || t('you');
+    if (mode === 'ai') window.SawtScores.record('tawleh', { gid: G.gid, players: [me], winners: G.over === 0 ? [me] : [], pts: G.mars ? 2 : 1 });
+    else if (mode === 'room' && rm) {
+      const players = rm.seats.filter((n, i) => rm.bots[i] !== true);
+      window.SawtScores.record('tawleh', { gid: G.gid, players, winners: rm.bots[G.over] === true ? [] : [rm.seats[G.over]], pts: G.mars ? 2 : 1, room: rm.room });
+    }
   }
 
+  // who Abou Samir plays for right now: his own seat, or a seat in a room left empty or away
+  function aiSeat() {
+    if (!G || G.over >= 0) return -1;
+    if (mode === 'ai') return G.turn === 1 ? 1 : -1;
+    if (mode === 'room' && rm && !rm.lobby && rm.bots[G.turn] && rm.me >= 0 && !rm.bots[rm.me]) return G.turn;
+    return -1;
+  }
   async function aiTurn() {
-    if (mode !== 'ai' || G.turn !== 1 || G.over >= 0) return;
+    const pl = aiSeat();
+    if (pl < 0 || busy) return;
     busy = true; msg = t('thinking'); render();
     await wait(650);
     busy = false;
+    if (aiSeat() !== pl) return;
     roll();
     if (!G.dice) return;              // no move: roll() passes the turn
     busy = true;
-    const seq = aiChoose(G.st, 1, G.dice);
+    const seq = aiChoose(G.st, pl, G.dice);
     for (const m of seq) {
       await wait(reduceMotion ? 120 : 520);
-      if (mode !== 'ai') { busy = false; return; }
-      const r = apply(G.st, 1, m);
+      if (aiSeat() !== pl) { busy = false; return; }
+      const r = apply(G.st, pl, m);
       G.st = r.st; G.played.push({ ...m, hit: r.hit });
       if (r.hit) msg = pickOne(t('aiHit'));
-      lastMoved = { pl: 1, to: m.to };
-      render();
+      lastMoved = { pl, to: m.to };
+      render(); pushGame();
       const w = winner(G.st);
       if (w >= 0) { busy = false; finish(w); return; }
     }
@@ -318,6 +346,147 @@
   }
   const wait = ms => new Promise(res => setTimeout(res, ms));
   let lastMoved = null;
+
+  // ------------------------------------------------------------------ a game in a family room
+  // Whoever's turn it is plays on their phone and writes the board for the others.
+  // A seat nobody takes, or a player who is away too long, goes to Abou Samir.
+  const Rm = () => window.SawtRooms;
+  let rm = null;              // { room, v, seen, seats, bots, me, lobby, other, here, writing }
+  const LOBBY_MS = 45000;
+  const roomName = () => (rm && rm.room ? rm.room.name : '');
+  function enterRoomMode() {
+    const room = Rm() && Rm().current();
+    if (!room) { mode = 'ai'; render(); return; }
+    rm = { room, v: 0, seen: 0, seats: [null, null], bots: [false, false], me: -1, lobby: null, other: null, here: [], writing: 0, turnKey: '', turnSeen: 0 };
+    G = null; msg = ''; selected = null;
+    pollRoom();
+  }
+  // writes go one after another, so each one builds on the last
+  let chain = Promise.resolve();
+  function pushRoom(state, fresh) {
+    if (!rm) return Promise.resolve();
+    rm.writing++;
+    const snap = JSON.parse(JSON.stringify(state));
+    const r = rm;
+    chain = chain.then(() => (rm === r ? doPush(snap, fresh) : (r.writing = 0))).catch(() => {});
+    return chain;
+  }
+  async function doPush(state, fresh) {
+    if (!rm) return;
+    try { const d = await Rm().api(rm.room, '/game', { kind: 'tawleh', state, base: fresh ? null : rm.v, takeOver: true, fresh: !!fresh }); rm.v = d.v; rm.seen = d.v; }
+    catch (e) { if (e.code === 'stale') { rm.seen = 0; setTimeout(pollRoom, 100); } else console.warn(e); }
+    finally { if (rm) rm.writing = Math.max(0, rm.writing - 1); }
+  }
+  function roomState() { return { game: { st: G.st, turn: G.turn, dice: G.dice, played: G.played, lastDice: G.lastDice, over: G.over, mars: G.mars, gid: G.gid }, seats: rm.seats, bots: rm.bots }; }
+  function pushGame() { if (mode === 'room' && rm && G && !rm.lobby) pushRoom(roomState()); }
+  async function startRoomLobby() {
+    rm.lobby = { at: Date.now() }; rm.seats = [roomName(), null]; rm.bots = [false, false]; rm.me = 0; G = null; rm.other = null;
+    await pushRoom({ lobby: rm.lobby, seats: rm.seats }, true);
+    render();
+  }
+  async function sit(i) {
+    if (!rm || !rm.lobby || rm.seats[i]) return;
+    const j = rm.seats.indexOf(roomName()); if (j >= 0) rm.seats[j] = null;
+    rm.seats[i] = roomName(); rm.me = i;
+    await pushRoom({ lobby: rm.lobby, seats: rm.seats });
+    maybeStartRoom(); render();
+  }
+  function maybeStartRoom(now) {
+    if (!rm || !rm.lobby || rm.me < 0) return;
+    const age = Date.now() - rm.lobby.at;
+    const full = rm.seats[0] && rm.seats[1];
+    const first = rm.seats.find(Boolean) === roomName();
+    if (!(now || ((full || age > LOBBY_MS) && (first || age > LOBBY_MS * 1.6)))) return;
+    rm.bots = rm.seats.map(n => !n);
+    rm.seats = rm.seats.map(n => n || t('ai'));
+    rm.lobby = null;
+    newGameSilent();
+    G.gid = rm.room.id + '-tw-' + Date.now().toString(36);
+    G.turn = Math.random() < 0.5 ? 0 : 1;
+    msg = '';
+    pushGame(); render();
+    if (aiSeat() >= 0) setTimeout(aiTurn, 900);
+  }
+  function adopt(g) {
+    rm.v = rm.seen = g.v;
+    const s = g.state || {};
+    rm.seats = s.seats || rm.seats;
+    rm.me = rm.seats.indexOf(roomName());
+    if (s.lobby) { rm.lobby = s.lobby; G = null; return; }
+    if (!s.game) return;
+    const was = G;
+    rm.lobby = null; rm.bots = s.bots || [false, false];
+    G = { ...s.game, options: null, before: null, played: s.game.played || [] };
+    if (G.dice && G.turn === rm.me && !rm.bots[rm.me]) {
+      // back on my own turn (after a reload): the moves still open from here
+      if (!G.played.length) { G.options = sequences(G.st, G.turn, G.dice); G.before = clone(G.st); }
+      else G.options = [];
+    }
+    if (was && G.played.length) { const m = G.played[G.played.length - 1]; lastMoved = { pl: G.turn, to: m.to }; }
+    if (G.over >= 0 && (!was || was.over < 0)) { msg = t('won', rm.seats[G.over]) + (G.mars ? ' ' + t('mars') : ''); recordEnd(); }
+  }
+  function checkAway() {
+    if (!rm || rm.lobby || !G || G.over >= 0 || rm.me < 0 || rm.bots[rm.me]) return;
+    const key = [G.turn, G.dice, G.played.length].join(':');
+    if (key !== rm.turnKey) { rm.turnKey = key; rm.turnSeen = Date.now(); return; }
+    if (G.turn === rm.me || rm.bots[G.turn]) return;
+    const gone = !rm.here.includes(rm.seats[G.turn]);
+    if (Date.now() - rm.turnSeen > (gone ? 25000 : 90000)) {
+      rm.bots[G.turn] = 'away';
+      // whatever they had half-played stays; Abou Samir finishes the turn
+      if (G.dice) { G.dice = null; G.played = []; G.options = null; }
+      pushGame(); render(); setTimeout(aiTurn, 300);
+    }
+  }
+  let rTimer = 0;
+  async function pollRoom() {
+    clearTimeout(rTimer);
+    if (mode !== 'room' || !rm) return;
+    try {
+      const d = await Rm().api(rm.room, `?since=999999999&gv=${rm.seen}`);
+      rm.here = d.here || [];
+      const g = d.game;
+      if (!g) { if (!rm.lobby && !G && !rm.writing) await startRoomLobby(); }
+      else if (g.kind !== 'tawleh') { if (rm.other !== g.kind) { rm.other = g.kind; G = null; rm.lobby = null; render(); } }
+      else {
+        if (rm.other) { rm.other = null; rm.seen = 0; }
+        if (g.state && !rm.writing && !busy) { adopt(g); render(); if (aiSeat() >= 0) setTimeout(aiTurn, 600); }
+        maybeStartRoom();
+        checkAway();
+        if (rm.lobby) render();
+      }
+    } catch (e) { console.warn(e); }
+    const open = window.SawtRoom && window.SawtRoom.isOpen() === 'tawleh' && !$('tawleh').hidden;
+    if (mode === 'room') rTimer = setTimeout(pollRoom, document.hidden ? 15000 : open ? 1500 : 5000);
+  }
+  function roomBits() {
+    // what goes above the board in a room: another game on the table, the waiting seats, or "I'm back"
+    if (rm.other) {
+      const b = el('button', { type: 'button', className: 'btn btn-primary', text: '🎲 ' + t('playHere') });
+      b.addEventListener('click', () => { rm.other = null; startRoomLobby(); });
+      return el('div', { className: 'cg-lobby' }, [el('p', { className: 'q-k', text: t('other', t('games')[rm.other] || rm.other) }), b]);
+    }
+    if (rm.lobby) {
+      const left = Math.max(0, Math.ceil((LOBBY_MS - (Date.now() - rm.lobby.at)) / 1000));
+      const grid = el('div', { className: 'cg-seats tw-seats' }, [0, 1].map(i => {
+        const n = rm.seats[i];
+        const b = el('button', { type: 'button', className: 'cg-chair' + (n === roomName() ? ' is-me' : ''), disabled: !!n }, [
+          el('span', { className: 'tw-chip tw-chip-' + i }), el('span', { dir: 'auto', text: n || t('seatFree') }), !n ? el('span', { className: 'cg-chair-sit', text: t('sit') }) : null
+        ].filter(Boolean));
+        b.addEventListener('click', () => sit(i));
+        return b;
+      }));
+      const kids = [el('p', { className: 'q-k', dir: 'auto', text: t('lobby', rm.room.title) }), grid, el('p', { className: 'quiet small', text: t('autoStart', left) })];
+      if (rm.me >= 0) { const go = el('button', { type: 'button', className: 'btn btn-primary', text: '🎲 ' + t('startNow') }); go.addEventListener('click', () => maybeStartRoom(true)); kids.push(go); }
+      return el('div', { className: 'cg-lobby' }, kids);
+    }
+    if (G && rm.me >= 0 && rm.bots[rm.me] === 'away') {
+      const b = el('button', { type: 'button', className: 'btn btn-primary', text: '🙋 ' + t('imBack') });
+      b.addEventListener('click', () => { if (busy) return; rm.bots[rm.me] = false; pushGame(); render(); });
+      return el('div', { className: 'cg-away' }, [el('span', { text: t('away') }), b]);
+    }
+    return null;
+  }
 
   // ------------------------------------------------------------------ a game by link
   function encode() {
@@ -372,16 +541,29 @@
     const lang = S.lang();
     box.dir = lang === 'ar' ? 'rtl' : 'ltr';
     const nm = names();
-    const sc = mode === 'link' ? null : (score[mode] || [0, 0]);
+    const sc = mode === 'link' || mode === 'room' ? null : (score[mode] || [0, 0]);
     const head = el('div', { className: 'tw-head' }, [
-      el('div', { className: 'tw-modes', role: 'group' }, ['ai', 'here', 'link'].map(md => {
-        const b = el('button', { type: 'button', className: 'chip', text: t(md === 'ai' ? 'vsAi' : md === 'here' ? 'vsHere' : 'vsLink') });
+      el('div', { className: 'tw-modes', role: 'group' }, ['ai', 'here', 'link', 'room'].filter(md => md !== 'room' || mode === 'room' || (Rm() && Rm().storeOn() && Rm().current())).map(md => {
+        const b = el('button', { type: 'button', className: 'chip', text: t(md === 'ai' ? 'vsAi' : md === 'here' ? 'vsHere' : md === 'link' ? 'vsLink' : 'vsRoom') });
         b.setAttribute('aria-pressed', String(mode === md));
-        b.addEventListener('click', () => { if (mode === md) return; mode = md; S.store.set('tawlehMode', md); link = null; if (md === 'link') { G = null; render(); return; } newGame(); });
+        b.addEventListener('click', () => {
+          if (mode === md) return;
+          clearTimeout(rTimer); busy = false;
+          mode = md; link = null;
+          if (md === 'room') { enterRoomMode(); render(); return; }
+          rm = null; S.store.set('tawlehMode', md);
+          if (md === 'link') { G = null; render(); return; }
+          newGame();
+        });
         return b;
       }))
     ]);
     if (mode === 'link' && !link) { box.replaceChildren(head, linkForm()); return; }
+    if (mode === 'room') {
+      const bits = rm ? roomBits() : null;
+      if (!rm || rm.other || rm.lobby || !G) { box.replaceChildren(head, bits || el('p', { className: 'quiet', text: '…' })); return; }
+      if (bits) head.appendChild(bits);
+    }
     if (!G) newGameSilent();
     const players = el('div', { className: 'tw-players' }, [0, 1].map(pl => el('div', { className: 'tw-player' + (G.turn === pl && G.over < 0 ? ' is-turn' : '') }, [
       el('span', { className: 'tw-chip tw-chip-' + pl }),
@@ -406,7 +588,7 @@
     const btns = el('div', { className: 'tw-btns' });
     if (G.over >= 0) {
       const b = el('button', { type: 'button', className: 'btn btn-primary', text: t('newGame') });
-      b.addEventListener('click', () => { if (mode === 'link') { link = null; G = null; render(); } else newGame(); });
+      b.addEventListener('click', () => { if (mode === 'link') { link = null; G = null; render(); } else if (mode === 'room') { startRoomLobby(); } else newGame(); });
       btns.appendChild(b);
     } else if (humanTurn() && !busy) {
       if (!G.dice) {
@@ -425,7 +607,7 @@
     controls.appendChild(btns);
     const turnLine = G.over >= 0 ? '' : humanTurn()
       ? (G.dice ? t('pick') : (mode === 'here' ? t('turnOf', nm[G.turn]) : t('yourTurn')))
-      : (mode === 'link' ? t('waiting', nm[G.turn]) : '');
+      : (mode === 'link' || mode === 'room' ? t('waiting', nm[G.turn]) : '');
     box.replaceChildren(head, players, board, controls,
       el('p', { className: 'tw-msg', 'aria-live': 'polite', text: [msg, msg ? '' : turnLine].filter(Boolean).join(' ') }),
       el('p', { className: 'quiet small', text: t('rules') }));
@@ -441,7 +623,7 @@
   }
 
   function drawBoard() {
-    const flip = mode === 'link' && link && link.me === 1;     // your own checkers at the bottom
+    const flip = (mode === 'link' && link && link.me === 1) || (mode === 'room' && rm && rm.me === 1);     // your own checkers at the bottom
     const svg = sv('svg', { viewBox: `0 0 ${BW} ${BH}`, class: 'tw-board', role: 'img', 'aria-label': 'tawleh' });
     const defs = sv('defs');
     defs.innerHTML = `<linearGradient id="twWood" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6b3f1f"/><stop offset=".5" stop-color="#53301a"/><stop offset="1" stop-color="#3c2112"/></linearGradient>
@@ -592,6 +774,9 @@
     render();
   }
   document.addEventListener('sawt:lang', () => render());
+  // the sofa's "play in this room" opens the table in room mode
+  document.addEventListener('sawt:tawleh-room', () => { if (Rm() && Rm().current()) { clearTimeout(rTimer); busy = false; mode = 'room'; link = null; enterRoomMode(); render(); } });
+  document.addEventListener('sawt:gametab', e => { if (e.detail === 'tawleh' && mode === 'room') pollRoom(); });
   window.SawtTawleh = { _engine: { START, sequences, apply, pips, aiChoose, singles } };
   boot();
 })();

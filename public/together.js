@@ -57,7 +57,29 @@
       radio: 'Radio', tape: 'Cassette', live: 'Télé'
     }
   };
+  Object.assign(T.ar, {
+    chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
+    knock: 'دقّ الجرس', knocked: n => `🔔 ${n} دقّ الجرس!`, react: 'تفاعل', quick: 'كلمات سريعة', bigPhoto: 'كبّر الصورة',
+    phrases: ['وصلت بالسلامة 🏠', 'اشتقنالكن ❤️', 'صباح الخير ☕', 'تصبحوا على خير 🌙', 'كيفكن؟', 'الله يخلّيكن 🙏', 'هههههه 😂', 'يلّا نلعب طاولة؟ 🎲'],
+    bday: w => `🎂 اليوم عيد ميلاد ${w}! كل سنة وإنت سالم/ة 🎉`, nameday: w => `🕯️ اليوم عيد شفيع ${w}. كل عيد وإنت بخير`,
+    errs2: { type: 'هالنوع من الصور ما بيمشي.', big: 'الصورة كبيرة كتير.' }, today: 'اليوم', yesterday: 'مبارح'
+  });
+  Object.assign(T.en, {
+    chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
+    knock: 'Ring the bell', knocked: n => `🔔 ${n} rang the bell!`, react: 'React', quick: 'Quick words', bigPhoto: 'Open the photo',
+    phrases: ['Got home safe 🏠', 'Miss you all ❤️', 'Good morning ☕', 'Good night 🌙', 'How are you all?', 'Love you all 🙏', 'Hahaha 😂', 'Tawleh, anyone? 🎲'],
+    bday: w => `🎂 It’s ${w}’s birthday today! Many happy returns 🎉`, nameday: w => `🕯️ Today is ${w}’s name day. Eid mubarak`,
+    errs2: { type: 'That kind of picture can’t be sent.', big: 'That picture is too big.' }, today: 'Today', yesterday: 'Yesterday'
+  });
+  Object.assign(T.fr, {
+    chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
+    knock: 'Sonner', knocked: n => `🔔 ${n} a sonné !`, react: 'Réagir', quick: 'Mots rapides', bigPhoto: 'Ouvrir la photo',
+    phrases: ['Bien arrivé·e 🏠', 'Vous me manquez ❤️', 'Bonjour ☕', 'Bonne nuit 🌙', 'Comment ça va ?', 'Je vous aime 🙏', 'Hahaha 😂', 'Un tawlé ? 🎲'],
+    bday: w => `🎂 C’est l’anniversaire de ${w} aujourd’hui ! 🎉`, nameday: w => `🕯️ C’est la fête de ${w} aujourd’hui`,
+    errs2: { type: 'Ce type d’image ne passe pas.', big: 'Image trop lourde.' }, today: 'Aujourd’hui', yesterday: 'Hier'
+  });
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
+  const EMOJI = ['❤️', '😂', '👍', '😮', '😢', '🙏', '🔥', '🌲'];
   const digits = s => String(s || '').replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g, '');
   const myName = () => (window.SawtMe && window.SawtMe.name()) || S.store.get('qName', '') || '';
 
@@ -99,7 +121,7 @@
     if (!res.ok) { const e = new Error(data.code || 'server'); e.code = data.code || 'server'; throw e; }
     return data;
   }
-  const errText = e => t('errs')[e && e.code] || t('errs').server;
+  const errText = e => t('errs')[e && e.code] || t('errs2')[e && e.code] || t('errs').server;
 
   async function createRoom(title, name, pin) {
     const d = await api('/api/q', { title, name, pin, now: nowHere() });
@@ -118,8 +140,8 @@
     return r;
   }
   function enter(r) {
-    openRoom = { ...r, v: -1, since: 0, here: [], msgs: [], now: null, following: false, sharing: S.store.get('qShare:' + r.id, false) };
-    screen = 'room'; err = '';
+    openRoom = { ...r, v: -1, since: 0, here: [], msgs: [], now: null, following: false, sharing: S.store.get('qShare:' + r.id, false), rx: {}, rxv: -1, typing: [], bdays: {} };
+    screen = 'room'; err = ''; unread = 0; badge();
     render(); poll(true);
   }
 
@@ -131,15 +153,27 @@
     polling = true;
     const r = openRoom;
     try {
-      const d = await api(`/api/q/${r.id}?since=${r.since}`, null, r.token);
+      const wantBd = !r.bdAt || Date.now() - r.bdAt > 120000;
+      const d = await api(`/api/q/${r.id}?since=${r.since}&rxv=${r.rxv}${wantBd ? '&bd=1' : ''}`, null, r.token);
       if (openRoom !== r) return;
-      r.here = d.here; r.hostName = d.host; r.title = d.title; r.game = d.game || null;
+      r.here = d.here; r.hostName = d.host; r.title = d.title; r.game = d.game || null; r.members = d.members || [];
+      r.typing = d.typing || [];
+      if (d.rx) { r.rx = d.rx; r.rxv = d.rxv; rxChanged = true; }
+      if (d.bdays) { r.bdays = d.bdays; r.bdAt = Date.now(); document.dispatchEvent(new CustomEvent('sawt:room-bdays', { detail: { room: r, bdays: d.bdays } })); }
       if (d.msgs.length) {
         const fresh = d.msgs.filter(m => !r.msgs.some(x => x.n === m.n));
-        r.msgs = r.msgs.concat(fresh).slice(-60);
+        r.msgs = r.msgs.concat(fresh).slice(-150);
         r.since = d.msgs[d.msgs.length - 1].n;
         const others = fresh.filter(m => m.name !== r.name);
-        if (others.length && r.v !== -1 && !(window.SawtRoom && window.SawtRoom.isOpen() === 'together')) S.toast(t('newMsg', others[others.length - 1].name));
+        const looking = window.SawtRoom && window.SawtRoom.isOpen() === 'together' && !document.hidden;
+        if (r.v !== -1) {
+          if (others.some(m => m.knock)) ding();
+          if (others.length && !looking) {
+            unread += others.length; badge();
+            const last = others[others.length - 1];
+            S.toast(last.knock ? t('knocked', last.name) : t('newMsg', last.name || '🎂'));
+          }
+        }
       }
       if (d.v !== r.v) {
         const first = r.v === -1;
@@ -162,7 +196,7 @@
     clearTimeout(timer);
     if (!openRoom) return;
     const open = window.SawtRoom && window.SawtRoom.isOpen() === 'together';
-    timer = setTimeout(poll, document.hidden ? 30000 : open ? 2500 : 10000);
+    timer = setTimeout(poll, document.hidden ? 30000 : open ? 2000 : 8000);
   }
   let lastShared = null;
   async function shareNow() {
@@ -178,9 +212,91 @@
 
   async function say(text) {
     if (!openRoom || !text) return;
+    typedAt = 0;
     try { await api(`/api/q/${openRoom.id}/say`, { text }, openRoom.token); err = ''; poll(true); }
     catch (e) { err = errText(e); render(); }
   }
+  async function knock() {
+    if (!openRoom) return;
+    try { await api(`/api/q/${openRoom.id}/say`, { knock: true }, openRoom.token); ding(); poll(true); }
+    catch (e) { err = errText(e); render(); }
+  }
+  // "… is typing": tell the room at most every 3 seconds
+  let typedAt = 0;
+  function typingPing() {
+    if (!openRoom || Date.now() - typedAt < 3000) return;
+    typedAt = Date.now();
+    api(`/api/q/${openRoom.id}/typing`, {}, openRoom.token).catch(() => {});
+  }
+  // a photo: made small here (longest side 1280 px) before it travels
+  async function shrink(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+      for (const [side, q] of [[1280, 0.8], [1024, 0.72], [800, 0.66]]) {
+        const k = Math.min(1, side / Math.max(img.naturalWidth, img.naturalHeight));
+        const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        const data = c.toDataURL('image/jpeg', q).split(',')[1];
+        if (data.length < 650000) return { data, w, h };
+      }
+      throw Object.assign(new Error('big'), { code: 'big' });
+    } finally { URL.revokeObjectURL(url); }
+  }
+  let sendingPhoto = false;
+  async function sendPhoto(file) {
+    if (!openRoom || !file) return;
+    sendingPhoto = true; render();
+    try {
+      const p = await shrink(file);
+      await api(`/api/q/${openRoom.id}/photo`, { type: 'image/jpeg', data: p.data, w: p.w, h: p.h }, openRoom.token);
+      err = ''; sendingPhoto = false; poll(true);
+    } catch (e) { sendingPhoto = false; err = errText(e); render(); }
+  }
+  async function react(m, e) {
+    if (!openRoom) return;
+    const r = openRoom;
+    const cur = { ...(r.rx[m.n] || {}) };
+    const list = cur[e] || [];
+    cur[e] = list.includes(r.name) ? list.filter(x => x !== r.name) : [...list, r.name];
+    if (!cur[e].length) delete cur[e];
+    r.rx[m.n] = cur; updateRx();
+    try { const d = await api(`/api/q/${r.id}/react`, { n: m.n, e }, r.token); r.rx[m.n] = d.rx; updateRx(); } catch { /* next poll fixes it */ }
+  }
+
+  // ------------------------------------------------------------------ the doorbell and the unread count
+  let actx = null;
+  function ding() {
+    try {
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      const t0 = actx.currentTime + 0.02;
+      [[659.3, 0], [523.3, 0.42]].forEach(([f, at]) => {
+        const o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t0 + at); g.gain.exponentialRampToValueAtTime(0.35, t0 + at + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t0 + at + 1.1);
+        o.connect(g).connect(actx.destination); o.start(t0 + at); o.stop(t0 + at + 1.2);
+      });
+    } catch { /* no sound */ }
+    try { navigator.vibrate && navigator.vibrate([120, 80, 160]); } catch { /* fine */ }
+  }
+  let unread = 0;
+  const chatBtn = el('button', { type: 'button', className: 'chat-btn', id: 'chat-btn', hidden: true }, [el('span', { className: 'chat-ic', text: '💬' }), el('b', { className: 'chat-n', hidden: true })]);
+  (document.getElementById('who-btn') || document.querySelector('.room-top .langs')).after(chatBtn);
+  chatBtn.addEventListener('click', () => {
+    if (!openRoom && rooms[0] && rooms[0].token) enter(rooms[0]);
+    else if (openRoom) screen = 'room';
+    if (window.SawtRoom) window.SawtRoom.open('together');
+  });
+  function badge() {
+    chatBtn.hidden = !storeOn;
+    chatBtn.setAttribute('aria-label', t('chat') + (unread ? ` (${unread})` : ''));
+    chatBtn.title = t('chat');
+    const n = chatBtn.querySelector('.chat-n');
+    n.hidden = !unread; n.textContent = unread > 9 ? '9+' : S.num(unread);
+    chatBtn.classList.toggle('has-new', unread > 0);
+  }
+  let rxChanged = false;
   async function sendVoice(roomRef, rec, extra = {}) {
     const audio = await window.SawtRec.toB64(rec.blob);
     return api(`/api/q/${roomRef.id}/voice`, { type: rec.mime, audio, seconds: Math.round(rec.seconds), ...extra }, roomRef.token);
@@ -292,8 +408,52 @@
     });
     return f;
   }
+  const hhmm = ts => new Date(ts).toLocaleTimeString(S.locale ? S.locale() : undefined, { hour: 'numeric', minute: '2-digit' });
+  function rxRow(m, r) {
+    const cur = r.rx[m.n] || {};
+    const row = el('div', { className: 'q-rx' });
+    row.dataset.n = m.n;
+    Object.entries(cur).forEach(([e, names]) => {
+      if (!names.length) return;
+      const b = el('button', { type: 'button', className: 'q-rx-chip' + (names.includes(r.name) ? ' is-mine' : ''), title: names.join('، ') }, [el('span', { text: e }), el('b', { text: S.num(names.length) })]);
+      b.addEventListener('click', () => react(m, e));
+      row.appendChild(b);
+    });
+    return row;
+  }
+  function picker(m, r, host) {
+    const old = box.querySelector('.q-pick'); if (old) { const same = old.dataset.n === String(m.n); old.remove(); if (same) return; }
+    const p = el('div', { className: 'q-pick', role: 'group', 'aria-label': t('react') }, EMOJI.map(e => { const b = el('button', { type: 'button', text: e }); b.addEventListener('click', () => { p.remove(); react(m, e); }); return b; }));
+    p.dataset.n = m.n;
+    host.appendChild(p);
+  }
+  function viewPhoto(src) {
+    const ov = el('div', { className: 'q-photo-ov', role: 'dialog', tabIndex: -1 }, [el('img', { src, alt: '' })]);
+    ov.addEventListener('click', () => ov.remove());
+    document.addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', esc); } });
+    document.body.appendChild(ov); ov.focus();
+  }
+  function dayLabel(ts) {
+    const d = new Date(ts), now = new Date();
+    const k = x => x.toDateString();
+    if (k(d) === k(now)) return t('today');
+    if (k(d) === k(new Date(now - 864e5))) return t('yesterday');
+    return d.toLocaleDateString(S.locale ? S.locale() : undefined, { weekday: 'long', day: 'numeric', month: 'long' });
+  }
   function msgView(m, r) {
+    if (m.sys || m.knock) {
+      const n = el('div', { className: 'q-sys' + (m.knock ? ' q-knock' : ''), dir: 'auto', text: m.knock ? t('knocked', m.name) : t(m.sys === 'nameday' ? 'nameday' : 'bday', m.who) });
+      n.dataset.n = m.n; return n;
+    }
     const kids = [el('b', { dir: 'auto', text: m.name })];
+    if (m.photo) {
+      const src = `/api/q/${r.id}/photo/${m.photo}?token=${encodeURIComponent(r.token)}`;
+      const im = el('img', { className: 'q-photo', src, alt: '', loading: 'lazy', width: m.w, height: m.h });
+      const b = el('button', { type: 'button', className: 'q-photo-b', 'aria-label': t('bigPhoto') }, [im]);
+      b.style.aspectRatio = `${m.w} / ${m.h}`;
+      b.addEventListener('click', () => viewPhoto(src));
+      kids.push(b);
+    }
     if (m.voice) {
       const au = el('audio', { preload: 'none', src: `/api/q/${r.id}/audio/${m.voice}?token=${encodeURIComponent(r.token)}` });
       const pb = el('button', { type: 'button', className: 'q-voice' }, [el('span', { className: 'q-voice-ic', text: '▶' }), el('span', { className: 'q-voice-bars' }), el('span', { className: 'q-voice-t', text: `${S.num(Math.max(1, Math.round(m.secs || 0)))}″` })]);
@@ -308,7 +468,40 @@
     }
     if (m.text) kids.push(el('span', { dir: 'auto', text: m.text }));
     if (m.song) kids.push(btn(t('songOf', m.song.name), 'link-btn q-song', () => playThing(m.song)));
-    return el('div', { className: 'q-msg' + (m.name === r.name ? ' is-me' : '') + (m.voice ? ' has-voice' : '') }, kids);
+    const foot = el('div', { className: 'q-mfoot' }, [el('time', { text: hhmm(m.at) })]);
+    const rb = el('button', { type: 'button', className: 'q-rx-add', text: '☺', 'aria-label': t('react'), title: t('react') });
+    foot.appendChild(rb);
+    kids.push(foot, rxRow(m, r));
+    const node = el('div', { className: 'q-msg' + (m.name === r.name ? ' is-me' : '') + (m.voice ? ' has-voice' : '') + (m.photo ? ' has-photo' : '') }, kids);
+    node.dataset.n = m.n;
+    rb.addEventListener('click', e => { e.stopPropagation(); picker(m, r, node); });
+    // a long press reacts too, like on the phone
+    let lp = 0;
+    node.addEventListener('pointerdown', e => { if (e.target.closest('button,audio')) return; lp = setTimeout(() => picker(m, r, node), 480); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => node.addEventListener(ev, () => clearTimeout(lp)));
+    return node;
+  }
+  function logKids(r) {
+    const out = [];
+    let lastDay = '';
+    r.msgs.forEach(m => {
+      const d = new Date(m.at).toDateString();
+      if (d !== lastDay) { lastDay = d; out.push(el('div', { className: 'q-day', text: dayLabel(m.at) })); }
+      out.push(msgView(m, r));
+    });
+    return out;
+  }
+  function updateRx() {
+    if (!openRoom) return;
+    box.querySelectorAll('.q-msg[data-n]').forEach(node => {
+      const m = openRoom.msgs.find(x => String(x.n) === node.dataset.n);
+      const old = node.querySelector('.q-rx');
+      if (m && old) old.replaceWith(rxRow(m, openRoom));
+    });
+  }
+  function typingLine(r) {
+    const n = (r.typing || []).length;
+    return el('p', { className: 'q-typing', 'aria-live': 'polite', dir: 'auto', text: n === 1 ? t('typing1', r.typing[0]) : n > 1 ? t('typingN', n) : '' });
   }
   function roomView() {
     const r = openRoom;
@@ -328,36 +521,58 @@
       now ? btn(r.following ? t('listening') : '▶ ' + t('listen'), r.following ? 'btn' : 'btn btn-primary', () => { r.following = true; playThing(r.now); render(); }) : null,
       shareToggle
     ].filter(Boolean));
-    const log = el('div', { className: 'q-log', 'aria-live': 'polite' }, r.msgs.map(m => msgView(m, r)));
+    const log = el('div', { className: 'q-log', 'aria-live': 'polite' }, logKids(r));
     const composer = el('div', { className: 'q-compose' });
     if (recording) {
       composer.append(el('span', { className: 'q-rec-dot' }), el('span', { className: 'q-rec-time', text: '0″' }), el('span', { className: 'q-rec-meter' }, [el('b', { className: 'q-rec-level' })]),
         btn(t('cancelRec'), 'link-btn', cancelRec), btn('■ ' + t('stopRec'), 'btn btn-primary', recToggle));
     } else {
       const f = el('form', { className: 'q-say' });
-      const input = el('input', { maxLength: 240, placeholder: t('say'), 'aria-label': t('say') });
+      const input = el('input', { maxLength: 240, placeholder: sendingPhoto ? t('sending') : t('say'), 'aria-label': t('say'), enterKeyHint: 'send' });
+      input.value = draft;
+      input.addEventListener('input', () => { draft = input.value; if (input.value) typingPing(); });
       const mic = btn('🎙️', 'q-mic', recToggle); mic.setAttribute('aria-label', t('rec')); mic.title = t('rec');
-      f.append(mic, input, el('button', { type: 'submit', className: 'btn btn-primary', text: t('send') }));
-      f.addEventListener('submit', e => { e.preventDefault(); const v = input.value.trim(); input.value = ''; say(v); });
+      const file = el('input', { type: 'file', accept: 'image/*', hidden: true });
+      file.addEventListener('change', () => { const fl = file.files && file.files[0]; file.value = ''; if (fl) sendPhoto(fl); });
+      const cam = btn('📷', 'q-mic q-cam', () => file.click()); cam.setAttribute('aria-label', t('photo')); cam.title = t('photo'); cam.disabled = sendingPhoto;
+      const qk = btn('⚡', 'q-mic q-qk', () => { showQuick = !showQuick; render(); }); qk.setAttribute('aria-label', t('quick')); qk.title = t('quick'); qk.setAttribute('aria-pressed', String(showQuick));
+      f.append(mic, cam, qk, input, file, el('button', { type: 'submit', className: 'btn btn-primary', text: t('send') }));
+      f.addEventListener('submit', e => { e.preventDefault(); const v = input.value.trim(); input.value = ''; draft = ''; say(v); });
       composer.append(f);
     }
+    const quick = showQuick ? el('div', { className: 'q-quick' }, t('phrases').map(ph => btn(ph, 'chip', () => { showQuick = false; render(); say(ph); }))) : null;
     const foot = el('div', { className: 'q-row' }, [
-      btn('🃏 ' + t('cards'), 'btn', () => { document.dispatchEvent(new CustomEvent('sawt:open', { detail: 'tawleh' })); document.dispatchEvent(new CustomEvent('sawt:cards-room', { detail: r.id })); }),
+      btn('🔔 ' + t('knock'), 'btn', knock),
+      btn('🎲 ' + t('playTawleh'), 'btn', () => { openGames('tawleh'); document.dispatchEvent(new CustomEvent('sawt:tawleh-room')); }),
+      btn('🃏 ' + t('cards'), 'btn', () => { openGames('cards'); document.dispatchEvent(new CustomEvent('sawt:cards-room', { detail: r.id })); }),
+      btn('🧠 ' + t('playTrivia'), 'btn', () => { openGames('trivia'); document.dispatchEvent(new CustomEvent('sawt:trivia-room')); }),
       btn(t('leave'), 'link-btn', () => { rooms = rooms.filter(x => x.id !== r.id); saveRooms(); openRoom = null; screen = 'home'; render(); })
     ]);
-    return el('div', { className: 'q-room' }, [head, here, nowCard, log, composer, err ? el('p', { className: 'form-error', role: 'alert', text: err }) : null, foot].filter(Boolean));
+    return el('div', { className: 'q-room' }, [head, here, log, typingLine(r), quick, composer, err ? el('p', { className: 'form-error', role: 'alert', text: err }) : null, nowCard, foot].filter(Boolean));
+  }
+  let draft = '', showQuick = false;
+  function openGames(tab) {
+    if (window.SawtRoom) window.SawtRoom.open('tawleh');
+    setTimeout(() => { if (window.SawtCards) window.SawtCards.showTab(tab); }, 60);
   }
   function renderLive() {
     const old = box.querySelector('.q-room');
     if (!old) { render(); return; }
     const v = roomView();
-    ['.q-here', '.q-now'].forEach(sel => { const a = old.querySelector(sel), b = v.querySelector(sel); if (a && b) a.replaceWith(b); });
+    ['.q-here', '.q-now', '.q-typing'].forEach(sel => { const a = old.querySelector(sel), b = v.querySelector(sel); if (a && b) a.replaceWith(b); });
     // only add new messages, so audio that is playing keeps playing
     const log = old.querySelector('.q-log');
-    const have = log.children.length;
-    const fresh = openRoom.msgs.slice(have);
-    fresh.forEach(m => log.appendChild(msgView(m, openRoom)));
-    if (fresh.length) scrollLog();
+    const have = new Set([...log.querySelectorAll('[data-n]')].map(n => n.dataset.n));
+    const fresh = openRoom.msgs.filter(m => !have.has(String(m.n)));
+    const nearBottom = log.scrollHeight - log.scrollTop - log.clientHeight < 80;
+    let lastDay = openRoom.msgs.length > fresh.length ? new Date(openRoom.msgs[openRoom.msgs.length - fresh.length - 1].at).toDateString() : '';
+    fresh.forEach(m => {
+      const d = new Date(m.at).toDateString();
+      if (d !== lastDay) { lastDay = d; log.appendChild(el('div', { className: 'q-day', text: dayLabel(m.at) })); }
+      const node = msgView(m, openRoom); node.dataset.n = m.n; log.appendChild(node);
+    });
+    if (fresh.length && (nearBottom || fresh.some(m => m.name === openRoom.name))) scrollLog();
+    if (rxChanged) { rxChanged = false; updateRx(); }
   }
   function scrollLog() { const log = box.querySelector('.q-log'); if (log) requestAnimationFrame(() => { log.scrollTop = log.scrollHeight; }); }
 
@@ -383,13 +598,14 @@
 
   document.addEventListener('sawt:config', e => {
     storeOn = !!(e.detail && e.detail.dedications);
+    badge();
     arrive().then(render);
     // keep an ear on the last room even when the sofa is closed
     if (storeOn && !openRoom && rooms[0] && rooms[0].token && !location.pathname.startsWith('/q/')) { openRoom = { ...rooms[0], v: -1, since: 0, here: [], msgs: [], now: null, following: false, sharing: S.store.get('qShare:' + rooms[0].id, false) }; screen = 'room'; poll(true); }
   });
   document.addEventListener('sawt:stations', () => { if (shared && shared.kind === 'radio') { const st = S.stations().find(s => s.id === shared.id); if (st) { shared.name = st.name; render(); } } });
-  document.addEventListener('sawt:lang', () => render());
-  document.addEventListener('sawt:panel', e => { if (e.detail === 'together') { render(); if (openRoom) poll(true); } });
+  document.addEventListener('sawt:lang', () => { render(); badge(); });
+  document.addEventListener('sawt:panel', e => { if (e.detail === 'together') { unread = 0; badge(); render(); if (openRoom) poll(true); } });
   document.addEventListener('visibilitychange', () => { if (!document.hidden && openRoom) poll(true); });
   document.addEventListener('sawt:screen', () => { if (!openRoom) render(); });
 
@@ -401,6 +617,11 @@
     api: (r, path, body) => api(`/api/q/${r.id}${path}`, body, r.token),
     sendVoice,
     invite,
+    greet: (r, who, kind, day) => api(`/api/q/${r.id}/greet`, { who, kind, day }, r.token),
+    bday: (r, who, md, remove) => api(`/api/q/${r.id}/bday`, { who, md, remove }, r.token),
+    scores: r => api(`/api/q/${r.id}/scores`, null, r.token),
+    score: (r, body) => api(`/api/q/${r.id}/score`, body, r.token),
+    here: () => (openRoom ? openRoom.here : []),
     storeOn: () => storeOn
   };
   render();
