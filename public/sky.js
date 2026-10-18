@@ -84,7 +84,8 @@
     const W = win.clientWidth, H = win.clientHeight;
     if (!W || !H) return;
     // Top band: tall enough for the caption that sits on it.
-    const capH = caption.scrollHeight || 0;
+    caption.style.height = 'auto';            // measure the text's own height
+    const capH = caption.offsetHeight || 0;
     const T = Math.round(Math.max(36, Math.min(64, H * 0.12), capH + 8));
     const S = Math.round(Math.max(12, W * 0.022));                     // side frame
     const C = Math.round(Math.max(9, W * 0.016));                      // columns
@@ -107,6 +108,7 @@
     svg.innerHTML =
       `<path class="frame" fill-rule="evenodd" d="M0 0H${W}V${H}H0Z ${openings.join(' ')}"/>` +
       `<path class="inner" d="${openings.join(' ')}"/>` + caps;
+    caption.style.height = T + 'px';
     win.style.setProperty('--frame-top', T + 'px');
     // Keep the sky's own landmarks out from under the stone top band.
     sky.style.setProperty('--frame-top', T + 'px');
