@@ -1,7 +1,7 @@
 {
   "name": "sawt-el-beit",
   "version": "2.0.0",
-  "description": "Sawt el Beit (\u0635\u0648\u062a \u0627\u0644\u0628\u064a\u062a): Lebanese radio, news and live TV in one page, for Lebanese abroad.",
+  "description": "Sawt el Beit (صوت البيت): Lebanese radio, news and live TV in one page, for Lebanese abroad.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "express": "^4.18.2",
-    "rss-parser": "^3.13.0"
+    "rss-parser": "^3.13.0",
+    "web-push": "^3.6.7"
   }
 }

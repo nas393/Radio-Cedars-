@@ -2,7 +2,14 @@ const path = require('path');
 const express = require('express');
 const Parser = require('rss-parser');
 
+const store = require('./lib/store');
+const alerts = require('./lib/alerts');
+const dedications = require('./lib/dedications');
+const admin = require('./lib/admin');
+
 const app = express();
+app.disable('x-powered-by');
+app.use(express.json({ limit: '10kb' }));
 const PORT = process.env.PORT || 3000;
 const USER_AGENT = 'SawtElBeit/2.0 (Lebanese radio and news for the diaspora)';
 
@@ -371,8 +378,10 @@ app.get('/api/radio', async (req, res) => {
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-// Shared station links: /s/<station id>. Same page, but the preview that
-// WhatsApp and others show names the station.
+// ---------------------------------------------------------------------------
+// Pages with their own share preview: /s/<station> and /d/<dedication>.
+// Same page, but WhatsApp and others show what was shared.
+// ---------------------------------------------------------------------------
 const fs = require('fs');
 let pageTemplate = null;
 function readPage() {
@@ -382,28 +391,20 @@ function readPage() {
 function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-
-app.get('/s/:id', async (req, res) => {
+function sendPreview(req, res, meta, fallbackQuery) {
   let html;
   try {
     html = readPage();
   } catch (err) {
     // If the page file isn't bundled with the server, the page itself
-    // still understands ?station=, so the link keeps working.
-    console.error('[share]', err.message);
-    return res.redirect(302, `/?station=${encodeURIComponent(req.params.id)}`);
+    // still understands the query string, so the link keeps working.
+    console.error('[preview]', err.message);
+    return res.redirect(302, `/?${fallbackQuery}`);
   }
-  let name = null;
-  try {
-    const { stations } = await getStations();
-    const st = stations.find(s => s.id === req.params.id);
-    if (st) name = st.name;
-  } catch { /* fall back to the generic preview */ }
-
-  if (name) {
-    const title = escapeHtml(`${name} · صوت البيت Sawt el Beit`);
-    const desc = escapeHtml(`اسمع ${name} مباشرة على صوت البيت. Listen to ${name} live on Sawt el Beit.`);
-    const url = escapeHtml(`https://${req.get('host')}/s/${encodeURIComponent(req.params.id)}`);
+  if (meta) {
+    const title = escapeHtml(meta.title);
+    const desc = escapeHtml(meta.description);
+    const url = escapeHtml(`https://${req.get('host')}${req.originalUrl.split('?')[0]}`);
     html = html
       .replace(/<meta property="og:title" content="[^"]*">/, `<meta property="og:title" content="${title}">`)
       .replace(/<meta property="og:description" content="[^"]*">/, `<meta property="og:description" content="${desc}">`)
@@ -412,6 +413,164 @@ app.get('/s/:id', async (req, res) => {
   }
   res.set('Cache-Control', 'public, max-age=300, s-maxage=3600');
   res.type('html').send(html);
+}
+
+app.get('/s/:id', async (req, res) => {
+  let meta = null;
+  try {
+    const { stations } = await getStations();
+    const st = stations.find(s => s.id === req.params.id);
+    if (st) meta = {
+      title: `${st.name} · صوت البيت Sawt el Beit`,
+      description: `اسمع ${st.name} مباشرة على صوت البيت. Listen to ${st.name} live on Sawt el Beit.`
+    };
+  } catch { /* generic preview */ }
+  sendPreview(req, res, meta, `station=${encodeURIComponent(req.params.id)}`);
+});
+
+app.get('/d/:id', async (req, res) => {
+  let meta = null;
+  try {
+    if (store.enabled) {
+      const d = await dedications.one(req.params.id);
+      if (d) {
+        const from = d.fromPlace ? `${d.fromName} (${d.fromPlace})` : d.fromName;
+        const to = d.toPlace ? `${d.toName} (${d.toPlace})` : d.toName;
+        meta = {
+          title: `💌 من ${from} إلى ${to} · صوت البيت`,
+          description: `إهداء: ${d.song}${d.message ? ` · "${d.message}"` : ''}. From ${d.fromName} to ${d.toName}, on Sawt el Beit.`
+        };
+      }
+    }
+  } catch { /* generic preview */ }
+  sendPreview(req, res, meta, `dedication=${encodeURIComponent(req.params.id)}`);
+});
+
+app.get('/admin', (req, res) => res.redirect(302, '/admin.html'));
+
+// ---------------------------------------------------------------------------
+// Features that need storage: alerts and dedications
+// ---------------------------------------------------------------------------
+const clientIp = req => String(req.get('x-forwarded-for') || req.socket.remoteAddress || '').split(',')[0].trim();
+
+function needStore(req, res, next) {
+  if (!store.enabled) return res.status(503).json({ error: 'not set up', code: 'no-store' });
+  next();
+}
+async function needAdmin(req, res, next) {
+  try {
+    if (await admin.check(req)) return next();
+  } catch (err) { return fail(res, err); }
+  res.status(401).json({ error: 'sign in', code: 'auth' });
+}
+function fail(res, err) {
+  const status = err.status || 500;
+  if (status >= 500) console.error('[api]', err);
+  res.status(status).json({ error: status >= 500 ? 'server error' : err.message, code: err.code || 'error' });
+}
+const noStore = (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); };
+
+app.get('/api/config', noStore, async (req, res) => {
+  const config = { alerts: false, dedications: store.enabled, publicKey: null };
+  if (store.enabled) {
+    try { config.publicKey = await alerts.publicKey(); config.alerts = true; } catch (err) { console.error('[config]', err.message); }
+  }
+  res.json(config);
+});
+
+app.post('/api/alerts/subscribe', noStore, needStore, async (req, res) => {
+  try { await alerts.subscribe(req.body && req.body.subscription, req.body && req.body.lang); res.json({ ok: true }); }
+  catch (err) { fail(res, err); }
+});
+
+app.post('/api/alerts/unsubscribe', noStore, needStore, async (req, res) => {
+  try { await alerts.unsubscribe(req.body && req.body.endpoint); res.json({ ok: true }); }
+  catch (err) { fail(res, err); }
+});
+
+// Called every 10 minutes by the scheduled GitHub workflow (and harmless to call by hand).
+app.all('/api/alerts/check', noStore, needStore, async (req, res) => {
+  try { res.json(await alerts.check(getNews)); }
+  catch (err) { fail(res, err); }
+});
+
+app.get('/api/dedications', needStore, async (req, res) => {
+  try {
+    res.set('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=120');
+    res.json({ items: await dedications.wall() });
+  } catch (err) { fail(res, err); }
+});
+
+app.get('/api/dedications/:id', needStore, async (req, res) => {
+  try {
+    const d = await dedications.one(req.params.id);
+    if (!d) return res.status(404).json({ error: 'not found', code: 'missing' });
+    res.json(d);
+  } catch (err) { fail(res, err); }
+});
+
+app.post('/api/dedications', noStore, needStore, async (req, res) => {
+  try {
+    const d = await dedications.submit(req.body || {}, clientIp(req));
+    alerts.notifyAdmins({
+      title: d.flagged ? '⚠️ إهداء جديد يحتاج مراجعة' : '💌 إهداء جديد بانتظار الموافقة',
+      body: `${d.fromName} ← ${d.toName}: ${d.song}`,
+      url: '/admin.html',
+      tag: 'dedication-queue'
+    });
+    res.status(201).json({ ok: true, id: d.id });
+  } catch (err) { fail(res, err); }
+});
+
+// ---- admin
+app.get('/api/admin/status', noStore, needStore, async (req, res) => {
+  try { res.json({ setUp: await admin.isSetUp(), signedIn: await admin.check(req) }); }
+  catch (err) { fail(res, err); }
+});
+app.post('/api/admin/setup', noStore, needStore, async (req, res) => {
+  try { res.json({ token: await admin.setup(req.body && req.body.password) }); }
+  catch (err) { fail(res, err); }
+});
+app.post('/api/admin/login', noStore, needStore, async (req, res) => {
+  try { res.json({ token: await admin.login(req.body && req.body.password, clientIp(req)) }); }
+  catch (err) { fail(res, err); }
+});
+app.post('/api/admin/logout', noStore, needStore, async (req, res) => {
+  try { await admin.logout(req); res.json({ ok: true }); }
+  catch (err) { fail(res, err); }
+});
+app.get('/api/admin/queue', noStore, needStore, needAdmin, async (req, res) => {
+  try { res.json({ items: await dedications.pending() }); }
+  catch (err) { fail(res, err); }
+});
+app.get('/api/admin/wall', noStore, needStore, needAdmin, async (req, res) => {
+  try { res.json({ items: await dedications.wall() }); }
+  catch (err) { fail(res, err); }
+});
+app.post('/api/admin/decide', noStore, needStore, needAdmin, async (req, res) => {
+  try {
+    const { id, approve } = req.body || {};
+    const d = await dedications.decide(String(id || ''), Boolean(approve));
+    res.json({ ok: true, status: d.status });
+  } catch (err) { fail(res, err); }
+});
+app.post('/api/admin/remove', noStore, needStore, needAdmin, async (req, res) => {
+  try { await dedications.remove(String((req.body && req.body.id) || '')); res.json({ ok: true }); }
+  catch (err) { fail(res, err); }
+});
+app.get('/api/admin/stats', noStore, needStore, needAdmin, async (req, res) => {
+  try { res.json({ subscribers: await alerts.stats(), pending: (await dedications.pending()).length, store: store.kind }); }
+  catch (err) { fail(res, err); }
+});
+app.post('/api/admin/alerts-subscribe', noStore, needStore, needAdmin, async (req, res) => {
+  try { await alerts.subscribe(req.body && req.body.subscription, 'ar', 'admin'); res.json({ ok: true }); }
+  catch (err) { fail(res, err); }
+});
+app.post('/api/admin/test-alert', noStore, needStore, needAdmin, async (req, res) => {
+  try {
+    const sent = await alerts.notifyAdmins({ title: 'صوت البيت', body: 'تجربة: الإشعارات تعمل ✅ Test: notifications work.', url: '/', tag: 'test' });
+    res.json({ ok: true, sent });
+  } catch (err) { fail(res, err); }
 });
 
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h' }));

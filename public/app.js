@@ -84,7 +84,58 @@
       linkCopied: 'نُسخ الرابط. الصقه في واتساب أو أي محادثة.',
       shareFailed: 'لم يُنسخ الرابط. انسخه من شريط العنوان.',
       sharedStation: name => `${name} بانتظارك. اضغط تشغيل.`,
-      mediaArtist: 'صوت البيت · راديو لبنان'
+      mediaArtist: 'صوت البيت · راديو لبنان',
+      skipToContent: 'انتقل إلى المحتوى',
+      sectionsNav: 'أقسام الصفحة',
+      navClassics: 'الزمن الجميل',
+      navDedications: 'الإهداءات',
+      navNews: 'الأخبار',
+      navTv: 'التلفزيون والطقس',
+      classicsHeading: 'الزمن الجميل',
+      classicsLede: 'فيروز، وديع الصافي، صباح وزكي ناصيف، على حسب المزاج.',
+      moodTune: 'شغّل الراديو على هالجو',
+      dedicateSong: 'أهدِها',
+      dedHeading: 'إهداءات للبيت',
+      dedLede: 'أغنية ورسالة من الغربة لأهلك في لبنان. كل إهداء يُراجع قبل ما ينشر.',
+      dedFormTitle: 'أرسل إهداء',
+      dedFromName: 'اسمك',
+      dedFromPlace: 'وين ساكن؟',
+      dedFromPlaceHint: 'مثلاً: مونتريال',
+      dedToName: 'لمين الإهداء؟',
+      dedToNameHint: 'مثلاً: تيتا',
+      dedToPlace: 'بأيّ ضيعة أو مدينة؟',
+      dedToPlaceHint: 'مثلاً: زحلة',
+      dedSong: 'الأغنية',
+      dedSongHint: 'اختر من الزمن الجميل أو اكتب اسم أغنية',
+      dedMessage: 'رسالتك',
+      dedMessageHint: 'اشتقتلكن…',
+      dedRules: 'بدون روابط أو أرقام هواتف. بيظهر الإهداء بعد الموافقة عليه.',
+      dedSubmit: 'أرسل الإهداء',
+      dedSending: 'جاري الإرسال…',
+      dedDoneTitle: 'وصل إهداؤك 💌',
+      dedDoneText: 'بيظهر على الحائط بعد المراجعة، عادةً خلال ساعات.',
+      dedAgain: 'أرسل إهداء آخر',
+      dedEmpty: 'ما في إهداءات بعد. كون أول واحد يهدي أغنية للبيت.',
+      dedLoadFailed: 'تعذّر تحميل الإهداءات. أعد تحميل الصفحة بعد قليل.',
+      dedFrom: (name, place) => place ? `من ${name}، ${place}` : `من ${name}`,
+      dedTo: (name, place) => place ? `إلى ${name}، ${place}` : `إلى ${name}`,
+      dedShare: 'شارك الإهداء',
+      dedShareText: (from, to) => `💌 إهداء من ${from} إلى ${to} على صوت البيت`,
+      dedErrors: {
+        missing: 'عبّي اسمك، لمين الإهداء، والأغنية.',
+        links: 'شيل الروابط وأسماء الحسابات من الإهداء.',
+        phone: 'شيل أرقام الهواتف من الإهداء.',
+        spam: 'في أحرف مكررة كتير. صلّح الرسالة وجرّب مرة تانية.',
+        rate: 'وصلت للحد: ٣ إهداءات بالساعة. جرّب بعد شوي.',
+        server: 'ما قدرنا نبعت الإهداء. جرّب مرة تانية.'
+      },
+      alertsOn: 'نبّهني بالأخبار العاجلة',
+      alertsActive: 'التنبيهات العاجلة شغّالة',
+      alertsEnabled: 'رح يوصلك تنبيه بس يصير خبر كبير بلبنان، ٤ تنبيهات بالنهار كحد أقصى.',
+      alertsDisabled: 'أوقفنا التنبيهات.',
+      alertsDenied: 'الإشعارات ممنوعة لهالموقع. اسمح فيها من إعدادات المتصفح وجرّب مرة تانية.',
+      alertsIos: 'على الآيفون: اضغط «مشاركة» ثم «إضافة إلى الشاشة الرئيسية»، وافتح صوت البيت من هناك لتفعيل التنبيهات.',
+      alertsFailed: 'ما قدرنا نفعّل التنبيهات. جرّب مرة تانية.'
     },
     en: {
       brand: 'Sawt el Beit',
@@ -159,7 +210,58 @@
       linkCopied: 'Link copied. Paste it into WhatsApp or any chat.',
       shareFailed: 'Couldn’t copy the link. Copy it from the address bar.',
       sharedStation: name => `${name} is ready. Press play.`,
-      mediaArtist: 'Sawt el Beit · Lebanese radio'
+      mediaArtist: 'Sawt el Beit · Lebanese radio',
+      skipToContent: 'Skip to content',
+      sectionsNav: 'Page sections',
+      navClassics: 'Classics',
+      navDedications: 'Dedications',
+      navNews: 'News',
+      navTv: 'TV and weather',
+      classicsHeading: 'The golden age',
+      classicsLede: 'Fairuz, Wadih El Safi, Sabah and Zaki Nassif, by mood.',
+      moodTune: 'Put the radio on for this',
+      dedicateSong: 'Dedicate',
+      dedHeading: 'Dedications home',
+      dedLede: 'A song and a message from abroad to your family in Lebanon. Every dedication is reviewed before it appears.',
+      dedFormTitle: 'Send a dedication',
+      dedFromName: 'Your name',
+      dedFromPlace: 'Where you live',
+      dedFromPlaceHint: 'e.g. Montreal',
+      dedToName: 'Who it’s for',
+      dedToNameHint: 'e.g. Teta',
+      dedToPlace: 'Their town or village',
+      dedToPlaceHint: 'e.g. Zahle',
+      dedSong: 'Song',
+      dedSongHint: 'Pick a classic or type any song',
+      dedMessage: 'Your message',
+      dedMessageHint: 'Missing you all…',
+      dedRules: 'No links or phone numbers. It appears once it’s approved.',
+      dedSubmit: 'Send dedication',
+      dedSending: 'Sending…',
+      dedDoneTitle: 'Dedication sent 💌',
+      dedDoneText: 'It will appear on the wall once it’s reviewed, usually within a few hours.',
+      dedAgain: 'Send another',
+      dedEmpty: 'No dedications yet. Be the first to send a song home.',
+      dedLoadFailed: 'Dedications didn’t load. Reload the page in a moment.',
+      dedFrom: (name, place) => place ? `From ${name}, ${place}` : `From ${name}`,
+      dedTo: (name, place) => place ? `To ${name}, ${place}` : `To ${name}`,
+      dedShare: 'Share dedication',
+      dedShareText: (from, to) => `💌 A dedication from ${from} to ${to} on Sawt el Beit`,
+      dedErrors: {
+        missing: 'Fill in your name, who it’s for, and the song.',
+        links: 'Remove links and account names from the dedication.',
+        phone: 'Remove phone numbers from the dedication.',
+        spam: 'Too many repeated characters. Fix the message and try again.',
+        rate: 'Limit reached: 3 dedications an hour. Try again a bit later.',
+        server: 'The dedication didn’t send. Try again.'
+      },
+      alertsOn: 'Alert me to breaking news',
+      alertsActive: 'Breaking-news alerts on',
+      alertsEnabled: 'You’ll get an alert when big news breaks in Lebanon, at most 4 a day.',
+      alertsDisabled: 'Alerts turned off.',
+      alertsDenied: 'Notifications are blocked for this site. Allow them in your browser settings, then try again.',
+      alertsIos: 'On iPhone: tap Share, then “Add to Home Screen”, and open Sawt el Beit from there to turn on alerts.',
+      alertsFailed: 'Alerts didn’t turn on. Try again.'
     },
     fr: {
       brand: 'Sawt el Beit',
@@ -234,7 +336,58 @@
       linkCopied: 'Lien copié. Collez-le dans WhatsApp ou une conversation.',
       shareFailed: 'Impossible de copier le lien. Copiez-le depuis la barre d’adresse.',
       sharedStation: name => `${name} est prête. Appuyez sur lecture.`,
-      mediaArtist: 'Sawt el Beit · Radio du Liban'
+      mediaArtist: 'Sawt el Beit · Radio du Liban',
+      skipToContent: 'Aller au contenu',
+      sectionsNav: 'Sections de la page',
+      navClassics: 'Classiques',
+      navDedications: 'Dédicaces',
+      navNews: 'Actualités',
+      navTv: 'Télé et météo',
+      classicsHeading: 'L’âge d’or',
+      classicsLede: 'Fairouz, Wadih El Safi, Sabah et Zaki Nassif, selon l’humeur.',
+      moodTune: 'Mettre la radio dans cette ambiance',
+      dedicateSong: 'Dédier',
+      dedHeading: 'Dédicaces pour la maison',
+      dedLede: 'Une chanson et un mot depuis l’étranger pour votre famille au Liban. Chaque dédicace est relue avant publication.',
+      dedFormTitle: 'Envoyer une dédicace',
+      dedFromName: 'Votre prénom',
+      dedFromPlace: 'Où vous vivez',
+      dedFromPlaceHint: 'ex. Montréal',
+      dedToName: 'Pour qui',
+      dedToNameHint: 'ex. Teta',
+      dedToPlace: 'Leur ville ou village',
+      dedToPlaceHint: 'ex. Zahlé',
+      dedSong: 'Chanson',
+      dedSongHint: 'Choisissez un classique ou tapez une chanson',
+      dedMessage: 'Votre message',
+      dedMessageHint: 'Vous me manquez…',
+      dedRules: 'Pas de liens ni de numéros de téléphone. Elle apparaît après validation.',
+      dedSubmit: 'Envoyer la dédicace',
+      dedSending: 'Envoi…',
+      dedDoneTitle: 'Dédicace envoyée 💌',
+      dedDoneText: 'Elle apparaîtra sur le mur après relecture, en général sous quelques heures.',
+      dedAgain: 'En envoyer une autre',
+      dedEmpty: 'Pas encore de dédicaces. Soyez le premier à envoyer une chanson.',
+      dedLoadFailed: 'Les dédicaces n’ont pas pu se charger. Rechargez la page dans un instant.',
+      dedFrom: (name, place) => place ? `De ${name}, ${place}` : `De ${name}`,
+      dedTo: (name, place) => place ? `Pour ${name}, ${place}` : `Pour ${name}`,
+      dedShare: 'Partager la dédicace',
+      dedShareText: (from, to) => `💌 Une dédicace de ${from} pour ${to} sur Sawt el Beit`,
+      dedErrors: {
+        missing: 'Indiquez votre prénom, le destinataire et la chanson.',
+        links: 'Retirez les liens et les noms de comptes.',
+        phone: 'Retirez les numéros de téléphone.',
+        spam: 'Trop de caractères répétés. Corrigez le message et réessayez.',
+        rate: 'Limite atteinte : 3 dédicaces par heure. Réessayez un peu plus tard.',
+        server: 'La dédicace n’est pas partie. Réessayez.'
+      },
+      alertsOn: 'M’alerter des grandes nouvelles',
+      alertsActive: 'Alertes activées',
+      alertsEnabled: 'Vous recevrez une alerte en cas de grande nouvelle au Liban, 4 par jour au plus.',
+      alertsDisabled: 'Alertes désactivées.',
+      alertsDenied: 'Les notifications sont bloquées pour ce site. Autorisez-les dans les réglages du navigateur, puis réessayez.',
+      alertsIos: 'Sur iPhone : touchez Partager, puis « Sur l’écran d’accueil », et ouvrez Sawt el Beit depuis là pour activer les alertes.',
+      alertsFailed: 'Impossible d’activer les alertes. Réessayez.'
     }
   };
 
@@ -360,6 +513,7 @@
     renderSleepLabel();
     renderAlarmLabel();
     if (stations.length) renderDial();
+    document.dispatchEvent(new CustomEvent('sawt:lang'));
   }
 
   document.querySelectorAll('.lang').forEach(btn => btn.addEventListener('click', () => {
@@ -384,12 +538,9 @@
     return fmt('Asia/Beirut') === fmt(undefined);
   }
 
+  // The time itself is shown on the window (sky.js); here we only keep the
+  // morning suggestion in step with Beirut's clock.
   function updateClocks() {
-    const now = new Date();
-    $('beirut-time').textContent = new Intl.DateTimeFormat(locale(), { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Beirut' }).format(now);
-    const showLocal = !sameZoneAsBeirut();
-    $('local-clock').hidden = !showLocal;
-    if (showLocal) $('local-time').textContent = new Intl.DateTimeFormat(locale(), { hour: 'numeric', minute: '2-digit' }).format(now);
     updateMorning();
   }
 
@@ -409,11 +560,8 @@
   }
 
   function renderWeather() {
-    const head = $('weather');
     const list = $('towns');
-    if (!weather) { head.hidden = true; list.closest('section').hidden = true; return; }
-    head.textContent = `${num(weather.temperature)}° ${weatherWord(weather.code)}`.trim();
-    head.hidden = false;
+    if (!weather) { list.closest('section').hidden = true; return; }
 
     const cities = weather.cities || [];
     list.closest('section').hidden = !cities.length;
@@ -426,7 +574,12 @@
   }
 
   function loadWeather() {
-    fetch('/api/weather').then(r => (r.ok ? r.json() : null)).then(d => { if (d) { weather = d; renderWeather(); } }).catch(() => {});
+    fetch('/api/weather').then(r => (r.ok ? r.json() : null)).then(d => {
+      if (!d) return;
+      weather = d;
+      renderWeather();
+      document.dispatchEvent(new CustomEvent('sawt:weather'));
+    }).catch(() => {});
   }
 
   // ================================================================== radio state
@@ -1090,6 +1243,7 @@
       updateMorning();
       updateMini();
       checkAlarm();
+      document.dispatchEvent(new CustomEvent('sawt:stations'));
     } catch {
       dial.replaceChildren(el('p', { className: 'dial-loading', text: t('stationsFailed') }));
     }
@@ -1195,6 +1349,27 @@
       ])
     ])));
   }
+
+  // ================================================================== shared with sky.js and extras.js
+
+  window.Sawt = {
+    t, el, toast, num, fold, store,
+    // a string in a specific language (postcards keep the writer's language)
+    tIn: (l, key, ...args) => { const v = (STRINGS[l] || STRINGS.ar)[key]; return typeof v === 'function' ? v(...args) : v; },
+    lang: () => lang,
+    locale,
+    timeAgo,
+    weather: () => weather,
+    weatherWord,
+    sameZoneAsBeirut,
+    beirutHour,
+    stations: () => stations,
+    current,
+    showStation,
+    setPower,
+    isOn: () => powerOn,
+    FAIRUZ
+  };
 
   // ================================================================== timers + start
 

@@ -1,0 +1,22 @@
+# Checks Lebanese headlines every 10 minutes and sends breaking-news alerts
+# to people who turned them on. The site decides what counts as breaking and
+# never sends the same story twice, so this job only has to knock.
+name: Breaking news check
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Ask the site to check for breaking news
+        run: |
+          curl -fsS -X POST --max-time 60 "${SITE_URL:-https://radio-cedars.vercel.app}/api/alerts/check" || echo "check skipped (alerts not set up yet, or the site is busy)"
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}

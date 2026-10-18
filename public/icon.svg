@@ -1,7 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" rx="112" fill="#0E1F19"/>
-  <circle cx="256" cy="256" r="196" fill="none" stroke="#C9A24A" stroke-width="10" opacity="0.35"/>
-  <path d="M256 92 L340 190 H298 L384 288 H328 L420 392 H92 L184 288 H128 L214 190 H172 Z" fill="#C9A24A"/>
-  <rect x="236" y="392" width="40" height="44" rx="6" fill="#C9A24A"/>
-  <rect x="252" y="64" width="8" height="40" rx="4" fill="#D2232A"/>
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2E2A5E"/>
+      <stop offset="0.55" stop-color="#8B5D86"/>
+      <stop offset="0.78" stop-color="#F2925A"/>
+    </linearGradient>
+    <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7A4F6A"/>
+      <stop offset="1" stop-color="#2A2342"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#EADFCB"/>
+  <!-- what you see through the arches -->
+  <rect x="56" y="96" width="400" height="360" fill="url(#sky)"/>
+  <rect x="56" y="350" width="400" height="106" fill="url(#sea)"/>
+  <circle cx="256" cy="336" r="30" fill="#FFE2A6"/>
+  <!-- the stone: everything except three pointed arches -->
+  <path fill="#EADFCB" fill-rule="evenodd" d="M0 0H512V512H0Z
+    M60 456V230A130 130 0 0 1 120 118A130 130 0 0 1 180 230V456Z
+    M196 456V214A140 140 0 0 1 256 96A140 140 0 0 1 316 214V456Z
+    M332 456V230A130 130 0 0 1 392 118A130 130 0 0 1 452 230V456Z"/>
+  <path fill="none" stroke="#C9B997" stroke-width="6" d="
+    M60 456V230A130 130 0 0 1 120 118A130 130 0 0 1 180 230V456
+    M196 456V214A140 140 0 0 1 256 96A140 140 0 0 1 316 214V456
+    M332 456V230A130 130 0 0 1 392 118A130 130 0 0 1 452 230V456"/>
+  <rect x="40" y="456" width="432" height="18" rx="4" fill="#C9B997"/>
 </svg>

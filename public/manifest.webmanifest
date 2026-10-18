@@ -1,14 +1,14 @@
 {
   "name": "صوت البيت · Sawt el Beit",
   "short_name": "صوت البيت",
-  "description": "إذاعات لبنان، أخبار لبنان وتلفزيون لبنان المباشر، أينما كنت. Lebanese radio, news and live TV, wherever you are.",
+  "description": "إذاعات لبنان، أغاني الزمن الجميل وإهداءات للأهل، أينما كنت. Lebanese radio, classics and dedications home, wherever you are.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#0E1F19",
-  "theme_color": "#0E1F19",
+  "background_color": "#17120E",
+  "theme_color": "#17120E",
   "icons": [
     {
       "src": "/icon.svg",

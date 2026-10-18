@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Moderation · Sawt el Beit</title>
+  <meta name="theme-color" content="#17120E">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+  <style>
+    .admin { max-width: 860px; margin: 0 auto; padding: 24px var(--gutter) 80px; }
+    .admin h1 { font-family: var(--font-display); font-weight: 400; font-size: var(--step-3); line-height: 1.2; }
+    .admin .sub { color: var(--stone-dim); margin: 4px 0 24px; }
+    .card { background: var(--wall); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+    .auth { max-width: 420px; display: grid; gap: 14px; }
+    .bar { display: flex; flex-wrap: wrap; gap: 8px 20px; align-items: center; justify-content: space-between; margin: 8px 0 20px; }
+    .stats { display: flex; flex-wrap: wrap; gap: 8px 24px; color: var(--stone-dim); font-size: var(--step--1); }
+    .stats b { color: var(--stone); font-weight: 500; }
+    .item { border-top: 1px solid var(--line); padding: 16px 0; display: grid; gap: 6px; }
+    .item:first-child { border-top: 0; }
+    .flag { display: inline-block; background: var(--brick); color: var(--stone); font-size: var(--step--1); border-radius: 6px; padding: 1px 8px; margin-inline-end: 8px; }
+    .meta { color: var(--stone-dim); font-size: var(--step--1); }
+    .song { color: var(--ochre); }
+    .msg { font-weight: 300; font-size: var(--step-1); overflow-wrap: anywhere; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; }
+    .btn-danger { border-color: #EAA48C; color: #EAA48C; }
+    h2 { margin: 28px 0 8px; font-size: var(--step-2); }
+    .empty { color: var(--stone-dim); padding: 8px 0; }
+  </style>
+</head>
+<body>
+  <div class="admin">
+    <h1>Dedications moderation</h1>
+    <p class="sub">Sawt el Beit · only you can see this page.</p>
+
+    <div id="unavailable" class="card" hidden>
+      <p>Storage isn't connected yet, so there's nothing to moderate. In Vercel, open the project, go to <b>Storage</b>, create a free <b>Upstash for Redis</b> database and connect it to this project, then redeploy.</p>
+    </div>
+
+    <form id="setup" class="card auth" hidden>
+      <p><b>Create your admin password.</b> Do this now: the first person to open this page sets it.</p>
+      <label class="field"><span>Password (at least 10 characters)</span><input type="password" name="password" minlength="10" required autocomplete="new-password"></label>
+      <p class="form-error" id="setup-error" hidden></p>
+      <button class="btn btn-primary" type="submit">Create password and sign in</button>
+    </form>
+
+    <form id="login" class="card auth" hidden>
+      <label class="field"><span>Admin password</span><input type="password" name="password" required autocomplete="current-password"></label>
+      <p class="form-error" id="login-error" hidden></p>
+      <button class="btn btn-primary" type="submit">Sign in</button>
+    </form>
+
+    <div id="panel" hidden>
+      <div class="bar">
+        <div class="stats" id="stats"></div>
+        <div class="actions">
+          <button class="btn" type="button" id="notify">Notify me of new dedications</button>
+          <button class="btn" type="button" id="test">Send a test notification</button>
+          <button class="link-btn" type="button" id="logout">Sign out</button>
+        </div>
+      </div>
+      <p class="panel-note" id="notice" hidden></p>
+
+      <h2>Waiting for approval</h2>
+      <div class="card" id="queue"></div>
+
+      <h2>On the wall</h2>
+      <div class="card" id="wall"></div>
+    </div>
+  </div>
+  <p class="toast" id="toast" role="status" aria-live="polite"></p>
+  <script src="/admin.js" defer></script>
+</body>
+</html>
