@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const Parser = require('rss-parser');
 
@@ -171,7 +172,8 @@ const getStations = cached(RADIO_TTL_MS, async () => {
 // ---------------------------------------------------------------------------
 app.get('/api/news', async (req, res) => {
   try {
-    res.set('Cache-Control', 'public, max-age=300');
+    // Browsers keep it 5 min; Vercel's CDN keeps it 10 min and refreshes in the background.
+    res.set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=600');
     res.json(await getNews());
   } catch (err) {
     console.error('[news]', err);
@@ -181,7 +183,7 @@ app.get('/api/news', async (req, res) => {
 
 app.get('/api/radio', async (req, res) => {
   try {
-    res.set('Cache-Control', 'public, max-age=3600');
+    res.set('Cache-Control', 'public, max-age=3600, s-maxage=21600, stale-while-revalidate=3600');
     res.json(await getStations());
   } catch (err) {
     console.error('[radio]', err);
@@ -191,8 +193,13 @@ app.get('/api/radio', async (req, res) => {
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-app.use(express.static('public', { maxAge: '1h' }));
+app.use(express.static(path.join(__dirname, 'public'), { maxAge: '1h' }));
 
-app.listen(PORT, () => {
-  console.log(`Wardé running on port ${PORT}`);
-});
+// Run as a normal server locally (npm start); on Vercel the exported app is used.
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`Wardé running on port ${PORT}`);
+  });
+}
+
+module.exports = app;
