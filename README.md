@@ -4,13 +4,17 @@
 
 ## What's on the page
 
-- **The window home**: the page opens on the triple-arched window of a Lebanese house. Through it you see Beirut's sky as it is right now: the sun and moon are placed from Beirut's real solar position and moon phase, and clouds and rain follow Beirut's current weather.
-- **The radio on the sill**: swipe the dial under the needle to tune, with a burst of static between stations. Working Lebanese stations come from the free [Radio Browser](https://www.radio-browser.info) directory. Favourites, search, a Fairuz filter, lock-screen controls and a mini-player.
-- **الزمن الجميل (Classics)**: Fairuz, Wadih El Safi, Sabah and Zaki Nassif in three moods (Morning coffee, Sunday lunch at Teta's, Homesick), each song with YouTube and Spotify links, plus one tap to put the radio on in that mood.
-- **Dedications home**: send a song and a message to family in Lebanon. Automatic checks block links, phone numbers and floods (3 an hour); rude words are flagged; nothing appears until it's approved on `/admin`. Each dedication has a share link (`/d/<id>`) with its own WhatsApp preview.
-- **Breaking-news alerts**: phone notifications in the reader's language when big news breaks (explicit "breaking" markers or major events), checked every 10 minutes by a GitHub workflow, never repeated, at most 4 a day.
-- **Morning alarm and sleep timer**, **news** from Annahar, L'Orient-Le Jour, L'Orient Today, Al-Manar English and The961, **live TV** links, **weather for 8 cities**.
-- **Arabic, English and French**, right-to-left aware, installable to the home screen.
+The site is a room: a photoreal 1990s Beirut living room (rendered in Blender) that you walk into and look around by dragging or swiping. Every object in it works.
+
+- **The walk-in and the light**: you start at the door and step in. The room's light follows Beirut's real sun: sunrise, midday, afternoon, sunset over the sea, and night with the coast lit up. Tap the time chip to change it yourself.
+- **The radio**: swipe the dial under the needle to tune, with a burst of static between stations. Working Lebanese stations come from the free [Radio Browser](https://www.radio-browser.info) directory. Favourites, search, a Fairuz filter, lock-screen controls and a mini-player.
+- **The cassettes**: twelve tapes, one per mood (morning coffee with Fairuz, Sunday dabke, homesick nights, 90s pop, the mountain road, weddings, Batroun beach, rainy Beirut, Christmas and Eid, kids' songs, national songs, Ziad Rahbani's plays), opening in Spotify, plus the golden-age classics with one tap to tune the radio to that mood.
+- **The telephone and the family photos**: send a song and a message to family in Lebanon, and read the dedications wall. Automatic checks block links, phone numbers and floods (3 an hour); rude words are flagged; nothing appears until it's approved on `/admin`. Each dedication has a share link (`/d/<id>`) with its own WhatsApp preview.
+- **The newspaper**: news from Annahar, L'Orient-Le Jour, L'Orient Today, Al-Manar English and The961, with **breaking-news alerts** (checked every 10 minutes by a GitHub workflow, at most 4 a day).
+- **The TV** (live channels), **the window** (weather for 8 cities), **the clock** (Beirut time and a morning alarm), **the lamp** (sleep timer), **the calendar** (Lebanese occasions, today's sunrise and sunset, iftar in Ramadan), **the coffee cup** (a cup reading, for fun) and **Teta's notebook** (recipes).
+- **Arabic, English and French**, right-to-left aware, installable to the home screen. Deep links open an object directly: `/#radio`, `/#news`, `/#cassettes`…
+
+The room's images live in `public/room/` (equirectangular panoramas at 4K and 2K, one per time of day). 3D models of the chairs, plant, vase and teacups are from the [Khronos glTF Sample Assets](https://github.com/KhronosGroup/glTF-Sample-Assets) (CC BY 4.0 and CC0).
 
 ## Turning on dedications and alerts
 

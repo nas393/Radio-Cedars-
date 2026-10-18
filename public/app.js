@@ -538,8 +538,8 @@
     return fmt('Asia/Beirut') === fmt(undefined);
   }
 
-  // The time itself is shown on the window (sky.js); here we only keep the
-  // morning suggestion in step with Beirut's clock.
+  // The time itself is on the clock in the room (room.js); here we only keep
+  // the morning suggestion in step with Beirut's clock.
   function updateClocks() {
     updateMorning();
   }
@@ -723,7 +723,7 @@
   $('mini-power').addEventListener('click', () => setPower(!powerOn));
   $('mini-prev').addEventListener('click', () => step(-1));
   $('mini-next').addEventListener('click', () => step(1));
-  $('mini-name').addEventListener('click', () => $('set').scrollIntoView({ behavior: 'smooth', block: 'center' }));
+  $('mini-name').addEventListener('click', () => document.dispatchEvent(new CustomEvent('sawt:open', { detail: 'radio' })));
 
   $('fav').addEventListener('click', () => {
     const st = current();
@@ -1185,26 +1185,18 @@
 
   // ================================================================== panels
 
+  // In the room the sleep and alarm panels live inside their own objects
+  // (the lamp and the clock) and stay open; this only moves focus.
   function togglePanel(name, force) {
-    const panel = $(name + '-panel');
-    const btn = $(name + '-btn');
-    const open = force === undefined ? panel.hidden : force;
-    panel.hidden = !open;
-    btn.setAttribute('aria-expanded', String(open));
-    if (open) {
-      const other = name === 'sleep' ? 'alarm' : 'sleep';
-      $(other + '-panel').hidden = true;
-      $(other + '-btn').setAttribute('aria-expanded', 'false');
-      const first = panel.querySelector('button, input');
-      if (first) first.focus();
-    }
+    if (force === false) return;
+    const first = $(name + '-panel').querySelector('button, input');
+    if (first) first.focus();
   }
   $('sleep-btn').addEventListener('click', () => togglePanel('sleep'));
   $('alarm-btn').addEventListener('click', () => togglePanel('alarm'));
-  document.addEventListener('keydown', e => {
-    if (e.key !== 'Escape') return;
-    for (const name of ['sleep', 'alarm']) if (!$(name + '-panel').hidden) { togglePanel(name, false); $(name + '-btn').focus(); }
-  });
+
+  // The dial lives in a panel that can open later; re-centre when it shows.
+  window.addEventListener('resize', () => { if (selected >= 0 && dial.offsetParent) centreOn(selected, false); });
 
   // ================================================================== mini-player
 
@@ -1350,7 +1342,7 @@
     ])));
   }
 
-  // ================================================================== shared with sky.js and extras.js
+  // ================================================================== shared with room.js and extras.js
 
   window.Sawt = {
     t, el, toast, num, fold, store,

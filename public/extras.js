@@ -69,7 +69,7 @@
       if (!st) return;
       S.showStation(st.id);
       S.setPower(true);
-      document.getElementById('set').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      document.dispatchEvent(new CustomEvent('sawt:open', { detail: 'radio' }));
     });
     tune.disabled = !S.stations().length;
 
@@ -183,7 +183,7 @@
     form.classList.remove('is-done');
     $('ded-done').hidden = true;
     form.song.value = songText;
-    $('dedications').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.dispatchEvent(new CustomEvent('sawt:open', { detail: 'phone' }));
     setTimeout(() => (form.fromName.value ? form.toName : form.fromName).focus({ preventScroll: true }), 400);
   }
 
@@ -310,28 +310,6 @@
     if (sub) fetch('/api/alerts/subscribe', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ subscription: sub.toJSON(), lang: S.lang() }) }).catch(() => {});
   }
 
-  // ================================================================== section bar
-
-  const nav = $('sections');
-  const links = [...nav.querySelectorAll('a')];
-  links.forEach(a => a.addEventListener('click', e => {
-    const target = document.querySelector(a.getAttribute('href'));
-    if (!target) return;
-    e.preventDefault();
-    target.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
-    target.focus({ preventScroll: true });
-    history.replaceState(null, '', a.getAttribute('href'));
-  }));
-  if ('IntersectionObserver' in window) {
-    const spy = new IntersectionObserver(entries => {
-      for (const entry of entries) {
-        if (!entry.isIntersecting) continue;
-        links.forEach(a => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + entry.target.id)));
-      }
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    ['classics', 'dedications', 'news', 'tv'].forEach(id => spy.observe($(id)));
-  }
-
   // ================================================================== start
 
   function dedicationFromUrl() {
@@ -351,13 +329,11 @@
       if (res.ok) config = await res.json();
     } catch { /* features stay off */ }
 
-    $('dedications').hidden = !config.dedications;
-    $('nav-dedications').hidden = !config.dedications;
+    document.dispatchEvent(new CustomEvent('sawt:config', { detail: config }));
     if (config.dedications) {
       focusId = dedicationFromUrl();
       await loadWall();
       renderMoods(); // adds the "dedicate" buttons
-      if (dedicationFromUrl()) $('dedications').scrollIntoView({ block: 'start' });
     }
 
     if (config.alerts) {
