@@ -418,17 +418,39 @@
 
   const $ = id => document.getElementById(id);
 
+  // Everything is kept per person ("who's home?"), except a few things about the device itself.
+  // The first person on a device uses the plain keys, so nothing saved before is lost.
+  const DEVICE_KEYS = new Set(['profiles', 'profileId', 'visited', 'visits', 'installAsked', 'lookedAround']);
+  let profileId = 'p0';
+  try { profileId = JSON.parse(localStorage.getItem('sawt:profileId')) || 'p0'; } catch { profileId = 'p0'; }
+  const keyOf = key => (DEVICE_KEYS.has(key) || profileId === 'p0' ? 'sawt:' + key : `sawt:${profileId}:${key}`);
   const store = {
     get(key, fallback) {
-      try { const v = localStorage.getItem('sawt:' + key); return v === null ? fallback : JSON.parse(v); }
+      try { const v = localStorage.getItem(keyOf(key)); return v === null ? fallback : JSON.parse(v); }
       catch { return fallback; }
     },
     set(key, value) {
       try {
-        if (value === null) localStorage.removeItem('sawt:' + key);
-        else localStorage.setItem('sawt:' + key, JSON.stringify(value));
+        if (value === null) localStorage.removeItem(keyOf(key));
+        else localStorage.setItem(keyOf(key), JSON.stringify(value));
       } catch { /* private mode */ }
-    }
+    },
+    // every key this person has saved (for syncing to another device)
+    dump() {
+      const out = {};
+      try {
+        const pre = profileId === 'p0' ? 'sawt:' : `sawt:${profileId}:`;
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (!k.startsWith(pre)) continue;
+          const name = k.slice(pre.length);
+          if (DEVICE_KEYS.has(name) || name.includes(':')) continue;
+          out[name] = JSON.parse(localStorage.getItem(k));
+        }
+      } catch { /* fine */ }
+      return out;
+    },
+    profileId: () => profileId
   };
 
   // Bring over settings saved under the app's earlier name.

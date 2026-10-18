@@ -81,11 +81,42 @@
     const [queue, wall, stats] = await Promise.all([api('/api/admin/queue'), api('/api/admin/wall'), api('/api/admin/stats')]);
     list($('queue'), queue.items, 'queue', 'Nothing waiting. 🎉');
     list($('wall'), wall.items, 'wall', 'No dedications on the wall yet.');
+    try {
+      const rc = await api('/api/admin/recipes');
+      $('rqueue').replaceChildren(...(rc.pending.length ? rc.pending.map(r => recipeView(r, 'queue')) : [el('p', { className: 'empty', text: 'No recipes waiting.' })]));
+      $('rbook').replaceChildren(...(rc.approved.length ? rc.approved.map(r => recipeView(r, 'book')) : [el('p', { className: 'empty', text: 'No recipes yet.' })]));
+    } catch { /* older server */ }
     const s = stats.subscribers;
     $('stats').replaceChildren(
       el('span', {}, [document.createTextNode('Waiting: '), el('b', { text: String(stats.pending) })]),
       el('span', {}, [document.createTextNode('Alert subscribers: '), el('b', { text: `${s.ar + s.en + s.fr}` }), document.createTextNode(` (ar ${s.ar}, en ${s.en}, fr ${s.fr})`)])
     );
+  }
+
+  function recipeView(r, kind) {
+    const actions = el('div', { className: 'actions' });
+    if (kind === 'queue') {
+      const yes = el('button', { className: 'btn btn-primary', type: 'button', text: 'Approve' });
+      const no = el('button', { className: 'btn btn-danger', type: 'button', text: 'Reject' });
+      yes.addEventListener('click', () => rdecide(r.id, true));
+      no.addEventListener('click', () => rdecide(r.id, false));
+      actions.append(yes, no);
+    } else {
+      const del = el('button', { className: 'btn btn-danger', type: 'button', text: 'Remove' });
+      del.addEventListener('click', async () => { if (!window.confirm('Remove this recipe?')) return; try { await api('/api/admin/recipes/remove', { id: r.id }); toast('Removed.'); refresh(); } catch { toast('That didn’t work.'); } });
+      actions.append(del);
+    }
+    return el('div', { className: 'item' }, [
+      el('p', {}, [r.flagged ? el('span', { className: 'flag', text: 'Rude words?' }) : null, el('b', { dir: 'auto', text: r.title }), document.createTextNode(` · by ${r.author}${r.place ? ` (${r.place})` : ''}`)]),
+      el('p', { className: 'meta', text: `Serves ${r.serves} · ${r.time} min · ${ago(r.at)} · ${r.lang}` }),
+      el('p', { className: 'msg', dir: 'auto', text: r.ingredients.join(' · ') }),
+      el('ol', { dir: 'auto' }, r.steps.map(x => el('li', { text: x }))),
+      actions
+    ]);
+  }
+  async function rdecide(id, approve) {
+    try { await api('/api/admin/recipes/decide', { id, approve }); toast(approve ? 'Approved: it’s in the cookbook.' : 'Rejected.'); refresh(); }
+    catch { toast('That didn’t work. Try again.'); }
   }
 
   async function decide(id, approve) {

@@ -1,8 +1,8 @@
 // Sawt el Beit service worker: keeps the page shell available offline,
 // shows the last headlines when the connection drops, and delivers
 // breaking-news alerts. Radio streams and other sites are never touched.
-const CACHE = 'sawt-v7';
-const SHELL = ['/', '/app.css', '/app.js', '/classics.js', '/content.js', '/extras.js', '/room.js', '/room.css', '/music.js', '/ambience.js', '/home.js', '/tawleh.js', '/together.js', '/voice.js', '/expat.js', '/install.js', '/room/day-s.jpg', '/room/sunset-s.jpg', '/room/night-s.jpg', '/icon.svg', '/manifest.webmanifest', '/icon-192.png'];
+const CACHE = 'sawt-v8';
+const SHELL = ['/', '/app.css', '/app.js', '/classics.js', '/content.js', '/extras.js', '/room.js', '/room.css', '/music.js', '/ambience.js', '/home.js', '/profiles.js', '/tvset.js', '/rec.js', '/tawleh.js', '/cards.js', '/together.js', '/voice.js', '/expat.js', '/village.js', '/morning.js', '/recipes.js', '/cook.js', '/install.js', '/room/day-s.jpg', '/room/sunset-s.jpg', '/room/night-s.jpg', '/icon.svg', '/manifest.webmanifest', '/icon-192.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
@@ -23,7 +23,7 @@ self.addEventListener('fetch', event => {
   const url = new URL(req.url);
   if (req.method !== 'GET' || url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/admin') || url.pathname.startsWith('/api/alerts') || url.pathname === '/api/config') return;
-  if (url.pathname.startsWith('/api/q') || url.pathname.startsWith('/api/voice')) return;   // live rooms and private voice notes stay out of the cache
+  if (url.pathname.startsWith('/api/q') || url.pathname.startsWith('/api/voice') || url.pathname.startsWith('/api/profile') || url.pathname.startsWith('/api/morning')) return;   // live rooms and private voice notes stay out of the cache
   event.respondWith(
     fetch(req)
       .then(res => {

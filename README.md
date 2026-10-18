@@ -10,8 +10,14 @@ The site is a room: a 1990s Lebanese living room (patchwork sofa, the painting o
 - **Alive**: rain runs down the balcony glass when it rains in Beirut (lightning in storms), city lights shimmer across the bay at night, steam rises from the tea, the room breathes a little when you leave it alone, and now and then the power cuts and the neighbourhood generator kicks in ("عالموتير"; can be switched off). Optional room sounds (clock, rain, kettle, crickets, cicadas, the generator) are made live with Web Audio.
 - **The calendar dresses the room**: lights and a star in December, lanterns and a crescent in Ramadan, red-and-white bunting for Independence Day (drawn on the picture; try `/?decor=xmas`).
 - **Tawleh** (on the coffee table): full backgammon rules, against Abou Samir (the computer, with opinions), two players on one phone, or a friend far away: each turn travels as a WhatsApp link (`/?t=…`). A "mars" counts double.
-- **Listen together** (the sofa): start a sitting, send the link (`/q/<id>`), and whoever opens it hears what you play at the same moment and can write a few words. Rooms are private and vanish after 12 hours. Without the store, it still shares the station or tape by link.
-- **Voice dedications** (the photos on the dresser): record up to 40 seconds for mama or teta and pick a song; they hear your voice, then the song starts. Private link `/v/<id>` (30 days) with the store; otherwise the recording itself is shared.
+- **Who's home?** Each person in the family has their own corner (name, picture, favourites, village, recipes, scores, photos), with an optional easy passcode (4–8 digits) on a shared phone. With the store on, the same username and passcode bring a person's things to any device.
+- **The TV stays on the set**: once on, the live channel (LBCI, MTV, Al Jadeed, OTV) plays on the CRT in the room and keeps playing while you open other things; the sound steps aside when the radio or a tape plays. On the side of the set: power, a volume knob you turn like the old ones, channel up/down, and a big-screen button.
+- **Family rooms** (the sofa): a private room behind a passcode its creator picks (`/q/<id>`). Inside: who's here, the same station or tape for everyone at the same moment, written and voice messages back and forth (mama can answer by voice), and a card table for the family.
+- **Voice dedications** (the photos on the dresser): record up to 40 seconds and pick a song; it goes into a family room (new or existing) with a passcode, and they answer by voice. Without the store, the recording itself is shared.
+- **Cards on the coffee table**: Tarneeb (bids 7–13, trump, game to 41) and Likha (pass 3, hearts 1, queen of spades 13, ten of diamonds 10, the must-play rule, 101 ends it), against the computer, or with the family in a room (empty seats are computer players).
+- **My village** (the balcony): pick your village for its weather now and the next days, the dedications sent there, and a button to send one.
+- **Good morning**: in the morning (Beirut time) a greeting with your name, the day's weather for Beirut or your village, a steaming cup and Fairuz one tap away; or a notification every day at 7 am Beirut time (with alerts on).
+- **Teta's table** (the dining table): 29 Lebanese recipes in three languages, a step-by-step cooking mode with timers when a step needs one (several can run, the screen stays on), and your own recipes with your name: kept on your device, sent by link, or offered to the family cookbook (approved on `/admin`).
 - **Far from home** (the painting of the bay): Beirut time next to yours and whether it's a good moment to call, Beirut weather, the dollar (and your currency) in lira, and a countdown to your next trip home.
 - **Teta's chair / Simple mode ("كبّر")**: big buttons for relatives who won't swipe around a room.
 - **Your family photos on the wall**: pick photos and they hang in the frames; they stay in your browser.
@@ -59,6 +65,11 @@ Then open http://localhost:3000.
 | `POST /api/q`, `GET /api/q/:id`, `POST /api/q/:id/{hello,say,play}` | Listen-together sittings |
 | `POST /api/voice`, `GET /api/voice/:id[/audio]` | Voice dedications |
 | `GET /api/rates` | The dollar and other currencies in Lebanese pounds |
+| `POST /api/profile/{login,save,forget}` | A person's settings on all their devices (username + passcode) |
+| `GET /api/q/:id/peek`, `POST /api/q/:id/join`, `/say`, `/voice`, `/play`, `/game`, `/move` | Family rooms (passcode, chat, voice, card table) |
+| `GET/POST /api/recipes` | The family cookbook |
+| `GET /api/places?q=`, `GET /api/weather/at?lat&lon` | Lebanese villages and their weather |
+| `POST /api/morning/subscribe` | The 7 o'clock greeting |
 | `GET/POST /api/dedications` | The wall / send a dedication |
 | `POST /api/alerts/subscribe` | Turn on alerts for a browser |
 | `POST /api/alerts/check` | Look for breaking news and alert (called every 10 minutes) |

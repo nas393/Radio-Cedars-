@@ -15,33 +15,36 @@
   const T = {
     ar: {
       title: '🎙️ إهداء بصوتك', lede: 'سجّل كلمتين لأهلك (لحد ٤٠ ثانية) واختار أغنية. بيسمعوا صوتك، وبعدها بتبلّش الأغنية.',
+      sendTo: 'وين تبعتها؟', newRoomWith: n => `غرفة جديدة مع ${n}`, roomPin: 'رمز الغرفة (٤ لـ ٨ أرقام، قولو إلهن)', roomNote: 'بتوصل عغرفة خاصة بالعيلة، بس اللي معه الرمز بيفوت. بيسمعوا صوتك وبيردّوا بصوتهن.',
       forX: n => `لـ ${n}`, from: 'من', to: 'لمين؟', toHint: 'مثلاً: ماما', song: 'الأغنية', songNow: n => `اللي عم يشتغل: ${n}`, songNone: 'بلا أغنية',
       rec: 'سجّل', stop: 'وقّف', play: 'اسمع', again: 'سجّل من جديد', send: 'ابعتها', sending: 'عم نبعت…',
       noMic: 'ما قدرنا نوصل للمايك. اسمحلنا نستعمله من إعدادات المتصفّح.', noRec: 'متصفّحك ما بيقدر يسجّل. جرّب Chrome أو Safari جديد.',
       shareText: (a, b) => `🎙️ رسالة بصوت ${a} لـ ${b}، مع أغنية من البيت`, sent: 'انبعتت 💌', private: 'الرسالة خاصة: بس اللي معه الرابط بيسمعها، وبتنمحى بعد ٣٠ يوم.',
       fileNote: 'بتنبعت الرسالة كملف صوت، ومعها رابط الأغنية.',
       gotTitle: (a, b) => `🎙️ رسالة من ${a} لـ ${b}`, gotPlay: 'اسمع الرسالة', gotSong: n => `وبعدها: ${n}`, gotGone: 'هالرسالة ما عادت موجودة (بتنمحى بعد ٣٠ يوم).',
-      errs: { links: 'بلا روابط بالأسامي.', phone: 'بلا أرقام.', rate: 'كتير رسائل هالساعة. جرّب بعد شوي.', audio: 'التسجيل طويل كتير.', missing: 'اكتب اسمك ولمين الرسالة.', server: 'في مشكلة، جرّب كمان مرة.' }
+      errs: { pin: 'رمز الغرفة لازم يكون ٤ لـ ٨ أرقام.', links: 'بلا روابط بالأسامي.', phone: 'بلا أرقام.', rate: 'كتير رسائل هالساعة. جرّب بعد شوي.', audio: 'التسجيل طويل كتير.', missing: 'اكتب اسمك ولمين الرسالة.', server: 'في مشكلة، جرّب كمان مرة.' }
     },
     en: {
       title: '🎙️ A dedication in your voice', lede: 'Record a few words for your family (up to 40 seconds) and pick a song. They hear your voice, then the song starts.',
+      sendTo: 'Send it to', newRoomWith: n => `A new room with ${n}`, roomPin: 'Room passcode (4 to 8 digits, tell them)', roomNote: 'It goes to a private family room; only people with the passcode come in. They hear your voice and answer with theirs.',
       forX: n => `For ${n}`, from: 'From', to: 'To whom?', toHint: 'e.g. Mama', song: 'Song', songNow: n => `Playing now: ${n}`, songNone: 'No song',
       rec: 'Record', stop: 'Stop', play: 'Listen', again: 'Record again', send: 'Send it', sending: 'Sending…',
       noMic: 'We couldn’t reach the microphone. Allow it in your browser settings.', noRec: 'This browser can’t record. Try a recent Chrome or Safari.',
       shareText: (a, b) => `🎙️ A voice message from ${a} to ${b}, with a song from home`, sent: 'Sent 💌', private: 'Private: only people with the link can hear it, and it disappears after 30 days.',
       fileNote: 'Your recording is sent as an audio file, with a link to the song.',
       gotTitle: (a, b) => `🎙️ From ${a} to ${b}`, gotPlay: 'Play the message', gotSong: n => `Then: ${n}`, gotGone: 'This message is no longer here (they disappear after 30 days).',
-      errs: { links: 'No links in the names.', phone: 'No numbers.', rate: 'Too many messages this hour. Try again later.', audio: 'The recording is too long.', missing: 'Add your name and who it’s for.', server: 'Something went wrong, try again.' }
+      errs: { pin: 'The room passcode is 4 to 8 digits.', links: 'No links in the names.', phone: 'No numbers.', rate: 'Too many messages this hour. Try again later.', audio: 'The recording is too long.', missing: 'Add your name and who it’s for.', server: 'Something went wrong, try again.' }
     },
     fr: {
       title: '🎙️ Une dédicace de vive voix', lede: 'Enregistrez quelques mots pour la famille (jusqu’à 40 secondes) et choisissez une chanson. Ils entendent votre voix, puis la chanson.',
+      sendTo: 'Envoyer à', newRoomWith: n => `Une nouvelle pièce avec ${n}`, roomPin: 'Code de la pièce (4 à 8 chiffres, donnez-le)', roomNote: 'Le message arrive dans une pièce familiale privée : seuls ceux qui ont le code entrent. Ils écoutent votre voix et répondent avec la leur.',
       forX: n => `Pour ${n}`, from: 'De', to: 'Pour qui ?', toHint: 'ex. Maman', song: 'Chanson', songNow: n => `En ce moment : ${n}`, songNone: 'Sans chanson',
       rec: 'Enregistrer', stop: 'Arrêter', play: 'Écouter', again: 'Recommencer', send: 'Envoyer', sending: 'Envoi…',
       noMic: 'Impossible d’accéder au micro. Autorisez-le dans les réglages du navigateur.', noRec: 'Ce navigateur ne sait pas enregistrer. Essayez un Chrome ou Safari récent.',
       shareText: (a, b) => `🎙️ Un message de ${a} pour ${b}, avec une chanson du pays`, sent: 'Envoyé 💌', private: 'Privé : seuls ceux qui ont le lien l’entendent, et il s’efface après 30 jours.',
       fileNote: 'L’enregistrement part comme fichier audio, avec le lien de la chanson.',
       gotTitle: (a, b) => `🎙️ De ${a} pour ${b}`, gotPlay: 'Écouter le message', gotSong: n => `Puis : ${n}`, gotGone: 'Ce message n’existe plus (ils s’effacent après 30 jours).',
-      errs: { links: 'Pas de liens dans les noms.', phone: 'Pas de numéros.', rate: 'Trop de messages cette heure-ci.', audio: 'Enregistrement trop long.', missing: 'Indiquez votre prénom et le destinataire.', server: 'Un souci, réessayez.' }
+      errs: { pin: 'Le code fait 4 à 8 chiffres.', links: 'Pas de liens dans les noms.', phone: 'Pas de numéros.', rate: 'Trop de messages cette heure-ci.', audio: 'Enregistrement trop long.', missing: 'Indiquez votre prénom et le destinataire.', server: 'Un souci, réessayez.' }
     }
   };
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
@@ -53,50 +56,21 @@
   let songChoice = 'now';
   let got = null;               // a voice note that arrived by link
   const fromSaved = S.store.get('dedFrom', null) || {};
-  const fields = { from: fromSaved.fromName || '', to: '' };
+  const fields = { from: (window.SawtMe && window.SawtMe.name()) || fromSaved.fromName || '', to: '' };
+  let target = 'new', roomPin = '';
 
-  function pickMime() {
-    if (!window.MediaRecorder) return null;
-    for (const m of ['audio/webm;codecs=opus', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/webm']) {
-      try { if (MediaRecorder.isTypeSupported(m)) return m; } catch { /* old */ }
-    }
-    return '';
-  }
+  let handle = null;
   async function startRec() {
     err = '';
-    const m = pickMime();
-    if (m === null || !navigator.mediaDevices) { err = t('noRec'); render(); return; }
-    try { stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); }
-    catch { err = t('noMic'); render(); return; }
-    // radio and tapes pause while you speak
-    if (S.isOn && S.isOn()) S.setPower(false);
-    if (window.SawtScreen && window.SawtScreen.current()) window.SawtScreen.close();
-    chunks = []; blob = null;
-    rec = new MediaRecorder(stream, m ? { mimeType: m, audioBitsPerSecond: 32000 } : { audioBitsPerSecond: 32000 });
-    mime = rec.mimeType || m || 'audio/webm';
-    rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-    rec.onstop = () => {
-      blob = new Blob(chunks, { type: mime });
-      stream.getTracks().forEach(tr => tr.stop());
-      state = 'done'; render();
-    };
     try {
-      const ac = new (window.AudioContext || window.webkitAudioContext)();
-      const src = ac.createMediaStreamSource(stream);
-      analyser = ac.createAnalyser(); analyser.fftSize = 512; src.connect(analyser);
-    } catch { analyser = null; }
-    rec.start(250);
-    state = 'recording'; tStart = Date.now(); seconds = 0;
-    clearInterval(timer);
-    timer = setInterval(() => {
-      seconds = (Date.now() - tStart) / 1000;
-      if (analyser) { const a = new Uint8Array(analyser.fftSize); analyser.getByteTimeDomainData(a); let m2 = 0; for (const v of a) m2 = Math.max(m2, Math.abs(v - 128)); level = Math.min(1, m2 / 60); }
-      if (seconds >= MAX) stopRec();
-      paintRec();
-    }, 100);
-    render();
+      handle = await window.SawtRec.start((sec, lv) => { seconds = sec; level = lv; paintRec(); }, MAX);
+      state = 'recording'; seconds = 0; blob = null;
+      render();
+      handle.done.then(r => { blob = r.blob; mime = r.mime; seconds = r.seconds; handle = null; state = 'done'; render(); });
+    } catch (e) { err = e.code === 'nomic' ? t('noMic') : t('noRec'); render(); }
   }
-  function stopRec() { clearInterval(timer); if (rec && rec.state !== 'inactive') rec.stop(); }
+  // stop() resolves the same promise the start set up, so render happens there
+  function stopRec() { if (handle) handle.stop(); }
 
   function songObj() {
     if (songChoice === 'none') return { kind: 'none', id: '', name: '' };
@@ -124,18 +98,23 @@
     const song = songObj();
     const text = t('shareText', fields.from, fields.to);
     err = '';
-    if (storeOn) {
+    if (storeOn && window.SawtRooms) {
+      const R = window.SawtRooms;
       state = 'sending'; render();
       try {
-        const res = await fetch('/api/voice', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: mime, audio: await toB64(blob), fromName: fields.from, toName: fields.to, song, seconds: Math.round(seconds), lang: S.lang() }) });
-        const data = await res.json().catch(() => ({}));
-        if (!res.ok) { err = t('errs')[data.code] || t('errs').server; state = 'done'; render(); return; }
-        const url = `${location.origin}/v/${data.id}`;
+        let room = R.list().find(r => r.id === target);
+        let fresh = false;
+        if (!room) {
+          const pin = String(roomPin).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g, '');
+          if (pin.length < 4 || pin.length > 8) { err = t('errs').pin; state = 'done'; render(); return; }
+          room = await R.create(`${fields.from} ↔ ${fields.to}`, fields.from, pin);
+          fresh = true;
+        }
+        await R.sendVoice(room, { blob, mime, seconds }, { song, text: t('forX', fields.to) });
         state = 'sent'; render();
-        if (navigator.share) { try { await navigator.share({ text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
-        window.open('https://wa.me/?text=' + encodeURIComponent(`${text}\n${url}`), '_blank', 'noopener');
-      } catch { err = t('errs').server; state = 'done'; render(); }
+        if (fresh) R.invite(room, true);
+        else S.toast(t('sent'));
+      } catch (e) { err = t('errs')[e.code] || t('errs').server; state = 'done'; render(); }
       return;
     }
     // no shared store: send the recording itself
@@ -193,6 +172,19 @@
     } else if (state === 'done' || state === 'sending' || state === 'sent') {
       const au = el('audio', { controls: true, src: URL.createObjectURL(blob), className: 'vc-audio' });
       kids.push(au);
+      if (storeOn && window.SawtRooms && state !== 'sent') {
+        const rs = window.SawtRooms.list();
+        const sel2 = el('select', { 'aria-label': t('sendTo') }, [el('option', { value: 'new', text: t('newRoomWith', fields.to || '…') }), ...rs.map(r => el('option', { value: r.id, text: '🛋️ ' + r.title }))]);
+        if (target !== 'new' && !rs.some(r => r.id === target)) target = 'new';
+        sel2.value = target;
+        sel2.addEventListener('change', () => { target = sel2.value; render(); });
+        kids.push(el('label', { className: 'field' }, [el('span', { text: t('sendTo') }), sel2]));
+        if (target === 'new') {
+          const pin = el('input', { inputMode: 'numeric', maxLength: 8, value: roomPin, placeholder: '1234', autocomplete: 'off' });
+          pin.addEventListener('input', () => { roomPin = pin.value; });
+          kids.push(el('label', { className: 'field' }, [el('span', { text: t('roomPin') }), pin]), el('p', { className: 'quiet small', text: t('roomNote') }));
+        }
+      }
       row.append(btn('↺ ' + t('again'), '', startRec));
       if (state === 'sent') row.append(el('span', { className: 'vc-sent', text: t('sent') }));
       const s = btn(state === 'sending' ? t('sending') : '💌 ' + t('send'), 'btn-primary', send);
@@ -203,7 +195,7 @@
     }
     kids.push(row);
     if (err) kids.push(el('p', { className: 'form-error', role: 'alert', text: err }));
-    kids.push(el('p', { className: 'quiet small', text: storeOn ? t('private') : t('fileNote') }));
+    kids.push(el('p', { className: 'quiet small', text: storeOn ? t('roomNote') : t('fileNote') }));
     box.replaceChildren(...kids);
   }
 
@@ -243,6 +235,7 @@
 
   document.addEventListener('sawt:config', e => { storeOn = !!(e.detail && e.detail.dedications); if (storeOn) loadGot(); render(); });
   document.addEventListener('sawt:lang', render);
+  document.addEventListener('sawt:me', () => { if (!fields.from && window.SawtMe) { fields.from = window.SawtMe.name(); render(); } });
   document.addEventListener('sawt:panel', e => { if (e.detail === 'phone' && state !== 'recording') render(); });
   render();
 })();

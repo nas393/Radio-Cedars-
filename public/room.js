@@ -37,13 +37,13 @@
       objects: {
         radio: 'الراديو', tv: 'التلفزيون', news: 'الجريدة', phone: 'إهداء للأهل', photos: 'صور العيلة',
         cassettes: 'الشرايط', clock: 'الساعة', lamp: 'اللمبادير', window: 'البلكون', calendar: 'المناسبات',
-        coffee: 'فنجان القهوة', books: 'سفرة تيتا', expat: 'الغربة', tawleh: 'الطاولة', together: 'قعدة سوا',
+        coffee: 'فنجان القهوة', books: 'سفرة تيتا', expat: 'الغربة', tawleh: 'الطاولة والشدّة', together: 'قعدة سوا',
         teta: 'كرسي تيتا', ac: 'المكيّف'
       },
       hints: {
-        radio: 'محطات لبنان مباشرة', tv: 'البث المباشر', news: 'أخبار اليوم', phone: 'بصوتك أو بكلمة', photos: 'علّق صورك',
-        cassettes: 'أغاني لكل جوّ', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'الطقس بلبنان', calendar: 'الأعياد والمناسبات',
-        coffee: 'نقرا الفنجان؟', books: 'طبخات تيتا', expat: 'بيروت من بعيد', tawleh: 'شي دقّ طاولة؟', together: 'اسمعوا سوا من بعيد',
+        radio: 'محطات لبنان مباشرة', tv: 'مباشر عالشاشة', news: 'أخبار اليوم', phone: 'بصوتك أو بكلمة', photos: 'علّق صورك',
+        cassettes: 'أغاني لكل جوّ', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'ضيعتي والطقس', calendar: 'الأعياد والمناسبات',
+        coffee: 'نقرا الفنجان؟', books: '٣٠ طبخة + طبخاتك', expat: 'بيروت من بعيد', tawleh: 'طاولة، طرنيب، ليخة', together: 'غرف العيلة برمز',
         teta: 'كبير وسهل', ac: 'الوقت والطقس'
       },
       tvLede: 'اختار قناة، وبتشتغل هون عالتلفزيون.',
@@ -84,13 +84,13 @@
       objects: {
         radio: 'Radio', tv: 'Television', news: 'Newspaper', phone: 'Dedication', photos: 'Family photos',
         cassettes: 'Tapes', clock: 'Clock', lamp: 'Lamp', window: 'Balcony', calendar: 'Occasions',
-        coffee: 'Coffee cup', books: 'Teta’s table', expat: 'Far from home', tawleh: 'Tawleh', together: 'Listen together',
+        coffee: 'Coffee cup', books: 'Teta’s table', expat: 'Far from home', tawleh: 'Tawleh & cards', together: 'Family rooms',
         teta: 'Teta’s chair', ac: 'Air conditioner'
       },
       hints: {
         radio: 'Lebanese stations, live', tv: 'Live channels', news: 'Today’s headlines', phone: 'In your voice or in words', photos: 'Hang your photos',
-        cassettes: 'A song for every mood', clock: 'Alarm', lamp: 'Sleep timer', window: 'Weather in Lebanon', calendar: 'Feasts and holidays',
-        coffee: 'Read my cup?', books: 'Teta’s recipes', expat: 'Beirut from afar', tawleh: 'Fancy a game?', together: 'Same song, miles apart',
+        cassettes: 'A song for every mood', clock: 'Alarm', lamp: 'Sleep timer', window: 'My village, weather', calendar: 'Feasts and holidays',
+        coffee: 'Read my cup?', books: '30 recipes + yours', expat: 'Beirut from afar', tawleh: 'Tawleh, Tarneeb, Likha', together: 'Private, with a passcode',
         teta: 'Big and simple', ac: 'Time and weather'
       },
       tvLede: 'Pick a channel and it plays right here on the TV.',
@@ -131,13 +131,13 @@
       objects: {
         radio: 'Radio', tv: 'Télévision', news: 'Journal', phone: 'Dédicace', photos: 'Photos de famille',
         cassettes: 'Cassettes', clock: 'Horloge', lamp: 'Lampe', window: 'Balcon', calendar: 'Fêtes',
-        coffee: 'Tasse de café', books: 'La table de Teta', expat: 'Loin du pays', tawleh: 'Tawlé', together: 'Écouter ensemble',
+        coffee: 'Tasse de café', books: 'La table de Teta', expat: 'Loin du pays', tawleh: 'Tawlé et cartes', together: 'Pièces de famille',
         teta: 'Le fauteuil de Teta', ac: 'Climatiseur'
       },
       hints: {
         radio: 'Radios libanaises en direct', tv: 'Chaînes en direct', news: 'Les titres du jour', phone: 'De vive voix ou par écrit', photos: 'Accrochez vos photos',
-        cassettes: 'Une chanson pour chaque humeur', clock: 'Réveil', lamp: 'Minuterie', window: 'La météo au Liban', calendar: 'Fêtes et jours fériés',
-        coffee: 'Lire ma tasse ?', books: 'Les recettes de Teta', expat: 'Beyrouth de loin', tawleh: 'Une partie ?', together: 'La même chanson, de loin',
+        cassettes: 'Une chanson pour chaque humeur', clock: 'Réveil', lamp: 'Minuterie', window: 'Mon village, la météo', calendar: 'Fêtes et jours fériés',
+        coffee: 'Lire ma tasse ?', books: '30 recettes + les vôtres', expat: 'Beyrouth de loin', tawleh: 'Tawlé, Tarneeb, Likha', together: 'Privées, avec un code',
         teta: 'Grand et simple', ac: 'Heure et météo'
       },
       tvLede: 'Choisissez une chaîne, elle passe ici, sur la télé.',
@@ -1442,6 +1442,7 @@
   // ---- Teta's recipes
   let recipeId = (C.recipes && C.recipes[0] && C.recipes[0].id) || null;
   function renderRecipes() {
+    if (!$('recipe-tabs') || window.SawtCook) return;     // the cookbook (cook.js) draws this drawer
     const list = C.recipes || [];
     const lang = S.lang();
     $('recipe-tabs').replaceChildren(...list.map(rc => {

@@ -148,7 +148,7 @@
     out.href = outLink(c);
     out.textContent = c.src === 'sp' ? w('onSpotify') : w('onYouTube');
     $('screen-close').setAttribute('aria-label', w('close'));
-    $('screen-tv').hidden = !(window.SawtRoom && (c.kind === 'live' || (c.kind === 'tape' && c.src === 'yt')));
+    $('screen-tv').hidden = !(window.SawtTV && c.kind === 'tape' && c.src === 'yt');
     $('screen-tv').setAttribute('aria-label', w('onTv'));
     setOff.setAttribute('aria-label', w('close'));
     $('screen-expand').setAttribute('aria-label', w('expand'));
@@ -180,12 +180,12 @@
   setOff.addEventListener('click', close);
   // put the picture on the TV in the room: close the drawer, turn and zoom to the set
   $('screen-tv').addEventListener('click', () => {
-    if (!current || !window.SawtRoom) return;
-    current.onSet = true;
-    player.classList.remove('is-big');
-    const sheetClose = $('sheet-close');
-    if ($('sheet').classList.contains('is-open')) sheetClose.click();
-    setTimeout(() => window.SawtRoom.focusTv(), 60);
+    if (!current || !window.SawtTV || current.kind !== 'tape') return;
+    const mood = current.mood;
+    close();
+    window.SawtTV.playTape(mood);
+    if ($('sheet').classList.contains('is-open')) $('sheet-close').click();
+    setTimeout(() => window.SawtRoom && window.SawtRoom.focusTv(), 340);
   });
   $('screen-expand').addEventListener('click', () => { player.classList.toggle('is-big'); place(); });
 
@@ -269,34 +269,14 @@
   $('sheet-body').addEventListener('scroll', place, { passive: true });
 
   // ------------------------------------------------------------------ wiring the TV and the tapes
-  $('channels').addEventListener('click', e => {
-    const a = e.target.closest('a');
-    if (!a) return;
-    const li = a.closest('.channel');
-    const name = li && li.querySelector('.channel-name') ? li.querySelector('.channel-name').textContent : '';
-    const id = CHANNELS[name];
-    if (!id) return;              // unknown channel: let the link open YouTube
-    e.preventDefault();
-    play({ kind: 'live', src: 'yt', channel: id, name, home: 'tv' });
-  });
-  // tag channel rows with their ids so the playing one can be marked
-  function tagChannels() {
-    document.querySelectorAll('#channels .channel').forEach(li => {
-      const n = li.querySelector('.channel-name');
-      if (n && CHANNELS[n.textContent]) li.dataset.channel = CHANNELS[n.textContent];
-    });
-  }
-  tagChannels();
-  document.addEventListener('sawt:lang', () => { tagChannels(); renderHead(); if (current && current.kind === 'tape') current.name = current.mood[S.lang()] || current.mood.en; renderHead(); });
+  // the TV channels play on the set itself (tvset.js)
+  document.addEventListener('sawt:lang', () => { renderHead(); if (current && current.kind === 'tape') current.name = current.mood[S.lang()] || current.mood.en; renderHead(); });
 
   window.SawtScreen = {
     playTape(mood, src) {
       play({ kind: 'tape', src: src || 'yt', mood, name: mood[S.lang()] || mood.en, home: 'cassettes' });
     },
-    playLive(id) {
-      const name = Object.keys(CHANNELS).find(k => CHANNELS[k] === id);
-      if (name) play({ kind: 'live', src: 'yt', channel: id, name, home: 'tv' });
-    },
+    playLive(id) { if (window.SawtTV) window.SawtTV.tune(id); },
     close,
     place,
     current: () => current

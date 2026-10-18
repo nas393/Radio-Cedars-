@@ -8,13 +8,22 @@ const dedications = require('./lib/dedications');
 const admin = require('./lib/admin');
 const together = require('./lib/together');
 const voice = require('./lib/voice');
+const profiles = require('./lib/profiles');
+const recipes = require('./lib/recipes');
+const morning = require('./lib/morning');
 
 const app = express();
 app.disable('x-powered-by');
 // Small JSON bodies everywhere, except voice notes (a few hundred KB of audio).
 const smallJson = express.json({ limit: '10kb' });
-const voiceJson = express.json({ limit: '700kb' });
-app.use((req, res, next) => (req.path === '/api/voice' ? voiceJson : smallJson)(req, res, next));
+const bigJson = express.json({ limit: '700kb' });
+const midJson = express.json({ limit: '200kb' });
+app.use((req, res, next) => {
+  const p = req.path;
+  if (p === '/api/voice' || /^\/api\/q\/[^/]+\/voice$/.test(p)) return bigJson(req, res, next);
+  if (p.startsWith('/api/profile') || p === '/api/recipes' || /^\/api\/q\/[^/]+\/game$/.test(p)) return midJson(req, res, next);
+  return smallJson(req, res, next);
+});
 const PORT = process.env.PORT || 3000;
 const USER_AGENT = 'SawtElBeit/2.0 (Lebanese radio and news for the diaspora)';
 
@@ -468,9 +477,11 @@ app.get('/v/:id', async (req, res) => {
   sendPreview(req, res, meta, `v=${encodeURIComponent(req.params.id)}`);
 });
 
-app.get('/q/:id', (req, res) => {
+app.get('/q/:id', async (req, res) => {
+  let title = null;
+  try { if (store.enabled) title = (await together.peek(req.params.id)).title; } catch { /* generic */ }
   sendPreview(req, res, {
-    title: '🛋️ تعا نقعد سوا · صوت البيت',
+    title: title ? `🛋️ ${title} · صوت البيت` : '🛋️ تعا نقعد سوا · صوت البيت',
     description: 'نفس الإذاعة، بنفس اللحظة، ولو كل واحد ببلد. Come and listen together on Sawt el Beit.'
   }, `listen=${encodeURIComponent(req.params.id)}`);
 });
@@ -519,8 +530,11 @@ app.post('/api/alerts/unsubscribe', noStore, needStore, async (req, res) => {
 
 // Called every 10 minutes by the scheduled GitHub workflow (and harmless to call by hand).
 app.all('/api/alerts/check', noStore, needStore, async (req, res) => {
-  try { res.json(await alerts.check(getNews)); }
-  catch (err) { fail(res, err); }
+  try {
+    const out = await alerts.check(getNews);
+    try { Object.assign(out, await morning.maybeSend(weatherAt)); } catch (err) { console.error('[morning]', err.message); }
+    res.json(out);
+  } catch (err) { fail(res, err); }
 });
 
 app.get('/api/dedications', needStore, async (req, res) => {
@@ -555,21 +569,90 @@ app.post('/api/dedications', noStore, needStore, async (req, res) => {
 // ---------------------------------------------------------------------------
 // Listen together (rooms), voice dedications, exchange rates
 // ---------------------------------------------------------------------------
-app.post('/api/q', noStore, needStore, async (req, res) => {
-  try { res.json(await together.create(req.body, clientIp(req))); } catch (err) { fail(res, err); }
+const qTok = req => String(req.get('x-q-token') || (req.body && req.body.token) || req.query.token || '');
+const qRoute = (fn) => async (req, res) => { try { res.json(await fn(req)); } catch (err) { fail(res, err); } };
+app.post('/api/q', noStore, needStore, qRoute(req => together.create(req.body, clientIp(req))));
+app.get('/api/q/:id/peek', noStore, needStore, qRoute(req => together.peek(req.params.id)));
+app.post('/api/q/:id/join', noStore, needStore, qRoute(req => together.join(req.params.id, req.body, clientIp(req))));
+app.get('/api/q/:id', noStore, needStore, qRoute(req => together.read(req.params.id, { ...req.query, token: qTok(req) })));
+app.post('/api/q/:id/say', noStore, needStore, qRoute(req => together.say(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
+app.post('/api/q/:id/voice', noStore, needStore, qRoute(req => together.voice(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
+app.post('/api/q/:id/play', noStore, needStore, qRoute(req => together.play(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/game', noStore, needStore, qRoute(req => together.gameSet(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/move', noStore, needStore, qRoute(req => together.gameMove(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/game/end', noStore, needStore, qRoute(req => together.gameEnd(req.params.id, { ...req.body, token: qTok(req) })));
+app.get('/api/q/:id/audio/:aid', needStore, async (req, res) => {
+  try {
+    const a = await together.audio(req.params.id, req.params.aid, qTok(req));
+    res.set('Cache-Control', 'private, max-age=86400');
+    res.type(a.type).send(Buffer.from(a.audio, 'base64'));
+  } catch (err) { res.status(err.status || 500).end(); }
 });
-app.get('/api/q/:id', noStore, needStore, async (req, res) => {
-  try { res.json(await together.read(req.params.id, req.query.since)); } catch (err) { fail(res, err); }
+
+// "Who's home?": the same person on another device
+app.post('/api/profile/login', noStore, needStore, qRoute(req => profiles.login(req.body, clientIp(req))));
+app.post('/api/profile/save', noStore, needStore, qRoute(req => profiles.save(req.body)));
+app.post('/api/profile/forget', noStore, needStore, qRoute(req => profiles.forget(req.body)));
+
+// The family cookbook
+app.get('/api/recipes', needStore, async (req, res) => {
+  try { res.set('Cache-Control', 'public, max-age=60, s-maxage=300'); res.json({ items: await recipes.list() }); } catch (err) { fail(res, err); }
 });
-app.post('/api/q/:id/hello', noStore, needStore, async (req, res) => {
-  try { res.json(await together.hello(req.params.id, req.body)); } catch (err) { fail(res, err); }
+app.post('/api/recipes', noStore, needStore, async (req, res) => {
+  try {
+    const r = await recipes.submit(req.body, clientIp(req));
+    alerts.notifyAdmins({ title: 'New recipe waiting', body: String(req.body && req.body.title || ''), url: '/admin', tag: 'recipe' }).catch(() => {});
+    res.json(r);
+  } catch (err) { fail(res, err); }
 });
-app.post('/api/q/:id/say', noStore, needStore, async (req, res) => {
-  try { res.json(await together.say(req.params.id, req.body, clientIp(req))); } catch (err) { fail(res, err); }
+
+// Villages and their weather (Open-Meteo, free and keyless)
+const placeCache = new Map();
+app.get('/api/places', async (req, res) => {
+  const q = String(req.query.q || '').trim().slice(0, 40);
+  if (q.length < 2) return res.json({ items: [] });
+  const lang = ['ar', 'en', 'fr'].includes(req.query.lang) ? req.query.lang : 'en';
+  const key = lang + ':' + q.toLowerCase();
+  if (placeCache.has(key)) return res.json(placeCache.get(key));
+  try {
+    const r = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=12&language=${lang}&format=json&countryCode=LB`, { headers: { 'User-Agent': USER_AGENT }, signal: AbortSignal.timeout(6000) });
+    const data = await r.json();
+    const items = ((data && data.results) || []).filter(x => x.country_code === 'LB').map(x => ({ id: x.id, name: x.name, area: x.admin2 || x.admin1 || '', lat: +x.latitude.toFixed(3), lon: +x.longitude.toFixed(3) }));
+    const body = { items };
+    if (placeCache.size > 500) placeCache.clear();
+    placeCache.set(key, body);
+    res.set('Cache-Control', 'public, max-age=86400');
+    res.json(body);
+  } catch (err) { console.error('[places]', err.message); res.json({ items: [] }); }
 });
-app.post('/api/q/:id/play', noStore, needStore, async (req, res) => {
-  try { res.json(await together.play(req.params.id, req.body)); } catch (err) { fail(res, err); }
+const atCache = new Map();
+async function weatherAt(lat, lon) {
+  const key = `${(+lat).toFixed(2)},${(+lon).toFixed(2)}`;
+  const hit = atCache.get(key);
+  if (hit && Date.now() - hit.t < 20 * 60e3) return hit.v;
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code,is_day&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=Asia%2FBeirut&forecast_days=4`;
+  const r = await fetch(url, { headers: { 'User-Agent': USER_AGENT }, signal: AbortSignal.timeout(6000) });
+  const d = await r.json();
+  if (!d || !d.current) throw new Error('no weather');
+  const v = {
+    temperature: Math.round(d.current.temperature_2m), code: d.current.weather_code, isDay: d.current.is_day,
+    min: Math.round(d.daily.temperature_2m_min[0]), max: Math.round(d.daily.temperature_2m_max[0]),
+    days: d.daily.time.map((t, i) => ({ date: t, code: d.daily.weather_code[i], min: Math.round(d.daily.temperature_2m_min[i]), max: Math.round(d.daily.temperature_2m_max[i]) }))
+  };
+  if (atCache.size > 300) atCache.clear();
+  atCache.set(key, { t: Date.now(), v });
+  return v;
+}
+app.get('/api/weather/at', async (req, res) => {
+  const lat = Number(req.query.lat), lon = Number(req.query.lon);
+  if (!(lat > 32.9 && lat < 34.8 && lon > 34.9 && lon < 36.8)) return res.status(400).json({ error: 'outside Lebanon', code: 'place' });
+  try { res.set('Cache-Control', 'public, max-age=600, s-maxage=900'); res.json(await weatherAt(lat, lon)); }
+  catch (err) { res.status(502).json({ error: 'weather unavailable', code: 'weather' }); }
 });
+
+// The 7 o'clock greeting
+app.post('/api/morning/subscribe', noStore, needStore, qRoute(req => morning.subscribe(req.body)));
+app.post('/api/morning/unsubscribe', noStore, needStore, qRoute(req => morning.unsubscribe(req.body)));
 
 app.post('/api/voice', noStore, needStore, async (req, res) => {
   try { res.json(await voice.save(req.body, clientIp(req))); } catch (err) { fail(res, err); }
@@ -646,6 +729,9 @@ app.post('/api/admin/remove', noStore, needStore, needAdmin, async (req, res) =>
   try { await dedications.remove(String((req.body && req.body.id) || '')); res.json({ ok: true }); }
   catch (err) { fail(res, err); }
 });
+app.get('/api/admin/recipes', noStore, needStore, needAdmin, qRoute(async () => ({ pending: await recipes.pending(), approved: await recipes.list() })));
+app.post('/api/admin/recipes/decide', noStore, needStore, needAdmin, qRoute(async req => { const r = await recipes.decide(String(req.body.id || ''), Boolean(req.body.approve)); return { ok: true, status: r.status }; }));
+app.post('/api/admin/recipes/remove', noStore, needStore, needAdmin, qRoute(async req => { await recipes.remove(String(req.body.id || '')); return { ok: true }; }));
 app.get('/api/admin/stats', noStore, needStore, needAdmin, async (req, res) => {
   try { res.json({ subscribers: await alerts.stats(), pending: (await dedications.pending()).length, store: store.kind }); }
   catch (err) { fail(res, err); }
