@@ -41,12 +41,12 @@
         teta: 'كرسي تيتا', ac: 'المكيّف'
       },
       hints: {
-        radio: 'محطات لبنان مباشرة', tv: 'مباشر عالشاشة', news: 'أخبار اليوم', phone: 'بصوتك أو بكلمة', photos: 'علّق صورك',
+        radio: 'محطات لبنان مباشرة', tv: 'برامج ومسلسلات القنوات', news: 'أخبار اليوم', phone: 'بصوتك أو بكلمة', photos: 'علّق صورك',
         cassettes: 'أغاني لكل جوّ', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'ضيعتي والطقس', calendar: 'الأعياد والمناسبات',
         coffee: 'نقرا الفنجان؟', books: '٣٠ طبخة + طبخاتك', expat: 'بيروت من بعيد', tawleh: 'طاولة، طرنيب، ليخة', together: 'غرف العيلة برمز',
         teta: 'كبير وسهل', ac: 'الوقت والطقس'
       },
-      tvLede: 'اختار قناة، وبتشتغل هون عالتلفزيون.',
+      tvLede: 'اكبس عقناة، اختار برنامج أو مسلسل، وبيشتغل هون عالتلفزيون. بلا بثّ مباشر وبلا اشتراك.',
       photosLede: 'رسائل من الغربة لأهلنا بلبنان.',
       cassettesLede: 'شريط لكل جوّ. اضغط وبيشتغل هون بالبيت.',
       lampLede: 'سكّر الراديو لحاله بعد شوي، وإنت عم تغفى.',
@@ -88,12 +88,12 @@
         teta: 'Teta’s chair', ac: 'Air conditioner'
       },
       hints: {
-        radio: 'Lebanese stations, live', tv: 'Live channels', news: 'Today’s headlines', phone: 'In your voice or in words', photos: 'Hang your photos',
+        radio: 'Lebanese stations, live', tv: 'Lebanese channels’ shows', news: 'Today’s headlines', phone: 'In your voice or in words', photos: 'Hang your photos',
         cassettes: 'A song for every mood', clock: 'Alarm', lamp: 'Sleep timer', window: 'My village, weather', calendar: 'Feasts and holidays',
         coffee: 'Read my cup?', books: '30 recipes + yours', expat: 'Beirut from afar', tawleh: 'Tawleh, Tarneeb, Likha', together: 'Private, with a passcode',
         teta: 'Big and simple', ac: 'Time and weather'
       },
-      tvLede: 'Pick a channel and it plays right here on the TV.',
+      tvLede: 'Press a channel, pick a show or series, and it plays right here on the TV. No live streams, nothing to pay.',
       photosLede: 'Messages from abroad to family in Lebanon.',
       cassettesLede: 'A tape for every mood. Tap one and it plays right here.',
       lampLede: 'Let the radio switch itself off while you drift to sleep.',
@@ -135,12 +135,12 @@
         teta: 'Le fauteuil de Teta', ac: 'Climatiseur'
       },
       hints: {
-        radio: 'Radios libanaises en direct', tv: 'Chaînes en direct', news: 'Les titres du jour', phone: 'De vive voix ou par écrit', photos: 'Accrochez vos photos',
+        radio: 'Radios libanaises en direct', tv: 'Émissions des chaînes', news: 'Les titres du jour', phone: 'De vive voix ou par écrit', photos: 'Accrochez vos photos',
         cassettes: 'Une chanson pour chaque humeur', clock: 'Réveil', lamp: 'Minuterie', window: 'Mon village, la météo', calendar: 'Fêtes et jours fériés',
         coffee: 'Lire ma tasse ?', books: '30 recettes + les vôtres', expat: 'Beyrouth de loin', tawleh: 'Tawlé, Tarneeb, Likha', together: 'Privées, avec un code',
         teta: 'Grand et simple', ac: 'Heure et météo'
       },
-      tvLede: 'Choisissez une chaîne, elle passe ici, sur la télé.',
+      tvLede: 'Appuyez sur une chaîne, choisissez une émission ou une série, elle passe ici, sur la télé. Sans direct, sans abonnement.',
       photosLede: 'Des messages de l’étranger pour la famille au Liban.',
       cassettesLede: 'Une cassette pour chaque ambiance. Touchez, elle joue ici.',
       lampLede: 'La radio s’éteint toute seule pendant que vous vous endormez.',

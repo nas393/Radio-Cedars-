@@ -1,6 +1,6 @@
 # 🇱🇧 صوت البيت · Sawt el Beit
 
-"The sound of home": Lebanese radio, news from Lebanon and live Lebanese TV in one page, for Lebanese abroad. Live at https://radio-cedars.vercel.app
+"The sound of home": Lebanese radio, news from Lebanon and Lebanese TV shows in one page, for Lebanese abroad. Live at https://radio-cedars.vercel.app
 
 ## What's on the page
 
@@ -11,7 +11,7 @@ The site is a room: a 1990s Lebanese living room (patchwork sofa, the painting o
 - **The calendar dresses the room**: lights and a star in December, lanterns and a crescent in Ramadan, red-and-white bunting for Independence Day (drawn on the picture; try `/?decor=xmas`).
 - **Tawleh** (on the coffee table): full backgammon rules, against Abou Samir (the computer, with opinions), two players on one phone, or a friend far away: each turn travels as a WhatsApp link (`/?t=…`). A "mars" counts double.
 - **Who's home?** Each person in the family has their own corner (name, picture, favourites, village, recipes, scores, photos), with an optional easy passcode (4–8 digits) on a shared phone. With the store on, the same username and passcode bring a person's things to any device.
-- **The TV stays on the set**: once on, the live channel (LBCI, MTV, Al Jadeed, OTV) plays on the CRT in the room and keeps playing while you open other things; the sound steps aside when the radio or a tape plays. On the side of the set: power, a volume knob you turn like the old ones, channel up/down, and a big-screen button.
+- **The TV stays on the set**: once on, the channel's playlist plays on the CRT in the room and keeps playing while you open other things; the sound steps aside when the radio or a tape plays. On the side of the set: power, a volume knob you turn like the old ones, channel up/down, skip to the next video, and a big-screen button.
 - **Family rooms** (the sofa): a private room behind a passcode its creator picks (`/q/<id>`). Inside: who's here, the same station or tape for everyone at the same moment, written and voice messages back and forth (mama can answer by voice), and a card table for the family.
 - **Voice dedications** (the photos on the dresser): record up to 40 seconds and pick a song; it goes into a family room (new or existing) with a passcode, and they answer by voice. Without the store, the recording itself is shared.
 - **Cards on the coffee table**: Tarneeb (bids 7–13, trump, game to 41) and Likha (pass 3, hearts 1, queen of spades 13, ten of diamonds 10, the must-play rule, 101 ends it), against the computer, or with the family in a room (empty seats are computer players).
@@ -25,7 +25,7 @@ The site is a room: a 1990s Lebanese living room (patchwork sofa, the painting o
 - **The tapes**: twelve tapes, one per mood. They play inside the page: YouTube playlists (full songs for everyone) or Spotify (full songs when logged in to Spotify, previews otherwise). The radio and the tapes never play over each other.
 - **The written dedications wall**: send a song and a message; automatic checks block links, phone numbers and floods; nothing appears until it's approved on `/admin`. Each has a share link (`/d/<id>`).
 - **The newspaper**: news from Annahar, L'Orient-Le Jour, L'Orient Today, Al-Manar English and The961, with **breaking-news alerts**.
-- **The TV**: LBCI, MTV, Al Jadeed and OTV live, playing inside the page and on the TV set in the room. **The balcony** (weather for 8 cities), **the clock** (Beirut time and a morning alarm), **the lamp** (sleep timer), **occasions** (Lebanese holidays, sunrise and sunset, iftar in Ramadan), **the coffee cup** (a cup reading, for fun) and **Teta's table** (recipes).
+- **The TV**: no live streams and nothing paid. Six Lebanese channels (LBCI, MTV, Al Jadeed, OTV, NBN, Télé Liban) as remote buttons; press one to see its official YouTube playlists (programmes, series, bulletins, latest uploads, about 140 in all, in `public/tv-channels.js`), pick one and it plays embedded on the TV set in the room. Videos a channel won't let other sites show are skipped automatically. **The balcony** (weather for 8 cities), **the clock** (Beirut time and a morning alarm), **the lamp** (sleep timer), **occasions** (Lebanese holidays, sunrise and sunset, iftar in Ramadan), **the coffee cup** (a cup reading, for fun) and **Teta's table** (recipes).
 - **Arabic, English and French**, right-to-left aware. Deep links open an object directly: `/#radio`, `/#tawleh`, `/#together`…
 
 The room's pictures live in `public/room/` (`day`, `sunset`, `night`, each with a light `-s` version), upscaled with Real-ESRGAN. Hotspot positions are in `room.js` (`SPOTS`, `TV`, `FRAMES`).

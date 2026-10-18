@@ -57,7 +57,6 @@
       loadingNews: 'جاري تحميل الأخبار…',
       tvHeading: 'تلفزيون مباشر',
       tvNote: 'يفتح البث المباشر على يوتيوب.',
-      watchLive: 'شاهد مباشر',
       weatherHeading: 'الطقس في لبنان',
       highLow: (hi, lo) => `العظمى ${hi}° والصغرى ${lo}°`,
       footer: 'صوت البيت مجاني. المحطات من دليل Radio Browser، والأخبار تتجدد كل ١٠ دقائق.',
@@ -184,7 +183,6 @@
       loadingNews: 'Loading news…',
       tvHeading: 'Live TV',
       tvNote: 'Opens the live broadcast on YouTube.',
-      watchLive: 'Watch live',
       weatherHeading: 'Weather in Lebanon',
       highLow: (hi, lo) => `High ${hi}°, low ${lo}°`,
       footer: 'Sawt el Beit is free. Stations come from the Radio Browser directory; news refreshes every 10 minutes.',
@@ -311,7 +309,6 @@
       loadingNews: 'Chargement des actualités…',
       tvHeading: 'Télé en direct',
       tvNote: 'Ouvre le direct sur YouTube.',
-      watchLive: 'Regarder en direct',
       weatherHeading: 'Météo au Liban',
       highLow: (hi, lo) => `Max ${hi}°, min ${lo}°`,
       footer: 'Sawt el Beit est gratuit. Les stations viennent de l’annuaire Radio Browser ; les actualités se mettent à jour toutes les 10 minutes.',
@@ -401,12 +398,6 @@
     fr: { clear: 'Dégagé', partly: 'Éclaircies', cloudy: 'Nuageux', fog: 'Brouillard', drizzle: 'Bruine', rain: 'Pluie', snow: 'Neige', showers: 'Averses', storm: 'Orage' }
   };
 
-  const TV = [
-    { name: 'LBCI', handle: 'lbcilebanonofficial' },
-    { name: 'MTV Lebanon', handle: 'mtvlebanon' },
-    { name: 'Al Jadeed', handle: 'aljadeednewslb' },
-    { name: 'OTV', handle: 'otvlebanonofficial' }
-  ];
 
   const FAIRUZ = /fair[uo]+z|fayrouz|فيروز|رحبان/i;
   const NEWS_REFRESH_MS = 10 * 60 * 1000;
@@ -530,7 +521,6 @@
     document.querySelectorAll('.lang').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     updateClocks();
     renderWeather();
-    renderTV();
     renderPowerAndFav();
     renderStatus();
     renderNews();
@@ -1357,16 +1347,7 @@
   $('news-refresh').addEventListener('click', loadNews);
   function loadNewsIfStale() { if (!document.hidden && Date.now() - lastNewsLoad >= NEWS_REFRESH_MS) loadNews(); }
 
-  // ================================================================== tv
-
-  function renderTV() {
-    $('channels').replaceChildren(...TV.map(ch => el('li', { className: 'channel' }, [
-      el('a', { href: `https://www.youtube.com/@${ch.handle}/live`, target: '_blank', rel: 'noopener noreferrer' }, [
-        el('span', { className: 'channel-name', text: ch.name, lang: 'en', dir: 'ltr' }),
-        el('span', { className: 'channel-live', text: t('watchLive') })
-      ])
-    ])));
-  }
+  // the TV drawer is drawn by tvset.js from tv-channels.js
 
   // ================================================================== shared with room.js and extras.js
 

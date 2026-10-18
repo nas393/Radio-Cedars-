@@ -73,11 +73,9 @@
   function ytSrc(c) {
     const base = 'https://www.youtube-nocookie.com/embed/';
     const common = 'autoplay=1&playsinline=1&rel=0&modestbranding=1&enablejsapi=1&origin=' + encodeURIComponent(location.origin) + '&hl=' + S.lang();
-    if (c.kind === 'live') return `https://www.youtube.com/embed/live_stream?channel=${c.channel}&${common}`;
     return `${base}videoseries?list=${c.mood.yt}&${common}`;
   }
   function outLink(c) {
-    if (c.kind === 'live') return `https://www.youtube.com/channel/${c.channel}/live`;
     if (c.src === 'sp') return `https://open.spotify.com/playlist/${c.mood.spotify}`;
     return `https://www.youtube.com/playlist?list=${c.mood.yt}`;
   }

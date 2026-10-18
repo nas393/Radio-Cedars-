@@ -85,7 +85,7 @@
     if (!n || n.kind === 'none') return;
     if (n.kind === 'radio') { if (S.showStation(n.id)) S.setPower(true); }
     else if (n.kind === 'tape') { const m = (C.moods || []).find(x => x.id === n.id); if (m && window.SawtScreen) window.SawtScreen.playTape(m, n.src || 'yt'); }
-    else if (n.kind === 'live' && window.SawtTV) window.SawtTV.tune(n.id);
+    else if (n.kind === 'live' && window.SawtTV) window.SawtTV.play(n.id);
   }
   const same = (a, b) => a && b && a.kind === b.kind && a.id === b.id;
   const label = n => (n && n.kind !== 'none' ? `${t(n.kind) || ''} · ${n.name}` : '');
