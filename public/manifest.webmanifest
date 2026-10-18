@@ -1,7 +1,7 @@
 {
-  "name": "وردة Wardé · راديو لبنان",
-  "short_name": "وردة",
-  "description": "راديو لبنان، أخبار لبنان وتلفزيون لبنان المباشر في مكان واحد.",
+  "name": "صوت البيت · Sawt el Beit",
+  "short_name": "صوت البيت",
+  "description": "إذاعات لبنان، أخبار لبنان وتلفزيون لبنان المباشر، أينما كنت. Lebanese radio, news and live TV, wherever you are.",
   "lang": "ar",
   "dir": "rtl",
   "start_url": "/",
@@ -10,9 +10,44 @@
   "background_color": "#0E1F19",
   "theme_color": "#0E1F19",
   "icons": [
-    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" },
-    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
-    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "id": "/",
+  "categories": [
+    "music",
+    "news",
+    "entertainment"
+  ],
+  "shortcuts": [
+    {
+      "name": "فيروز · Fairuz",
+      "url": "/?station=fairuz",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }

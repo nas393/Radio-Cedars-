@@ -1,7 +1,7 @@
 {
-  "name": "warde",
-  "version": "1.1.0",
-  "description": "Wardé (وردة) — Lebanese diaspora hub: Lebanese news, live radio and TV in one page.",
+  "name": "sawt-el-beit",
+  "version": "2.0.0",
+  "description": "Sawt el Beit (\u0635\u0648\u062a \u0627\u0644\u0628\u064a\u062a): Lebanese radio, news and live TV in one page, for Lebanese abroad.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

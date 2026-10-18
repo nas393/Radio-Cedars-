@@ -1,8 +1,8 @@
-// Wardé service worker: keeps the page shell available offline and
+// Sawt el Beit service worker: keeps the page shell available offline and
 // shows the last headlines when the connection drops. Radio streams and
 // other sites are never touched.
-const CACHE = 'warde-v2';
-const SHELL = ['/', '/app.css', '/app.js', '/icon.svg', '/manifest.webmanifest'];
+const CACHE = 'sawt-v1';
+const SHELL = ['/', '/app.css', '/app.js', '/icon.svg', '/manifest.webmanifest', '/icon-192.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));

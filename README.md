@@ -1,6 +1,6 @@
-# 🇱🇧 Wardé (وردة) — Lebanese Diaspora Hub
+# 🇱🇧 صوت البيت · Sawt el Beit
 
-One page for Lebanese abroad: the latest headlines from Lebanon, live Lebanese radio, and quick links to the main TV channels' live broadcasts.
+"The sound of home": Lebanese radio, news from Lebanon and live Lebanese TV in one page, for Lebanese abroad. Live at https://radio-cedars.vercel.app
 
 ## What's on the page
 
@@ -8,9 +8,13 @@ One page for Lebanese abroad: the latest headlines from Lebanon, live Lebanese r
 - **Favourites and memory**: star stations, filter to favourites or Fairuz, and the last station is remembered.
 - **Lock-screen controls**: play, stop and next/previous station from the phone's lock screen.
 - **Beirut time and weather** next to your local time, and between 6 and 10 am Beirut time a one-tap "Fairuz in the morning".
-- **News**: Annahar, L'Orient Today, Al-Manar English and The961 in tabs. Direct feeds first, Google News for the same outlet when a site blocks servers. Refreshed every 10 minutes.
+- **News**: Annahar, L'Orient-Le Jour (French), L'Orient Today, Al-Manar English and The961 in tabs. Direct feeds first, Google News for the same outlet when a site blocks servers. Refreshed every 10 minutes.
 - **TV**: LBCI, MTV Lebanon, Al Jadeed and OTV open their official YouTube live pages.
-- **Arabic and English**, right-to-left aware, and installable to the home screen.
+- **Morning alarm and sleep timer**: wake up to any station with a slow fade-in (snooze included), or let the radio switch itself off after 15–90 minutes.
+- **Search and share**: find a station by name; share it as a link (`/s/<station>`) whose WhatsApp preview names the station.
+- **Mini-player** that stays on screen while you read the news.
+- **Weather across Lebanon**: Beirut, Tripoli, Saida, Tyre, Zahle, Jounieh, Baalbek and Nabatieh.
+- **Arabic, English and French**, right-to-left aware, and installable to the home screen.
 
 ## Run it
 
@@ -29,7 +33,8 @@ Then open http://localhost:3000.
 |---|---|
 | `GET /api/news` | Headlines grouped by source (`ok: false` if a source is down) |
 | `GET /api/radio` | Working HTTPS radio stations |
-| `GET /api/weather` | Current Beirut weather (Open-Meteo) |
+| `GET /api/weather` | Current weather for 8 Lebanese cities (Open-Meteo) |
+| `GET /s/:id` | The page, with a share preview naming that station |
 | `GET /api/health` | `{ "ok": true }` |
 
 ## Adding sources
