@@ -1202,7 +1202,8 @@
 
   let setVisible = true;
   function updateMini() {
-    const show = !setVisible && stations.length > 0;
+    // In the room the radio bar is always there once there are stations.
+    const show = stations.length > 0;
     $('mini').hidden = !show;
     document.body.classList.toggle('has-mini', show);
   }

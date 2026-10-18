@@ -18,6 +18,11 @@
       introEnter: 'ادخل',
       dragHint: 'اسحب لتتفرّج على الغرفة',
       dockLabel: 'أغراض الغرفة',
+      turnLeft: 'لفّ عالشمال', turnRight: 'لفّ عاليمين', tapToOpen: 'اضغط لتفتح',
+      lookAround: 'اسحب لتتفرّج', allObjects: 'الصالون', allObjectsTitle: 'شو في بالصالون؟',
+      paperName: 'جريدة البيت', paperPrice: 'الثمن ١٠٠٠ ل.ل.', comingUp: 'المناسبات الجايّة',
+      tearNext: 'اقلب الورقة', tearBack: 'رجوع لليوم', sea: 'البحر المتوسط',
+      daysLeft: n => n === 0 ? 'اليوم' : n === 1 ? 'بكرا' : `بعد ${S.num(n)} يوم`,
       close: 'سكّر',
       scenes: { sunrise: 'طلوع الشمس', day: 'الضهر', afternoon: 'بعد الضهر', sunset: 'المغرب', night: 'الليل' },
       sceneManual: 'اضغط لتغيّر الوقت',
@@ -54,6 +59,11 @@
       introEnter: 'Come in',
       dragHint: 'Drag to look around the room',
       dockLabel: 'Things in the room',
+      turnLeft: 'Turn left', turnRight: 'Turn right', tapToOpen: 'Tap to open',
+      lookAround: 'Drag to look around', allObjects: 'The room', allObjectsTitle: 'What’s in the room',
+      paperName: 'The Home Gazette', paperPrice: 'LBP 1,000', comingUp: 'Coming up',
+      tearNext: 'Tear the page', tearBack: 'Back to today', sea: 'Mediterranean Sea',
+      daysLeft: n => n === 0 ? 'Today' : n === 1 ? 'Tomorrow' : `In ${n} days`,
       close: 'Close',
       scenes: { sunrise: 'Sunrise', day: 'Midday', afternoon: 'Afternoon', sunset: 'Sunset', night: 'Night' },
       sceneManual: 'Tap to change the time',
@@ -90,6 +100,11 @@
       introEnter: 'Entrer',
       dragHint: 'Faites glisser pour regarder autour',
       dockLabel: 'Les objets du salon',
+      turnLeft: 'Tourner à gauche', turnRight: 'Tourner à droite', tapToOpen: 'Touchez pour ouvrir',
+      lookAround: 'Glissez pour regarder', allObjects: 'Le salon', allObjectsTitle: 'Dans le salon',
+      paperName: 'La Gazette de la maison', paperPrice: '1 000 L.L.', comingUp: 'À venir',
+      tearNext: 'Arracher la page', tearBack: 'Revenir à aujourd’hui', sea: 'Mer Méditerranée',
+      daysLeft: n => n === 0 ? 'Aujourd’hui' : n === 1 ? 'Demain' : `Dans ${n} jours`,
       close: 'Fermer',
       scenes: { sunrise: 'Lever du soleil', day: 'Midi', afternoon: 'Après-midi', sunset: 'Coucher du soleil', night: 'Nuit' },
       sceneManual: 'Touchez pour changer l’heure',
@@ -360,8 +375,12 @@
     needsDraw = true;
   }
 
+  // The object closest to the middle of the view is "in focus": it gets its
+  // label, and the card at the bottom offers to open it.
+  let focusId = null;
   function placeHotspots() {
     const { r: rr, u, f } = basis();
+    let best = null, bestDot = Math.cos(20 * RAD);
     const [tx, ty] = tanHalf();
     const W = canvas.clientWidth, H = canvas.clientHeight;
     for (const o of OBJECTS) {
@@ -370,6 +389,7 @@
       const y = o.yaw * RAD, p = o.pitch * RAD;
       const h = [Math.sin(y) * Math.cos(p), Math.sin(p), -Math.cos(y) * Math.cos(p)];
       const z = h[0] * f[0] + h[1] * f[1] + h[2] * f[2];
+      if (z > bestDot) { bestDot = z; best = o.id; }
       if (z < 0.2) { b.style.visibility = 'hidden'; continue; }
       const x = (h[0] * rr[0] + h[1] * rr[1] + h[2] * rr[2]) / z / tx;
       const yy = (h[0] * u[0] + h[1] * u[1] + h[2] * u[2]) / z / ty;
@@ -377,7 +397,34 @@
       b.style.visibility = 'visible';
       b.style.transform = `translate(${((x + 1) / 2 * W).toFixed(1)}px, ${((1 - yy) / 2 * H).toFixed(1)}px)`;
     }
+    if (best !== focusId) setFocus(best);
   }
+
+  function setFocus(id) {
+    focusId = id;
+    hotEls.forEach((b, k) => b.classList.toggle('is-focus', k === id));
+    const card = $('focus-card');
+    card.classList.toggle('is-empty', !id);
+    $('focus-name').textContent = id ? r('objects')[id] : r('lookAround');
+    $('focus-hint').textContent = id ? r('hints')[id] : '';
+    card.setAttribute('aria-label', id ? `${r('objects')[id]}: ${r('hints')[id]}. ${r('tapToOpen')}` : r('allObjectsTitle'));
+    card.classList.remove('is-new'); void card.offsetWidth; if (id) card.classList.add('is-new');
+  }
+
+  // Step to the next object to the left or right.
+  function step(dir) {
+    const list = OBJECTS.filter(o => !hidden.has(o.id));
+    let bestO = null, bestD = 1e9;
+    for (const o of list) {
+      let d = ((o.yaw - view.yaw) * dir + 720) % 360;
+      if (o.id === focusId || d < 4) d += 360;
+      if (d < bestD) { bestD = d; bestO = o; }
+    }
+    if (bestO) { hideHint(); turnTo(bestO.yaw, Math.max(-22, Math.min(14, bestO.pitch * 0.85))); }
+  }
+  $('focus-prev').addEventListener('click', () => step(-1));
+  $('focus-next').addEventListener('click', () => step(1));
+  $('focus-card').addEventListener('click', () => { if (focusId) openObject(focusId, true); else openGrid(); });
 
   // ------------------------------------------------------------------ looking around
 
@@ -562,24 +609,44 @@
     }
   }, 30000);
 
-  // ================================================================== the dock
+  // ================================================================== the whole room at a glance
 
-  const dock = $('dock');
-  function renderDock() {
-    dock.replaceChildren(...OBJECTS.filter(o => !hidden.has(o.id)).map(o => {
-      const img = el('img', { className: 'dock-img', alt: '', loading: 'lazy', decoding: 'async', src: `/room/thumb-${o.id}.jpg` });
+  const grid = $('objects');
+  function renderGrid() {
+    $('objects-grid').replaceChildren(...OBJECTS.filter(o => !hidden.has(o.id)).map((o, i) => {
+      const img = el('img', { className: 'tile-img', alt: '', loading: 'lazy', decoding: 'async', src: `/room/thumb-${o.id}.jpg` });
       img.addEventListener('error', () => img.remove());
-      const b = el('button', { type: 'button', className: 'dock-item' }, [
+      const b = el('button', { type: 'button', className: 'tile' }, [
         img,
-        el('span', { className: 'dock-name', text: r('objects')[o.id] }),
-        el('span', { className: 'dock-hint', text: r('hints')[o.id] })
+        el('span', { className: 'tile-text' }, [
+          el('span', { className: 'tile-name', text: r('objects')[o.id] }),
+          el('span', { className: 'tile-hint', text: r('hints')[o.id] })
+        ])
       ]);
+      b.style.setProperty('--i', i);
       b.dataset.id = o.id;
-      b.setAttribute('aria-pressed', String(openId === o.id));
-      b.addEventListener('click', () => openObject(o.id, true));
+      b.addEventListener('click', () => { closeGrid(false); openObject(o.id, true); });
       return b;
     }));
   }
+  function openGrid() {
+    if (sheetOpen()) closeSheet();
+    grid.hidden = false;
+    requestAnimationFrame(() => grid.classList.add('is-open'));
+    $('all-btn').setAttribute('aria-expanded', 'true');
+    setTimeout(() => $('objects-close').focus({ preventScroll: true }), 30);
+  }
+  function closeGrid(restore = true) {
+    if (grid.hidden) return;
+    grid.classList.remove('is-open');
+    $('all-btn').setAttribute('aria-expanded', 'false');
+    setTimeout(() => { if (!grid.classList.contains('is-open')) grid.hidden = true; }, reduceMotion ? 0 : 250);
+    if (restore) $('all-btn').focus({ preventScroll: true });
+  }
+  $('all-btn').addEventListener('click', () => (grid.hidden ? openGrid() : closeGrid()));
+  $('objects-close').addEventListener('click', () => closeGrid());
+  grid.addEventListener('click', e => { if (e.target === grid) closeGrid(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !grid.hidden) closeGrid(); });
 
   // ================================================================== the sheet
 
@@ -613,9 +680,6 @@
     document.body.classList.add('sheet-on');
     $('sheet-body').scrollTop = 0;
     hotEls.forEach((b, k) => b.classList.toggle('is-active', k === id));
-    dock.querySelectorAll('.dock-item').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === id)));
-    const dockItem = dock.querySelector(`[data-id="${id}"]`);
-    if (dockItem) dockItem.scrollIntoView({ inline: 'center', block: 'nearest', behavior: reduceMotion ? 'auto' : 'smooth' });
     if (history.replaceState) history.replaceState(null, '', location.pathname.startsWith('/d/') ? location.pathname : '#' + id);
     onOpen(id);
     setTimeout(() => $('sheet-close').focus({ preventScroll: true }), 30);
@@ -627,7 +691,6 @@
     document.body.classList.remove('sheet-on');
     openId = null;
     hotEls.forEach(b => b.classList.remove('is-active'));
-    dock.querySelectorAll('.dock-item').forEach(b => b.setAttribute('aria-pressed', 'false'));
     setTimeout(() => { if (!openId) sheet.hidden = true; }, reduceMotion ? 0 : 280);
     if (history.replaceState) history.replaceState(null, '', location.pathname.startsWith('/d/') ? '/' : location.pathname + location.search);
     if (returnFocus && returnFocus.focus && document.contains(returnFocus)) returnFocus.focus({ preventScroll: true });
@@ -660,11 +723,12 @@
     const cfg = e.detail || {};
     hidden.clear();
     if (!cfg.dedications) { hidden.add('phone'); hidden.add('photos'); }
-    renderHotspots(); renderDock();
+    renderHotspots(); renderGrid(); setFocus(null); needsDraw = true;
   });
 
   function onOpen(id) {
-    if (id === 'clock') renderClocks();
+    if (id === 'clock') { renderClocks(); tickAnalog(); }
+    if (id === 'news') renderMast();
     if (id === 'calendar') renderCalendar();
     if (id === 'window') renderWindow();
     if (id === 'radio') {
@@ -675,30 +739,172 @@
 
   // ================================================================== object contents
 
-  // ---- clock
+  // ---- clock: an analog wall clock on Beirut time, and the time where you are
+  const SVGNS = 'http://www.w3.org/2000/svg';
+  function svg(tag, attrs = {}, kids = []) {
+    const n = document.createElementNS(SVGNS, tag);
+    for (const [k, v] of Object.entries(attrs)) n.setAttribute(k, v);
+    kids.forEach(k => n.appendChild(k));
+    return n;
+  }
+  let hands = null;
+  function buildAnalog() {
+    const face = svg('svg', { viewBox: '-110 -110 220 220', class: 'analog-svg' });
+    face.appendChild(svg('circle', { r: 104, class: 'a-rim' }));
+    face.appendChild(svg('circle', { r: 96, class: 'a-face' }));
+    for (let i = 0; i < 60; i++) {
+      const big = i % 5 === 0;
+      const a = i * 6 * RAD;
+      face.appendChild(svg('line', {
+        x1: (Math.sin(a) * (big ? 78 : 84)).toFixed(2), y1: (-Math.cos(a) * (big ? 78 : 84)).toFixed(2),
+        x2: (Math.sin(a) * 90).toFixed(2), y2: (-Math.cos(a) * 90).toFixed(2), class: big ? 'a-tick big' : 'a-tick'
+      }));
+    }
+    for (let h = 1; h <= 12; h++) {
+      const a = h * 30 * RAD;
+      const t = svg('text', { x: (Math.sin(a) * 64).toFixed(2), y: (-Math.cos(a) * 64 + 7).toFixed(2), class: 'a-num' });
+      t.textContent = String(h);
+      face.appendChild(t);
+    }
+    const brand = svg('text', { x: 0, y: 34, class: 'a-brand' });
+    brand.textContent = 'BEYROUTH';
+    face.appendChild(brand);
+    hands = {
+      h: svg('line', { x1: 0, y1: 12, x2: 0, y2: -48, class: 'a-hand h' }),
+      m: svg('line', { x1: 0, y1: 16, x2: 0, y2: -72, class: 'a-hand m' }),
+      s: svg('line', { x1: 0, y1: 22, x2: 0, y2: -80, class: 'a-hand s' })
+    };
+    face.append(hands.h, hands.m, hands.s, svg('circle', { r: 4.5, class: 'a-pin' }));
+    $('analog').replaceChildren(face);
+  }
+  function beirutHMS(d = new Date()) {
+    const parts = new Intl.DateTimeFormat('en-GB', { hour: 'numeric', minute: 'numeric', second: 'numeric', hourCycle: 'h23', timeZone: 'Asia/Beirut' }).formatToParts(d);
+    const g = t => Number(parts.find(p => p.type === t).value);
+    return [g('hour'), g('minute'), g('second')];
+  }
+  let analogTimer = null;
+  function tickAnalog() {
+    if (!hands) buildAnalog();
+    const [h, m, sec] = beirutHMS();
+    hands.h.setAttribute('transform', `rotate(${(h % 12) * 30 + m * 0.5})`);
+    hands.m.setAttribute('transform', `rotate(${m * 6 + sec * 0.1})`);
+    hands.s.setAttribute('transform', `rotate(${sec * 6})`);
+    clearTimeout(analogTimer);
+    if (openId === 'clock') analogTimer = setTimeout(tickAnalog, 1000 - (Date.now() % 1000));
+  }
   function renderClocks() {
     const now = new Date();
     const rows = [[r('beirut'), 'Asia/Beirut']];
     if (!S.sameZoneAsBeirut()) rows.push([r('here'), undefined]);
     $('two-clocks').replaceChildren(...rows.map(([name, tz]) => el('div', { className: 'big-clock' }, [
-      el('span', { className: 'big-clock-time', text: timeIn(now, tz) }),
-      el('span', { className: 'big-clock-place', text: name })
+      el('span', { className: 'big-clock-place', text: name }),
+      el('span', { className: 'big-clock-time', text: timeIn(now, tz) })
     ])));
   }
   setInterval(() => { if (openId === 'clock') renderClocks(); }, 15000);
 
-  // ---- window
+  // ---- window: Lebanon on the evening-news weather map
+  const MAP = {"d": "M428 11 L422 12 L421 14 L419 15 L416 21 L418 26 L417 27 L415 34 L411 36 L409 35 L408 37 L404 37 L397 33 L395 35 L394 35 L394 37 L391 36 L390 37 L384 34 L379 33 L373 36 L370 35 L363 34 L358 31 L356 31 L354 35 L348 34 L347 36 L346 36 L344 35 L343 36 L342 35 L340 37 L340 35 L338 34 L337 35 L337 34 L334 35 L333 37 L331 36 L327 37 L327 36 L324 36 L324 34 L318 31 L318 30 L312 31 L312 28 L309 28 L310 30 L308 31 L308 34 L306 35 L310 47 L310 72 L307 79 L302 80 L298 82 L282 99 L278 101 L269 103 L261 102 L252 104 L249 108 L252 116 L255 119 L253 123 L240 132 L227 136 L226 140 L223 143 L223 146 L223 154 L218 164 L211 161 L209 162 L205 165 L203 171 L200 173 L198 177 L200 181 L199 186 L201 190 L199 197 L192 208 L189 232 L193 235 L195 241 L196 253 L194 264 L187 276 L188 282 L195 285 L192 291 L186 292 L182 296 L172 322 L167 325 L163 321 L157 323 L153 322 L137 326 L137 332 L139 337 L141 345 L139 349 L142 358 L140 371 L130 389 L127 406 L120 410 L120 425 L114 428 L113 442 L111 444 L111 451 L107 459 L106 457 L104 457 L103 460 L100 478 L85 496 L77 502 L69 519 L65 535 L62 553 L55 564 L50 576 L46 575 L44 579 L48 583 L52 590 L44 619 L38 620 L32 634 L25 637 L18 643 L18 650 L35 652 L33 653 L36 654 L37 653 L41 652 L41 651 L46 652 L46 655 L47 654 L47 654 L52 653 L54 648 L59 649 L62 651 L76 648 L81 645 L83 648 L86 648 L89 646 L89 648 L90 648 L90 649 L91 650 L90 652 L92 657 L94 657 L96 660 L101 665 L102 665 L103 668 L105 668 L105 666 L107 667 L108 666 L110 669 L109 667 L111 664 L127 662 L131 652 L138 651 L150 652 L150 642 L158 640 L161 636 L158 632 L162 619 L163 610 L162 604 L162 596 L165 594 L166 587 L171 579 L171 572 L178 576 L177 581 L184 587 L191 592 L190 587 L189 586 L190 579 L197 576 L202 578 L208 570 L210 572 L213 569 L215 569 L219 566 L221 564 L220 563 L221 558 L223 556 L226 556 L229 561 L231 557 L247 554 L253 547 L255 547 L256 542 L254 540 L258 529 L264 525 L265 523 L268 523 L268 521 L277 518 L277 517 L278 517 L282 515 L282 512 L283 510 L286 510 L290 508 L290 506 L293 505 L294 507 L295 503 L297 503 L298 500 L299 500 L300 498 L296 486 L295 486 L293 484 L296 480 L298 479 L303 480 L306 473 L308 476 L312 476 L315 473 L320 479 L331 462 L333 461 L331 459 L330 454 L330 451 L321 445 L319 445 L317 442 L315 442 L305 439 L299 441 L297 440 L296 434 L294 431 L295 427 L297 425 L298 419 L305 418 L307 411 L305 408 L307 396 L310 398 L312 396 L316 390 L316 387 L320 383 L322 385 L327 382 L328 379 L331 375 L336 363 L345 362 L352 359 L355 355 L358 355 L361 354 L364 357 L379 351 L382 355 L386 357 L388 359 L392 360 L395 357 L395 350 L398 346 L409 349 L413 352 L418 352 L421 356 L441 360 L444 359 L446 357 L446 347 L439 342 L438 338 L427 338 L425 336 L424 334 L422 334 L421 330 L417 328 L415 329 L413 326 L410 326 L409 325 L408 327 L407 325 L408 321 L416 316 L416 311 L422 311 L426 300 L433 294 L436 295 L438 290 L442 287 L446 288 L448 286 L444 281 L445 277 L451 277 L449 272 L451 270 L457 272 L456 267 L472 271 L475 273 L478 268 L482 269 L481 266 L487 259 L484 251 L491 242 L499 236 L504 235 L506 225 L509 224 L512 214 L522 210 L523 206 L516 200 L509 197 L512 179 L509 175 L511 173 L513 175 L516 171 L514 166 L511 164 L507 165 L502 162 L503 157 L498 155 L494 142 L491 140 L500 132 L501 124 L493 117 L493 116 L491 115 L490 117 L489 114 L487 113 L487 114 L486 112 L485 112 L486 110 L484 108 L481 109 L477 105 L470 103 L468 96 L465 96 L464 86 L456 88 L452 86 L450 87 L444 89 L443 87 L437 89 L427 87 L427 78 L435 76 L446 71 L453 65 L449 59 L449 50 L451 48 L450 47 L451 44 L457 46 L459 51 L466 52 L468 49 L469 35 L469 34 L466 35 L464 37 L459 39 L455 39 L449 33 L446 36 L443 35 L436 29 L432 23 L434 15 L430 12 L429 12 L428 11Z", "cities": {"beirut": [150, 330], "tripoli": [266, 113], "saida": [106, 463], "sour": [51, 580], "zahle": [283, 349], "jounieh": [189, 296], "baalbek": [386, 286], "nabatieh": [144, 537]}, "box": [8, 1, 525, 678]};
   function renderWindow() {
     const w = S.weather();
+    const cities = (w && w.cities) || [];
+    const lang = S.lang();
+    const names = { ar: { beirut: 'بيروت', tripoli: 'طرابلس', saida: 'صيدا', sour: 'صور', zahle: 'زحلة', jounieh: 'جونية', baalbek: 'بعلبك', nabatieh: 'النبطية' },
+      en: { beirut: 'Beirut', tripoli: 'Tripoli', saida: 'Saida', sour: 'Tyre', zahle: 'Zahle', jounieh: 'Jounieh', baalbek: 'Baalbek', nabatieh: 'Nabatieh' },
+      fr: { beirut: 'Beyrouth', tripoli: 'Tripoli', saida: 'Saïda', sour: 'Tyr', zahle: 'Zahlé', jounieh: 'Jounieh', baalbek: 'Baalbek', nabatieh: 'Nabatieh' } }[lang];
+    const [bx, by, bw, bh] = MAP.box;
+    const map = svg('svg', { viewBox: `${bx - 150} ${by - 10} ${bw + 290} ${bh + 20}`, class: 'lb-svg', direction: 'ltr', role: 'img', 'aria-label': r('objects').window });
+    const sea = svg('text', { x: bx - 80, y: by + bh * 0.55, class: 'lb-sea', transform: `rotate(-62 ${bx - 80} ${by + bh * 0.55})` });
+    sea.textContent = r('sea');
+    map.append(sea, svg('path', { d: MAP.d, class: 'lb-land' }));
+    const right = { tripoli: 1, baalbek: 1, zahle: 1, jounieh: 1, nabatieh: 1 };
+    for (const c of cities) {
+      const pt = MAP.cities[c.id];
+      if (!pt) continue;
+      const [x, y] = pt;
+      const g = svg('g', { class: 'lb-city' + (c.id === 'beirut' ? ' is-capital' : '') });
+      g.appendChild(svg('circle', { cx: x, cy: y, r: c.id === 'beirut' ? 9 : 7 }));
+      const t = svg('text', { x: x + (right[c.id] ? 16 : -16), y: y + 9, class: 'lb-temp', 'text-anchor': right[c.id] ? 'start' : 'end' });
+      t.textContent = `${S.num(c.temperature)}°`;
+      const n = svg('text', { x: x + (right[c.id] ? 16 : -16), y: y - 16, class: 'lb-name', 'text-anchor': right[c.id] ? 'start' : 'end' });
+      n.textContent = names[c.id] || c.id;
+      g.append(n, t);
+      map.appendChild(g);
+    }
+    $('lb-map').replaceChildren(map);
+    $('lb-map').hidden = !cities.length;
     const box = $('window-now');
-    const c = w && (w.cities || []).find(x => x.id === 'beirut');
+    const c = cities.find(x => x.id === 'beirut');
     box.textContent = c ? r('nowOutside', S.weatherWord(c.code), S.num(c.temperature)) : '';
     box.hidden = !c;
   }
   document.addEventListener('sawt:weather', () => { if (openId === 'window') renderWindow(); });
 
-  // ---- calendar
+  // ---- newspaper masthead
+  function renderMast() {
+    $('mast-date').textContent = new Intl.DateTimeFormat(S.locale(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Beirut' }).format(new Date());
+  }
+
+  // ---- calendar: the tear-off calendar from the kitchen door, brought to the salon
+  const LB_MONTHS = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
+  let tearAt = 0;
+  function calendarPages() {
+    const today = beirutDate(new Date());
+    const list = (C.occasions || []).filter(o => o.date >= today).slice(0, 8);
+    const pages = [{ date: today, occ: list.find(o => o.date === today) || null }];
+    for (const o of list) if (o.date !== today) pages.push({ date: o.date, occ: o });
+    return pages;
+  }
+  function pageEl(pg, isToday) {
+    const lang = S.lang();
+    const d = new Date(pg.date + 'T12:00:00Z');
+    const loc = S.locale();
+    const month = lang === 'ar' ? LB_MONTHS[d.getUTCMonth()] : new Intl.DateTimeFormat(loc, { month: 'long', timeZone: 'UTC' }).format(d);
+    const other = lang === 'ar' ? new Intl.DateTimeFormat('en-GB', { month: 'long', timeZone: 'UTC' }).format(d) : '';
+    let hijri = '';
+    try { hijri = new Intl.DateTimeFormat(loc + '-u-ca-islamic-umalqura', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' }).format(d); } catch { /* old browsers */ }
+    const weekday = new Intl.DateTimeFormat(loc, { weekday: 'long', timeZone: 'UTC' }).format(d);
+    const n = Math.round((Date.parse(pg.date) - Date.parse(beirutDate(new Date()))) / 864e5);
+    const sunday = d.getUTCDay() === 0;
+    return el('div', { className: 'tear-page' + (sunday || pg.occ ? ' is-red' : '') }, [
+      el('div', { className: 'tear-rings', 'aria-hidden': 'true' }, [el('i'), el('i'), el('i'), el('i'), el('i'), el('i')]),
+      el('div', { className: 'tear-head' }, [
+        el('span', { className: 'tear-month', text: month }),
+        other ? el('span', { className: 'tear-month-2', text: other, lang: 'en' }) : null,
+        el('span', { className: 'tear-year', text: new Intl.NumberFormat(loc, { useGrouping: false }).format(d.getUTCFullYear()) })
+      ]),
+      el('div', { className: 'tear-day', text: S.num(d.getUTCDate()) }),
+      el('div', { className: 'tear-week', text: weekday }),
+      el('div', { className: 'tear-foot' }, [
+        el('span', { className: 'tear-occ', text: pg.occ ? (pg.occ[lang] || pg.occ.en) + (pg.occ.approx ? ' *' : '') : '' }),
+        el('span', { className: 'tear-when', text: isToday ? '' : r('daysLeft', n) }),
+        el('span', { className: 'tear-hijri', text: hijri })
+      ])
+    ]);
+  }
+  function renderTear() {
+    const pages = calendarPages();
+    if (tearAt >= pages.length) tearAt = 0;
+    const box = $('tear');
+    const btn = el('button', { type: 'button', className: 'tear-btn', text: tearAt === pages.length - 1 ? r('tearBack') : r('tearNext') });
+    const under = pages[(tearAt + 1) % pages.length];
+    const stack = el('div', { className: 'tear-stack' }, [
+      pageEl(under, (tearAt + 1) % pages.length === 0),
+      pageEl(pages[tearAt], tearAt === 0)
+    ]);
+    stack.lastChild.classList.add('is-top');
+    btn.addEventListener('click', () => {
+      const top = stack.querySelector('.is-top');
+      tearAt = (tearAt + 1) % pages.length;
+      if (reduceMotion) { renderTear(); return; }
+      top.classList.add('is-torn');
+      setTimeout(renderTear, 650);
+    });
+    stack.addEventListener('click', e => { if (!e.target.closest('button')) btn.click(); });
+    box.replaceChildren(stack, btn);
+  }
   function renderCalendar() {
+    renderTear();
     const now = new Date();
     const times = sunTimes(now);
     const today = beirutDate(now);
@@ -710,16 +916,15 @@
     );
     const lang = S.lang();
     const fmt = new Intl.DateTimeFormat(S.locale(), { day: 'numeric', month: 'long', timeZone: 'UTC' });
-    const dayMs = 864e5;
     const t0 = Date.parse(today + 'T00:00:00Z');
     const list = (C.occasions || []).filter(o => o.date >= today).slice(0, 8);
     $('occasions').replaceChildren(...list.map(o => {
       const d = Date.parse(o.date + 'T00:00:00Z');
-      const n = Math.round((d - t0) / dayMs);
+      const n = Math.round((d - t0) / 864e5);
       return el('li', { className: 'occasion' + (n === 0 ? ' is-today' : '') }, [
         el('span', { className: 'occ-date', text: fmt.format(new Date(d)) + (o.approx ? ' *' : '') }),
         el('span', { className: 'occ-name', text: o[lang] || o.en }),
-        el('span', { className: 'occ-when', text: n === 0 ? r('today') : r('inDays', n) })
+        el('span', { className: 'occ-when', text: r('daysLeft', n) })
       ]);
     }));
   }
@@ -831,7 +1036,8 @@
     if (openId) $('sheet-title').textContent = r('objects')[openId];
     renderSceneChip();
     renderHotspots();
-    renderDock();
+    renderGrid();
+    setFocus(focusId);
     renderTapes();
     renderRecipes();
     if (openId) onOpen(openId);

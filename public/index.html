@@ -29,7 +29,7 @@
   <link rel="apple-touch-icon" href="/icon-180.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lalezar&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Caveat:wght@500;700&family=Lalezar&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/app.css">
   <link rel="stylesheet" href="/room.css">
 
@@ -49,7 +49,7 @@
   </script>
 </head>
 <body class="in-room">
-  <a class="skip" href="#dock" data-i18n="skipToContent">انتقل إلى المحتوى</a>
+  <a class="skip" href="#focus-card" data-i18n="skipToContent">انتقل إلى المحتوى</a>
 
   <!-- ===================================================== the room -->
   <main class="room" id="room">
@@ -76,7 +76,18 @@
       <button type="button" class="link-btn" id="morning-btn" data-i18n="morningAction">شغّل فيروز</button>
     </p>
 
-    <nav class="dock" id="dock" aria-label="أغراض الغرفة" data-r-label="dockLabel"></nav>
+    <div class="focus" id="focus">
+      <button type="button" class="focus-step" id="focus-prev" data-r-label="turnLeft">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="focus-card" id="focus-card">
+        <span class="focus-name" id="focus-name"></span>
+        <span class="focus-hint" id="focus-hint"></span>
+      </button>
+      <button type="button" class="focus-step" id="focus-next" data-r-label="turnRight">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
   </main>
 
   <!-- ===================================================== walk-in -->
@@ -153,6 +164,10 @@
 
       <!-- newspaper -->
       <section class="pv" data-panel="news" id="news" hidden>
+        <header class="mast">
+          <p class="mast-name" data-r="paperName"></p>
+          <p class="mast-line"><span id="mast-date"></span><span data-r="paperPrice"></span></p>
+        </header>
         <div class="head-actions">
           <button type="button" class="tool" id="alerts-btn" aria-pressed="false" hidden>
             <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bell"/></svg>
@@ -170,6 +185,7 @@
 
       <!-- phone: send a dedication -->
       <section class="pv" data-panel="phone" id="dedications" hidden>
+        <p class="airmail"><span>بريد جوي</span><span>PAR AVION</span><span>BY AIR MAIL</span></p>
         <p class="pv-lede" data-i18n="dedLede">أغنية ورسالة من الغربة لأهلك في لبنان. كل إهداء يُراجع قبل ما ينشر.</p>
         <form class="ded-form" id="ded-form" novalidate>
           <div class="form-grid">
@@ -208,6 +224,7 @@
 
       <!-- clock: Beirut time + morning alarm -->
       <section class="pv" data-panel="clock" hidden>
+        <div class="analog" id="analog" aria-hidden="true"></div>
         <div class="two-clocks" id="two-clocks"></div>
         <form class="panel" id="alarm-panel">
           <p class="panel-title" data-i18n="alarmTitle">أيقظني على المحطة المختارة الآن.</p>
@@ -236,6 +253,7 @@
 
       <!-- window: weather across Lebanon -->
       <section class="pv" data-panel="window" hidden>
+        <div class="lb-map" id="lb-map"></div>
         <p class="pv-lede" id="window-now"></p>
         <section class="weather-list" aria-label="الطقس في لبنان">
           <ul class="towns" id="towns"></ul>
@@ -244,7 +262,9 @@
 
       <!-- calendar: occasions, sunrise/sunset, iftar -->
       <section class="pv" data-panel="calendar" hidden>
+        <div class="tear" id="tear"></div>
         <div class="sun-today" id="sun-today"></div>
+        <h3 class="pv-sub" data-r="comingUp"></h3>
         <ol class="occasions" id="occasions"></ol>
         <p class="quiet small" data-r="approxNote"></p>
       </section>
@@ -273,6 +293,24 @@
     <button type="button" class="mini-name" id="mini-name" dir="auto"></button>
     <button type="button" class="mini-step" id="mini-prev" aria-label="المحطة السابقة" data-i18n-label="prevStation"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-prev"/></svg></button>
     <button type="button" class="mini-step" id="mini-next" aria-label="المحطة التالية" data-i18n-label="nextStation"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-next"/></svg></button>
+    <span class="bar-sep" aria-hidden="true"></span>
+    <button type="button" class="bar-all" id="all-btn" aria-expanded="false" aria-controls="objects">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5L12 4l8 7.5M6.5 9.5V20h11V9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><path d="M10 20v-5.5h4V20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span data-r="allObjects"></span>
+    </button>
+  </div>
+
+  <!-- Everything in the room at a glance -->
+  <div class="objects" id="objects" role="dialog" aria-modal="true" aria-labelledby="objects-title" hidden>
+    <div class="objects-inner">
+      <div class="objects-head">
+        <h2 id="objects-title" data-r="allObjectsTitle"></h2>
+        <button type="button" class="sheet-close" id="objects-close" data-r-label="close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="objects-grid" id="objects-grid"></div>
+    </div>
   </div>
 
   <!-- Alarm ringing -->
