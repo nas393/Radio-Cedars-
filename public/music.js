@@ -165,6 +165,7 @@
 
   function close() {
     stopMedia();
+    pill = false; player.classList.remove('is-pill');
     setOff.hidden = true;
     player.classList.remove('on-set'); player.style.transform = '';
     ['tv-slot', 'tape-slot'].forEach(id => { const n = $(id); if (n) n.style.height = ''; });
@@ -204,6 +205,24 @@
     }
   });
 
+  // ------------------------------------------------------------------ the folded bar on phones
+  let pill = false;
+  function ytCommand(func) {
+    const f = $('screen-body').querySelector('iframe');
+    if (f && f.contentWindow) f.contentWindow.postMessage(JSON.stringify({ event: 'command', func, args: '' }), '*');
+  }
+  function setPill(v) {
+    if (v === pill) return;
+    pill = v;
+    player.classList.toggle('is-pill', v);
+    // YouTube must stay visible while it plays: pause it while folded, play again when it opens up
+    if (current && current.src === 'yt') ytCommand(v ? 'pauseVideo' : 'playVideo');
+  }
+  player.querySelector('.screen-head').addEventListener('click', e => {
+    if (!pill || e.target.closest('button, a')) return;
+    $('sheet-close').click();
+  });
+
   // ------------------------------------------------------------------ where the screen sits
   function place() {
     if (!current) return;
@@ -231,7 +250,9 @@
     }
     player.classList.toggle('on-set', onSet);
     if (!onSet) { player.style.transform = ''; setOff.hidden = true; }
-    if (onSet) return;
+    if (onSet) { setPill(false); return; }
+    // phones: another drawer is open, so the screen folds into a slim bar at the top
+    setPill(!docked && innerWidth < 900 && $('sheet').classList.contains('is-open'));
     if (docked) {
       const r = slot.getBoundingClientRect();
       player.style.left = r.left + 'px';
