@@ -28,7 +28,7 @@ const FEEDS = [
     url: 'https://www.the961.com/feed/',
     fallback: googleNews('the961.com', 'en', '7d'),
     // The961's page titles end in "- 961 - Lebanon News".
-    titleSuffix: /\s[-–]\s(961\s[-–]\s)?Lebanon News$/i
+    titleSuffix: /\s*[-–—|]\s*(961(\s*[-–—|]\s*Lebanon News)?|Lebanon News)$/iu
   }
 ];
 
@@ -102,19 +102,26 @@ function cached(ttl, load) {
   };
 }
 
+// Google's site: search also returns non-article pages (archives, search
+// results, ads pages); keep only what reads like an actual headline.
+const NON_ARTICLE = /^(page \d+|search results?|advertise|about|contact|tag:|category:)|lebanon news, stories/i;
+
+function isRealHeadline(title) {
+  return title.split(/\s+/).length >= 4 && !NON_ARTICLE.test(title);
+}
+
 function toItems(feed, fromGoogle, titleSuffix) {
   return (feed.items || [])
     .map(item => {
       let title = cleanText(item.title);
-      if (titleSuffix && titleSuffix.test(title)) {
-        // The outlet's own known suffix (covers Google's publisher tag too).
-        title = title.replace(titleSuffix, '').trim();
-      } else if (fromGoogle) {
+      if (fromGoogle) {
         // Google News appends " - Publisher" to every headline; drop that last
         // spaced segment (names like "Al-Manar" keep their own hyphen).
-        const parts = title.split(/\s[-–]\s/);
+        const parts = title.split(/\s[-–—]\s/);
         if (parts.length > 1) title = parts.slice(0, -1).join(' - ').trim();
       }
+      // Then the outlet's own page-title suffix, if it has one.
+      if (titleSuffix) title = title.replace(titleSuffix, '').trim();
       return {
         title,
         link: safeUrl(item.link),
@@ -124,7 +131,7 @@ function toItems(feed, fromGoogle, titleSuffix) {
     .filter(item => item.title && item.link)
     // Google sometimes returns section pages ("Shopping - Lebanon News");
     // real headlines have at least four words.
-    .filter(item => !fromGoogle || item.title.split(/\s+/).length >= 4)
+    .filter(item => !fromGoogle || isRealHeadline(item.title))
     .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
     .slice(0, ITEMS_PER_FEED);
 }
