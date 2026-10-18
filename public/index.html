@@ -3,60 +3,72 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>وردة - Lebanese Diaspora Hub</title>
+  <meta name="description" content="وردة Wardé — أخبار لبنان، راديو وتلفزيون مباشر للبنانيين في الاغتراب">
+  <title>وردة Wardé - Lebanese Diaspora Hub</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: 'Segoe UI', Tahoma, sans-serif;
       background: #0b1a0f;
       color: #e0d7c6;
-      padding: 20px;
+      padding: 20px 16px;
       max-width: 1000px;
       margin: auto;
+      line-height: 1.5;
     }
-    h1 {
-      text-align: center;
-      margin: 20px 0;
-      color: #c4a35a;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
+    h1 { text-align: center; margin: 12px 0 4px; color: #c4a35a; }
+    .tagline { text-align: center; color: #8f9a84; margin-bottom: 20px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
     .panel {
       background: #142218;
       border: 1px solid #2f3e2c;
       border-radius: 12px;
       padding: 16px;
       margin-bottom: 20px;
+      min-width: 0;
     }
-    .panel h2 {
-      color: #d4af37;
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
       border-bottom: 1px solid #3a4a35;
       padding-bottom: 8px;
       margin-bottom: 12px;
     }
-    .news-source h3 {
-      color: #b89b4b;
-      margin: 12px 0 6px;
+    .panel h2 { color: #d4af37; font-size: 20px; }
+    .meta { color: #8f9a84; font-size: 12px; }
+    .icon-btn {
+      background: #1f3322;
+      color: #c4a35a;
+      border: 1px solid #4a5e3f;
+      border-radius: 20px;
+      padding: 4px 10px;
+      cursor: pointer;
+      font-size: 13px;
     }
+    .icon-btn:hover { background: #2a4430; }
+    .icon-btn:disabled { opacity: 0.5; cursor: wait; }
+    .news-source h3 { color: #b89b4b; margin: 12px 0 6px; font-size: 16px; }
     .news-item {
       padding: 8px 0;
       border-bottom: 1px solid #2e3a2b;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
     }
-    .news-item a {
-      color: #d1c4a5;
-      text-decoration: none;
-    }
-    .news-item a:hover {
-      color: #f5e6c6;
-    }
-    .radio-buttons {
+    .news-item a { color: #d1c4a5; text-decoration: none; }
+    .news-item a:hover { color: #f5e6c6; text-decoration: underline; }
+    .news-item time { color: #7f8a74; font-size: 12px; }
+    .muted { color: #8f9a84; font-size: 14px; }
+    .error { color: #e0a080; font-size: 14px; }
+    .radio-list {
       margin: 10px 0;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
+      max-height: 260px;
+      overflow-y: auto;
     }
     .radio-btn {
       background: #1f3322;
@@ -65,122 +77,214 @@
       padding: 6px 12px;
       border-radius: 20px;
       cursor: pointer;
+      font-size: 14px;
     }
-    .radio-btn.active {
-      background: #3a502b;
-      color: #fff;
-    }
-    audio, iframe {
-      width: 100%;
-      margin-top: 10px;
-      border-radius: 8px;
-    }
-    iframe {
-      height: 240px;
-    }
-    .tv-grid {
+    .radio-btn:hover { background: #2a4430; }
+    .radio-btn.active { background: #3a502b; color: #fff; }
+    .radio-btn.offline { opacity: 0.4; text-decoration: line-through; }
+    .now-playing { margin-top: 8px; font-size: 14px; min-height: 1.5em; }
+    audio { width: 100%; margin-top: 8px; border-radius: 8px; }
+    .tv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+    .tv-card {
       display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #1a2c1e;
+      border: 1px solid #3a4a35;
+      border-radius: 10px;
+      padding: 14px;
+      color: #e0d7c6;
+      text-decoration: none;
     }
-    .tv-channel {
-      flex: 1 1 45%;
-      text-align: center;
+    .tv-card:hover { background: #22392a; border-color: #c4a35a; }
+    .tv-card strong { color: #d4af37; }
+    .tv-card span { font-size: 13px; color: #b8ad95; }
+    .live-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e24b4b;
+      margin-inline-start: 6px;
     }
-    .tv-channel iframe {
-      height: 200px;
-    }
+    footer { text-align: center; color: #6f7a64; font-size: 12px; margin: 10px 0 20px; }
     @media (max-width: 700px) {
-      .grid { grid-template-columns: 1fr; }
-      .tv-channel { flex: 1 1 100%; }
+      .grid { grid-template-columns: 1fr; gap: 0; }
     }
   </style>
 </head>
 <body>
   <h1>🇱🇧 وردة Wardé</h1>
+  <p class="tagline">لبنان أينما كنت — أخبار، راديو وتلفزيون مباشر</p>
 
   <div class="grid">
-    <!-- News Panel -->
-    <div class="panel" id="news-panel">
-      <h2>📰 أخبار من لبنان</h2>
-      <div id="news-content">جاري تحميل الأخبار...</div>
-    </div>
+    <!-- News -->
+    <section class="panel" aria-labelledby="news-title">
+      <div class="panel-head">
+        <h2 id="news-title">📰 أخبار من لبنان</h2>
+        <button class="icon-btn" id="news-refresh" type="button" aria-label="تحديث الأخبار">↻ تحديث</button>
+      </div>
+      <p class="meta" id="news-updated"></p>
+      <div id="news-content"><p class="muted">جاري تحميل الأخبار...</p></div>
+    </section>
 
-    <!-- Arabic Music / Radio -->
-    <div class="panel" id="music-panel">
-      <h2>🎵 موسيقى عربية</h2>
-      <div class="radio-buttons" id="radio-list"></div>
-      <audio id="audio-player" controls></audio>
-    </div>
+    <!-- Radio -->
+    <section class="panel" aria-labelledby="radio-title">
+      <div class="panel-head">
+        <h2 id="radio-title">🎵 راديو لبنان</h2>
+      </div>
+      <p class="muted">اختر محطة للاستماع</p>
+      <div class="radio-list" id="radio-list"><p class="muted">جاري تحميل المحطات...</p></div>
+      <p class="now-playing" id="now-playing"></p>
+      <audio id="audio-player" controls preload="none"></audio>
+    </section>
   </div>
 
-  <!-- TV Section -->
-  <div class="panel">
-    <h2>📺 تلفزيون لبنان (مباشر)</h2>
+  <!-- TV -->
+  <section class="panel" aria-labelledby="tv-title">
+    <div class="panel-head">
+      <h2 id="tv-title">📺 تلفزيون لبنان (مباشر)</h2>
+    </div>
     <div class="tv-grid" id="tv-grid"></div>
-  </div>
+  </section>
+
+  <footer>الأخبار تتحدث تلقائياً كل ١٠ دقائق · المحطات من دليل Radio Browser المجاني</footer>
 
   <script>
-    // ---------- NEWS FETCH ----------
+    const NEWS_REFRESH_MS = 10 * 60 * 1000;
+
+    // Build elements with textContent only, so nothing from a feed can run as code.
+    function el(tag, props = {}, children = []) {
+      const node = document.createElement(tag);
+      for (const [key, value] of Object.entries(props)) {
+        if (key === 'text') node.textContent = value;
+        else if (key === 'className') node.className = value;
+        else node.setAttribute(key, value);
+      }
+      for (const child of children) if (child) node.appendChild(child);
+      return node;
+    }
+
+    const rtf = new Intl.RelativeTimeFormat('ar', { numeric: 'auto' });
+    function timeAgo(iso) {
+      if (!iso) return '';
+      const diffMin = Math.round((new Date(iso) - Date.now()) / 60000);
+      if (Math.abs(diffMin) < 60) return rtf.format(diffMin, 'minute');
+      const diffHr = Math.round(diffMin / 60);
+      if (Math.abs(diffHr) < 24) return rtf.format(diffHr, 'hour');
+      return rtf.format(Math.round(diffHr / 24), 'day');
+    }
+
+    // ---------- NEWS ----------
+    const newsContainer = document.getElementById('news-content');
+    const newsUpdated = document.getElementById('news-updated');
+    const refreshBtn = document.getElementById('news-refresh');
+
     async function loadNews() {
-      const container = document.getElementById('news-content');
+      refreshBtn.disabled = true;
       try {
         const res = await fetch('/api/news');
-        const sources = await res.json();
-        container.innerHTML = sources.map(source => {
-          const items = source.items.map(item =>
-            `<div class="news-item"><a href="${item.link}" target="_blank">${item.title}</a></div>`
-          ).join('');
-          return `<div class="news-source"><h3>${source.source}</h3>${items || '<p>لا توجد أخبار حالياً</p>'}</div>`;
-        }).join('');
+        if (!res.ok) throw new Error(res.status);
+        const data = await res.json();
+        const blocks = data.sources.map(source => {
+          const items = source.items.length
+            ? source.items.map(item => el('div', { className: 'news-item' }, [
+                el('a', { href: item.link, target: '_blank', rel: 'noopener noreferrer', text: item.title }),
+                item.date ? el('time', { datetime: item.date, text: timeAgo(item.date) }) : null
+              ]))
+            : [el('p', { className: 'muted', text: source.ok ? 'لا توجد أخبار حالياً' : 'المصدر غير متاح حالياً' })];
+          return el('div', { className: 'news-source' }, [el('h3', { text: source.source }), ...items]);
+        });
+        newsContainer.replaceChildren(...blocks);
+        newsUpdated.textContent = 'آخر تحديث: ' + timeAgo(data.updatedAt);
       } catch {
-        container.innerHTML = '<p>فشل تحميل الأخبار. تأكد من اتصالك بالإنترنت.</p>';
+        // Keep whatever headlines are already showing; just report the failure.
+        if (!newsContainer.querySelector('.news-item')) {
+          newsContainer.replaceChildren(el('p', { className: 'error', text: 'فشل تحميل الأخبار. حاول مجدداً بعد قليل.' }));
+        }
+        newsUpdated.textContent = 'تعذّر التحديث';
+      } finally {
+        refreshBtn.disabled = false;
       }
     }
-    loadNews();
 
-    // ---------- ARABIC RADIO STREAMS (free Shoutcast/Icecast) ----------
-    const radioStations = [
-      { name: 'راديو لبنان (لبنان)', url: 'https://stream.radiojar.com/a76z8b9vzq8tv' },
-      { name: 'صوت الغد (لبنان)', url: 'http://sawtelghad.com:8000/stream' },
-      { name: 'إذاعة الشرق (مصر - كلاسيكيات)', url: 'https://sharq.ice.infomaniak.ch/sharq-32.aac' },
-      { name: 'راديو نجوم (مصر - حديث)', url: 'https://stream.masr.audio/stream/32' },
-      { name: 'راديو بانوراما (سوريا)', url: 'https://streaming.radionomy.com/RadioPanoramaLattakia' }
-    ];
+    let lastNewsLoad = 0;
+    function loadNewsIfStale() {
+      if (!document.hidden && Date.now() - lastNewsLoad >= NEWS_REFRESH_MS) {
+        lastNewsLoad = Date.now();
+        loadNews();
+      }
+    }
 
-    const radioListDiv = document.getElementById('radio-list');
+    refreshBtn.addEventListener('click', () => { lastNewsLoad = Date.now(); loadNews(); });
+    loadNewsIfStale();
+    setInterval(loadNewsIfStale, 60 * 1000);
+    document.addEventListener('visibilitychange', loadNewsIfStale);
+
+    // ---------- RADIO ----------
+    const radioList = document.getElementById('radio-list');
     const audioPlayer = document.getElementById('audio-player');
+    const nowPlaying = document.getElementById('now-playing');
+    let currentBtn = null;
 
-    radioStations.forEach((station, idx) => {
-      const btn = document.createElement('button');
-      btn.className = 'radio-btn' + (idx === 0 ? ' active' : '');
-      btn.textContent = station.name;
-      btn.onclick = () => {
-        document.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        audioPlayer.src = station.url;
-        audioPlayer.play().catch(() => {}); // autoplay may be blocked
-      };
-      radioListDiv.appendChild(btn);
+    function playStation(station, btn) {
+      document.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentBtn = btn;
+      nowPlaying.textContent = '⏳ جاري الاتصال بـ ' + station.name + '...';
+      audioPlayer.src = station.url;
+      audioPlayer.play().catch(() => {
+        nowPlaying.textContent = '▶️ اضغط تشغيل للاستماع إلى ' + station.name;
+      });
+    }
+
+    audioPlayer.addEventListener('playing', () => {
+      if (currentBtn) nowPlaying.textContent = '🔊 تستمع الآن: ' + currentBtn.textContent;
     });
-    // Play first station by default
-    audioPlayer.src = radioStations[0].url;
+    audioPlayer.addEventListener('error', () => {
+      if (!currentBtn || !audioPlayer.getAttribute('src')) return;
+      currentBtn.classList.add('offline');
+      nowPlaying.textContent = '⚠️ هذه المحطة لا تعمل الآن، جرّب محطة أخرى.';
+    });
 
-    // ---------- LEBANESE TV (YouTube live embeds, official and free) ----------
+    async function loadStations() {
+      try {
+        const res = await fetch('/api/radio');
+        if (!res.ok) throw new Error(res.status);
+        const { stations } = await res.json();
+        const buttons = stations.map(station => {
+          const btn = el('button', { className: 'radio-btn', type: 'button', text: station.name });
+          if (station.tags) btn.title = station.tags;
+          btn.addEventListener('click', () => playStation(station, btn));
+          return btn;
+        });
+        radioList.replaceChildren(...buttons);
+      } catch {
+        radioList.replaceChildren(el('p', { className: 'error', text: 'تعذّر تحميل المحطات. حاول مجدداً لاحقاً.' }));
+      }
+    }
+    loadStations();
+
+    // ---------- TV (official YouTube channels; /live opens the current broadcast) ----------
     const tvChannels = [
-      { name: 'LBCI Lebanon', embed: 'https://www.youtube.com/embed/live_stream?channel=UC9h2FJNTk2G5kCUa3B1G91g' },
-      { name: 'MTV Lebanon',  embed: 'https://www.youtube.com/embed/live_stream?channel=UC4FDHXFqAVz0BFS4OoRP8IA' },
-      { name: 'Al Jadeed News', embed: 'https://www.youtube.com/embed/live_stream?channel=UCUhnU2PhvbRPjSzfFytQQKA' },
-      { name: 'OTV Lebanon',  embed: 'https://www.youtube.com/embed/live_stream?channel=UCfY_hXcVwz5B2QwC2N2H1CQ' }
+      { name: 'LBCI', handle: 'lbcilebanonofficial' },
+      { name: 'MTV Lebanon', handle: 'mtvlebanon' },
+      { name: 'Al Jadeed', handle: 'aljadeednewslb' },
+      { name: 'OTV Lebanon', handle: 'otvlebanonofficial' }
     ];
 
-    const tvGrid = document.getElementById('tv-grid');
-    tvGrid.innerHTML = tvChannels.map(ch =>
-      `<div class="tv-channel">
-        <strong>${ch.name}</strong>
-        <iframe src="${ch.embed}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      </div>`
-    ).join('');
+    document.getElementById('tv-grid').replaceChildren(...tvChannels.map(ch =>
+      el('a', {
+        className: 'tv-card',
+        href: 'https://www.youtube.com/@' + ch.handle + '/live',
+        target: '_blank',
+        rel: 'noopener noreferrer'
+      }, [
+        el('strong', { text: ch.name }),
+        el('span', {}, [document.createTextNode('شاهد مباشر'), el('i', { className: 'live-dot', 'aria-hidden': 'true' })])
+      ])
+    ));
   </script>
 </body>
 </html>
