@@ -148,18 +148,18 @@
 
   // yaw/pitch in degrees, measured in the panorama (0,0 = the window).
   const OBJECTS = [
-    { id: 'radio', yaw: -36.4, pitch: -4.8 },
-    { id: 'cassettes', yaw: -28.8, pitch: -9.5 },
-    { id: 'photos', yaw: -33.3, pitch: 7.5 },
-    { id: 'lamp', yaw: -47.5, pitch: 3.2 },
-    { id: 'coffee', yaw: -13.7, pitch: -27.1 },
-    { id: 'window', yaw: 0, pitch: 8.9 },
-    { id: 'news', yaw: 11.2, pitch: -29.6 },
-    { id: 'calendar', yaw: 23.8, pitch: 9.6 },
-    { id: 'clock', yaw: 32.7, pitch: 13.5 },
-    { id: 'books', yaw: 30.4, pitch: -9.9 },
-    { id: 'tv', yaw: 36.6, pitch: -6.7 },
-    { id: 'phone', yaw: 93.5, pitch: -14.6 }
+    { id: 'calendar', yaw: -176.8, pitch: 10.4 },
+    { id: 'clock', yaw: -145.6, pitch: 27.0 },
+    { id: 'phone', yaw: -104.9, pitch: -12.6 },
+    { id: 'photos', yaw: -69.4, pitch: 14.3 },
+    { id: 'lamp', yaw: -46.9, pitch: -3.5 },
+    { id: 'coffee', yaw: -38.8, pitch: -18.4 },
+    { id: 'books', yaw: -24.3, pitch: -36.7 },
+    { id: 'window', yaw: -10.6, pitch: 10.5 },
+    { id: 'news', yaw: 0.8, pitch: -28.1 },
+    { id: 'tv', yaw: 34.6, pitch: -8.0 },
+    { id: 'cassettes', yaw: 82.7, pitch: -2.0 },
+    { id: 'radio', yaw: 85.0, pitch: -12.7 }
   ];
   const hidden = new Set(); // objects switched off by the server config
 
@@ -240,7 +240,7 @@
   // ================================================================== the viewer
 
   const canvas = $('view');
-  const view = { yaw: 0, pitch: -6, fov: 0, vy: 0, vp: 0 };
+  const view = { yaw: 10, pitch: -6, fov: 0, vy: 0, vp: 0 };
   let gl = null, prog = null, tex = [null, null], mixAmount = 0, uni = {};
   let needsDraw = true;
 
@@ -308,18 +308,18 @@
       if (rain > 0.001) {
         float m = texture2D(tm, uv).r;
         if (m > 0.02) {
-          vec2 st = vec2(lon, lat) * 9.0;
+          vec2 st = vec2(lon, lat) * 6.0;
           vec3 a = drops(st, time);
           vec3 b = drops(st * 1.65 + vec2(7.54, 2.1), time * 1.1);
           vec3 e = beads(st * 6.0);
           vec2 o = (a.xy + b.xy * 0.7 + e.xy) * rain;
           float wetness = max(max(a.z, b.z), e.z);
-          vec2 u2 = uv + o * 0.02;
-          float bl = 0.0016 * (1.0 - wetness);    // drops are clear, the fogged glass between is soft
+          vec2 u2 = uv + o * 0.045;
+          float bl = 0.0024 * (1.0 - wetness);    // drops are clear, the fogged glass between is soft
           vec3 g = (texture2D(t0, u2 + vec2(bl, 0.0)).rgb + texture2D(t0, u2 - vec2(bl, 0.0)).rgb +
                     texture2D(t0, u2 + vec2(0.0, bl)).rgb + texture2D(t0, u2 - vec2(0.0, bl)).rgb) * 0.25;
-          g *= mix(vec3(0.82, 0.86, 0.95), vec3(1.0), wetness * 0.6);
-          g += wetness * 0.035;
+          g *= mix(vec3(0.72, 0.78, 0.9), vec3(1.05), wetness);
+          g += wetness * 0.06 + pow(wetness, 3.0) * 0.08;
           c.rgb = mix(c.rgb, g, clamp(m, 0.0, 1.0) * rain);
           c.rgb += flash * m * 0.9;
         }
@@ -445,7 +445,7 @@
   let focusId = null;
   function placeHotspots() {
     const { r: rr, u, f } = basis();
-    let best = null, bestDot = Math.cos(20 * RAD);
+    let best = null, bestDot = Math.cos(25 * RAD);
     const [tx, ty] = tanHalf();
     const W = canvas.clientWidth, H = canvas.clientHeight;
     for (const o of OBJECTS) {
