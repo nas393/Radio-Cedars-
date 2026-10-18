@@ -1585,10 +1585,15 @@
     img.src = picUrl(scene, true);
 
     const ready = showScene(scene, false).then(() => { Object.assign(view, startView()); needsDraw = true; });
-    const fast = S.store.get('visited', false) || deepLink();
+    let picked = false; try { picked = !!sessionStorage.getItem('sawt:chosen'); } catch { /* fine */ }
+    const fast = S.store.get('visited', false) || deepLink() || picked;
     if (fast) {
       intro.classList.add('is-quick');
-      Promise.race([ready, new Promise(res => setTimeout(res, 2500))]).then(() => setTimeout(enterRoom, reduceMotion ? 0 : 400));
+      Promise.race([ready, new Promise(res => setTimeout(res, 2500))]).then(() => {
+        // a new visit: the door asks who's coming in (one tap); after switching person, straight in
+        if (window.SawtMe && window.SawtMe.stopAtDoor()) { intro.classList.remove('is-quick'); return; }
+        setTimeout(enterRoom, reduceMotion ? 0 : 400);
+      });
     }
   }
 

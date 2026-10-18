@@ -43,6 +43,9 @@
       hello: n => `Bonjour ${n} 👋`
     }
   };
+  Object.assign(T.ar, { whoIn: 'مين داخل؟', someoneNew: 'حدا جديد', haveAccount: '🔑 عندي حساب (من جهاز تاني)', login: 'فوت بحسابي', loginLede: 'اكتب اسم المستخدم والرمز اللي عملتهن على جهازك التاني، وبتلاقي كل أغراضك هون.', notYou: n => `مش ${n}؟ اختار مين داخل` });
+  Object.assign(T.en, { whoIn: 'Who’s coming in?', someoneNew: 'Someone new', haveAccount: '🔑 I have an account (from another device)', login: 'Sign in', loginLede: 'Type the username and passcode you made on your other device, and all your things come here.', notYou: n => `Not ${n}? Choose who’s coming in` });
+  Object.assign(T.fr, { whoIn: 'Qui entre ?', someoneNew: 'Quelqu’un d’autre', haveAccount: '🔑 J’ai un compte (d’un autre appareil)', login: 'Me connecter', loginLede: 'Tapez le nom d’utilisateur et le code créés sur votre autre appareil, et retrouvez toutes vos affaires ici.', notYou: n => `Pas ${n} ? Choisissez qui entre` });
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
   const ICONS = ['🙂', '👩🏻', '👨🏻', '👵🏻', '👴🏻', '👧🏻', '👦🏻', '🧕🏻', '👩🏻‍🍳', '🌲', '☕', '🎲', '🌹', '🌙', '⭐', '🐈'];
 
@@ -130,6 +133,8 @@
       else if (list.length > 1) { const c = el('button', { type: 'button', className: 'link-btn who-close', text: t('who') }); c.addEventListener('click', () => { view = 'gate'; render(); }); kids.push(c); }
     } else if (view === 'edit') {
       kids.push(editor(editing ? find(editing) : null));
+    } else if (view === 'login') {
+      kids.push(loginForm());
     }
     panel.replaceChildren(el('div', { className: 'who-box' }, kids));
     const f = panel.querySelector('input'); if (f) setTimeout(() => f.focus({ preventScroll: true }), 50);
@@ -234,6 +239,42 @@
     return el('div', {}, kids);
   }
 
+  // ------------------------------------------------------------------ signing in on a new device
+  // The account's things land in a new corner of this device, and it becomes the one in use.
+  const DEVICE = new Set(['profiles', 'profileId', 'visited', 'visits', 'installAsked', 'lookedAround']);
+  function loginForm() {
+    const user = el('input', { maxLength: 24, placeholder: t('userPh'), autocomplete: 'username', dir: 'ltr', autocapitalize: 'none' });
+    const pin = el('input', { type: 'password', inputMode: 'numeric', maxLength: 8, autocomplete: 'current-password', placeholder: t('pinPh') });
+    const msg = el('p', { className: 'form-error', role: 'alert', hidden: !syncErr, text: syncErr });
+    const back = el('button', { type: 'button', className: 'btn', text: t('cancel') });
+    back.addEventListener('click', () => { syncErr = ''; close(); });
+    const f = el('form', { className: 'who-form' }, [
+      el('p', { className: 'quiet small', text: t('loginLede') }),
+      el('label', { className: 'field' }, [el('span', { text: t('user') }), user]),
+      el('label', { className: 'field' }, [el('span', { text: t('pin') }), pin]),
+      msg,
+      el('div', { className: 'who-actions' }, [el('button', { type: 'submit', className: 'btn btn-primary', text: t('login') }), back])
+    ]);
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      syncErr = '';
+      try {
+        const res = await fetch('/api/profile/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user: user.value.trim(), pin: digits(pin.value), mustExist: true }) });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(d.code || 'server');
+        const same = list.find(x => x.sync && x.sync.user === d.user);
+        const id = same ? same.id : (list.length ? 'p' + Date.now().toString(36) : 'p0');
+        const prof = { ...(same || { icon: ICONS[0], lock: null }), id, name: d.name || d.user, sync: { user: d.user, token: d.token } };
+        list = [...list.filter(x => x.id !== id), prof]; saveList();
+        const pre = id === 'p0' ? 'sawt:' : `sawt:${id}:`;
+        try { for (const [k, v] of Object.entries(d.data || {})) if (!DEVICE.has(k)) localStorage.setItem(pre + k, JSON.stringify(v)); } catch { /* full */ }
+        try { localStorage.setItem(pre + 'syncedAt', JSON.stringify(d.updated || Date.now())); } catch { /* fine */ }
+        switchTo(id);
+      } catch (ex) { syncErr = t('errs')[ex.message] || t('errs').server; render(); }
+    });
+    return el('div', {}, [el('h2', { className: 'who-title', id: 'who-title', text: t('login') }), f]);
+  }
+
   // ------------------------------------------------------------------ the same person on every device
   function syncBox(p) {
     const box = el('section', { className: 'who-sync' }, [el('h3', { text: '☁️ ' + t('sync') })]);
@@ -308,18 +349,45 @@
     if (ask) ask.hidden = !!n;
     renderBtn();
   }
-  // a name field in the welcome, for the very first visit
+  // at the door: a name field for the very first visit, or who's coming in
+  // (the people of this house, someone new, or an account from another device)
+  const doorWho = el('div', { className: 'intro-who' });
+  function renderDoor() {
+    const kids = [];
+    if (list.length) {
+      kids.push(el('p', { className: 'intro-who-t', text: t('whoIn') }));
+      const row = el('div', { className: 'intro-who-row' }, list.map(p => {
+        const b = el('button', { type: 'button', className: 'intro-who-b' + (p.id === me ? ' is-me' : '') }, [el('span', { className: 'who-avatar', text: p.icon || '🙂' }), el('span', { dir: 'auto', text: p.name }), p.lock ? el('small', { text: '🔒' }) : null].filter(Boolean));
+        b.setAttribute('aria-pressed', String(p.id === me));
+        b.addEventListener('click', () => {
+          if (p.id === me) { $('intro-btn').click(); return; }
+          if (p.lock) { pinFor = p.id; view = 'pin'; panel.hidden = false; document.body.classList.add('who-on'); render(); return; }
+          switchTo(p.id);
+        });
+        return b;
+      }));
+      const add = el('button', { type: 'button', className: 'intro-who-b is-add' }, [el('span', { className: 'who-avatar', text: '+' }), el('span', { text: t('someoneNew') })]);
+      add.addEventListener('click', () => openPanel('edit', null));
+      row.appendChild(add);
+      kids.push(row);
+    }
+    if (storeOn) { const a = el('button', { type: 'button', className: 'link-btn intro-acct', text: t('haveAccount') }); a.addEventListener('click', () => openPanel('login')); kids.push(a); }
+    doorWho.replaceChildren(...kids);
+    doorWho.hidden = !kids.length;
+  }
   (() => {
     const intro = document.querySelector('.intro-text');
     const btnIn = $('intro-btn');
     if (!intro || !btnIn) return;
     const input = el('input', { id: 'intro-name', className: 'intro-name', maxLength: 30, autocomplete: 'given-name', placeholder: t('askName'), 'aria-label': t('askName'), hidden: !!myName() });
     btnIn.before(input);
+    btnIn.after(doorWho);
+    renderDoor();
     input.required = true;
     input.addEventListener('input', () => input.removeAttribute('aria-invalid'));
     const take = e => {
       const n = input.value.trim().replace(/\s+/g, ' ');
-      if (myName()) return;
+      if (myName()) { ss.set('chosen', me); return; }
       if (!n) {
         // the name comes first: nobody walks in without one
         e.preventDefault(); e.stopImmediatePropagation();
@@ -330,6 +398,7 @@
         return;
       }
       list.push({ id: me, name: n, icon: ICONS[0], lock: null }); saveList();
+      ss.set('chosen', me);
       greet();
       S.toast(t('hello', n));
       document.dispatchEvent(new CustomEvent('sawt:me'));
@@ -342,12 +411,11 @@
   function gate() {
     const p = current();
     if (p && p.lock && ss.get('unlocked') !== me) { pinFor = me; view = 'pin-gate'; panel.hidden = false; document.body.classList.add('who-on'); render(); return; }
-    if (list.length > 1 && !ss.get('chosen')) { view = 'gate'; panel.hidden = false; document.body.classList.add('who-on'); render(); }
   }
 
-  document.addEventListener('sawt:config', e => { storeOn = !!(e.detail && e.detail.dedications); if (!panel.hidden && view === 'edit') render(); push(false); });
-  document.addEventListener('sawt:lang', () => { greet(); if (!panel.hidden) render(); const i = $('intro-name'); if (i) { i.placeholder = t('askName'); i.setAttribute('aria-label', t('askName')); } });
-  window.SawtMe = { needName: () => !myName(), focusName: () => { const i = $('intro-name'); if (i) { i.hidden = false; i.focus(); } }, name: myName, id: () => me, icon: () => (current() || {}).icon || '🙂', open: openPanel, push };
+  document.addEventListener('sawt:config', e => { storeOn = !!(e.detail && e.detail.dedications); if (!panel.hidden && view === 'edit') render(); renderDoor(); push(false); });
+  document.addEventListener('sawt:lang', () => { greet(); renderDoor(); if (!panel.hidden) render(); const i = $('intro-name'); if (i) { i.placeholder = t('askName'); i.setAttribute('aria-label', t('askName')); } });
+  window.SawtMe = { needName: () => !myName(), stopAtDoor: () => !myName() || ss.get('chosen') !== me, focusName: () => { const i = $('intro-name'); if (i) { i.hidden = false; i.focus(); } }, name: myName, id: () => me, icon: () => (current() || {}).icon || '🙂', open: openPanel, push };
   renderBtn();
   greet();
   gate();
