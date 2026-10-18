@@ -2,289 +2,118 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="وردة Wardé — أخبار لبنان، راديو وتلفزيون مباشر للبنانيين في الاغتراب">
-  <title>وردة Wardé - Lebanese Diaspora Hub</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #0b1a0f;
-      color: #e0d7c6;
-      padding: 20px 16px;
-      max-width: 1000px;
-      margin: auto;
-      line-height: 1.5;
-    }
-    h1 { text-align: center; margin: 12px 0 4px; color: #c4a35a; }
-    .tagline { text-align: center; color: #8f9a84; margin-bottom: 20px; font-size: 14px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-    .panel {
-      background: #142218;
-      border: 1px solid #2f3e2c;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 20px;
-      min-width: 0;
-    }
-    .panel-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      border-bottom: 1px solid #3a4a35;
-      padding-bottom: 8px;
-      margin-bottom: 12px;
-    }
-    .panel h2 { color: #d4af37; font-size: 20px; }
-    .meta { color: #8f9a84; font-size: 12px; }
-    .icon-btn {
-      background: #1f3322;
-      color: #c4a35a;
-      border: 1px solid #4a5e3f;
-      border-radius: 20px;
-      padding: 4px 10px;
-      cursor: pointer;
-      font-size: 13px;
-    }
-    .icon-btn:hover { background: #2a4430; }
-    .icon-btn:disabled { opacity: 0.5; cursor: wait; }
-    .news-source h3 { color: #b89b4b; margin: 12px 0 6px; font-size: 16px; }
-    .news-item {
-      padding: 8px 0;
-      border-bottom: 1px solid #2e3a2b;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-    .news-item a { color: #d1c4a5; text-decoration: none; }
-    .news-item a:hover { color: #f5e6c6; text-decoration: underline; }
-    .news-item time { color: #7f8a74; font-size: 12px; }
-    .muted { color: #8f9a84; font-size: 14px; }
-    .error { color: #e0a080; font-size: 14px; }
-    .radio-list {
-      margin: 10px 0;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      max-height: 260px;
-      overflow-y: auto;
-    }
-    .radio-btn {
-      background: #1f3322;
-      color: #c4a35a;
-      border: 1px solid #4a5e3f;
-      padding: 6px 12px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .radio-btn:hover { background: #2a4430; }
-    .radio-btn.active { background: #3a502b; color: #fff; }
-    .radio-btn.offline { opacity: 0.4; text-decoration: line-through; }
-    .now-playing { margin-top: 8px; font-size: 14px; min-height: 1.5em; }
-    audio { width: 100%; margin-top: 8px; border-radius: 8px; }
-    .tv-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-    .tv-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      background: #1a2c1e;
-      border: 1px solid #3a4a35;
-      border-radius: 10px;
-      padding: 14px;
-      color: #e0d7c6;
-      text-decoration: none;
-    }
-    .tv-card:hover { background: #22392a; border-color: #c4a35a; }
-    .tv-card strong { color: #d4af37; }
-    .tv-card span { font-size: 13px; color: #b8ad95; }
-    .live-dot {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #e24b4b;
-      margin-inline-start: 6px;
-    }
-    footer { text-align: center; color: #6f7a64; font-size: 12px; margin: 10px 0 20px; }
-    @media (max-width: 700px) {
-      .grid { grid-template-columns: 1fr; gap: 0; }
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>وردة · Wardé</title>
+  <meta name="description" content="راديو لبنان، أخبار لبنان وتلفزيون لبنان المباشر في مكان واحد، لكل لبناني بعيد عن البيت.">
+  <meta name="theme-color" content="#0E1F19">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Reem+Kufi:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
 </head>
 <body>
-  <h1>🇱🇧 وردة Wardé</h1>
-  <p class="tagline">لبنان أينما كنت — أخبار، راديو وتلفزيون مباشر</p>
+  <a class="skip" href="#news" data-i18n="skipToNews">انتقل إلى الأخبار</a>
 
-  <div class="grid">
-    <!-- News -->
-    <section class="panel" aria-labelledby="news-title">
-      <div class="panel-head">
-        <h2 id="news-title">📰 أخبار من لبنان</h2>
-        <button class="icon-btn" id="news-refresh" type="button" aria-label="تحديث الأخبار">↻ تحديث</button>
-      </div>
-      <p class="meta" id="news-updated"></p>
-      <div id="news-content"><p class="muted">جاري تحميل الأخبار...</p></div>
-    </section>
-
-    <!-- Radio -->
-    <section class="panel" aria-labelledby="radio-title">
-      <div class="panel-head">
-        <h2 id="radio-title">🎵 راديو لبنان</h2>
-      </div>
-      <p class="muted">اختر محطة للاستماع</p>
-      <div class="radio-list" id="radio-list"><p class="muted">جاري تحميل المحطات...</p></div>
-      <p class="now-playing" id="now-playing"></p>
-      <audio id="audio-player" controls preload="none"></audio>
-    </section>
-  </div>
-
-  <!-- TV -->
-  <section class="panel" aria-labelledby="tv-title">
-    <div class="panel-head">
-      <h2 id="tv-title">📺 تلفزيون لبنان (مباشر)</h2>
+  <header class="top">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true"><use href="#cedar"/></svg>
+      <span class="brand-name" data-i18n="brand">وردة</span>
     </div>
-    <div class="tv-grid" id="tv-grid"></div>
-  </section>
+    <div class="here" aria-live="off">
+      <p class="clock">
+        <span class="clock-city" data-i18n="beirut">بيروت</span>
+        <time class="clock-time" id="beirut-time"></time>
+        <span class="weather" id="weather" hidden></span>
+      </p>
+      <p class="clock clock-local" id="local-clock" hidden>
+        <span class="clock-city" data-i18n="yourTime">عندك</span>
+        <time class="clock-time" id="local-time"></time>
+      </p>
+    </div>
+    <button class="lang" id="lang-toggle" type="button" lang="en">English</button>
+  </header>
 
-  <footer>الأخبار تتحدث تلقائياً كل ١٠ دقائق · المحطات من دليل Radio Browser المجاني</footer>
+  <main>
+    <!-- The radio: the one loud thing on the page -->
+    <section class="radio" aria-labelledby="radio-heading">
+      <h1 class="visually-hidden" id="radio-heading" data-i18n="radioHeading">راديو لبنان</h1>
 
-  <script>
-    const NEWS_REFRESH_MS = 10 * 60 * 1000;
+      <p class="morning" id="morning" hidden>
+        <span data-i18n="morning">صباح الخير. فيروز الصبح؟</span>
+        <button type="button" class="link-btn" id="morning-btn" data-i18n="morningAction">شغّل فيروز</button>
+      </p>
 
-    // Build elements with textContent only, so nothing from a feed can run as code.
-    function el(tag, props = {}, children = []) {
-      const node = document.createElement(tag);
-      for (const [key, value] of Object.entries(props)) {
-        if (key === 'text') node.textContent = value;
-        else if (key === 'className') node.className = value;
-        else node.setAttribute(key, value);
-      }
-      for (const child of children) if (child) node.appendChild(child);
-      return node;
-    }
+      <div class="set">
+        <div class="now">
+          <button class="power" id="power" type="button" aria-pressed="false" aria-label="تشغيل">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg>
+          </button>
+          <div class="now-text">
+            <p class="station-name" id="station-name" dir="auto" aria-live="polite">…</p>
+            <p class="station-status" id="station-status" aria-live="polite"></p>
+          </div>
+          <div class="eq" id="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <button class="fav" id="fav" type="button" aria-pressed="false" aria-label="أضف إلى المفضلة">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8L3.5 9.7l5.9-.9z"/></svg>
+          </button>
+        </div>
 
-    const rtf = new Intl.RelativeTimeFormat('ar', { numeric: 'auto' });
-    function timeAgo(iso) {
-      if (!iso) return '';
-      const diffMin = Math.round((new Date(iso) - Date.now()) / 60000);
-      if (Math.abs(diffMin) < 60) return rtf.format(diffMin, 'minute');
-      const diffHr = Math.round(diffMin / 60);
-      if (Math.abs(diffHr) < 24) return rtf.format(diffHr, 'hour');
-      return rtf.format(Math.round(diffHr / 24), 'day');
-    }
+        <div class="dial">
+          <div class="dial-scale" id="dial" tabindex="0" role="listbox" aria-label="المحطات" data-i18n-label="stations">
+            <p class="dial-loading" data-i18n="loadingStations">جاري تحميل المحطات…</p>
+          </div>
+          <div class="needle" aria-hidden="true"></div>
+        </div>
+        <p class="dial-hint" data-i18n="dialHint">اسحب المؤشر لتغيير المحطة</p>
+      </div>
 
-    // ---------- NEWS ----------
-    const newsContainer = document.getElementById('news-content');
-    const newsUpdated = document.getElementById('news-updated');
-    const refreshBtn = document.getElementById('news-refresh');
+      <div class="filters" role="group" aria-label="تصفية المحطات" data-i18n-label="filterStations">
+        <button type="button" class="chip" data-filter="all" aria-pressed="true" data-i18n="filterAll">كل المحطات</button>
+        <button type="button" class="chip" data-filter="fav" aria-pressed="false" data-i18n="filterFav">المفضلة</button>
+        <button type="button" class="chip" data-filter="fairuz" aria-pressed="false" data-i18n="filterFairuz">فيروز</button>
+      </div>
 
-    async function loadNews() {
-      refreshBtn.disabled = true;
-      try {
-        const res = await fetch('/api/news');
-        if (!res.ok) throw new Error(res.status);
-        const data = await res.json();
-        const blocks = data.sources.map(source => {
-          const items = source.items.length
-            ? source.items.map(item => el('div', { className: 'news-item' }, [
-                el('a', { href: item.link, target: '_blank', rel: 'noopener noreferrer', text: item.title }),
-                item.date ? el('time', { datetime: item.date, text: timeAgo(item.date) }) : null
-              ]))
-            : [el('p', { className: 'muted', text: source.ok ? 'لا توجد أخبار حالياً' : 'المصدر غير متاح حالياً' })];
-          return el('div', { className: 'news-source' }, [el('h3', { text: source.source }), ...items]);
-        });
-        newsContainer.replaceChildren(...blocks);
-        newsUpdated.textContent = 'آخر تحديث: ' + timeAgo(data.updatedAt);
-      } catch {
-        // Keep whatever headlines are already showing; just report the failure.
-        if (!newsContainer.querySelector('.news-item')) {
-          newsContainer.replaceChildren(el('p', { className: 'error', text: 'فشل تحميل الأخبار. حاول مجدداً بعد قليل.' }));
-        }
-        newsUpdated.textContent = 'تعذّر التحديث';
-      } finally {
-        refreshBtn.disabled = false;
-      }
-    }
+      <audio id="audio" preload="none"></audio>
+    </section>
 
-    let lastNewsLoad = 0;
-    function loadNewsIfStale() {
-      if (!document.hidden && Date.now() - lastNewsLoad >= NEWS_REFRESH_MS) {
-        lastNewsLoad = Date.now();
-        loadNews();
-      }
-    }
+    <div class="lower">
+      <!-- News -->
+      <section class="news" id="news" aria-labelledby="news-heading" tabindex="-1">
+        <div class="section-head">
+          <h2 id="news-heading" data-i18n="newsHeading">أخبار من لبنان</h2>
+          <button type="button" class="link-btn" id="news-refresh" data-i18n="refresh">تحديث</button>
+        </div>
+        <div class="tabs" role="tablist" id="news-tabs" aria-labelledby="news-heading"></div>
+        <div class="headlines" id="headlines" role="tabpanel" aria-live="polite">
+          <p class="quiet" data-i18n="loadingNews">جاري تحميل الأخبار…</p>
+        </div>
+        <p class="updated" id="news-updated"></p>
+      </section>
 
-    refreshBtn.addEventListener('click', () => { lastNewsLoad = Date.now(); loadNews(); });
-    loadNewsIfStale();
-    setInterval(loadNewsIfStale, 60 * 1000);
-    document.addEventListener('visibilitychange', loadNewsIfStale);
+      <!-- TV -->
+      <section class="tv" aria-labelledby="tv-heading">
+        <h2 id="tv-heading" data-i18n="tvHeading">تلفزيون مباشر</h2>
+        <ul class="channels" id="channels"></ul>
+        <p class="quiet small" data-i18n="tvNote">يفتح البث المباشر على يوتيوب.</p>
+      </section>
+    </div>
+  </main>
 
-    // ---------- RADIO ----------
-    const radioList = document.getElementById('radio-list');
-    const audioPlayer = document.getElementById('audio-player');
-    const nowPlaying = document.getElementById('now-playing');
-    let currentBtn = null;
+  <footer class="foot">
+    <p data-i18n="footer">المحطات من دليل Radio Browser المجاني. الأخبار تتجدد كل ١٠ دقائق.</p>
+  </footer>
 
-    function playStation(station, btn) {
-      document.querySelectorAll('.radio-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentBtn = btn;
-      nowPlaying.textContent = '⏳ جاري الاتصال بـ ' + station.name + '...';
-      audioPlayer.src = station.url;
-      audioPlayer.play().catch(() => {
-        nowPlaying.textContent = '▶️ اضغط تشغيل للاستماع إلى ' + station.name;
-      });
-    }
+  <!-- Cedar mark, drawn once and reused -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="cedar" viewBox="0 0 32 32">
+      <path d="M16 3 L22 10 H19 L25 17 H21 L28 25 H4 L11 17 H7 L13 10 H10 Z" fill="currentColor"/>
+      <rect x="14.5" y="25" width="3" height="4" rx="0.5" fill="currentColor"/>
+    </symbol>
+  </svg>
 
-    audioPlayer.addEventListener('playing', () => {
-      if (currentBtn) nowPlaying.textContent = '🔊 تستمع الآن: ' + currentBtn.textContent;
-    });
-    audioPlayer.addEventListener('error', () => {
-      if (!currentBtn || !audioPlayer.getAttribute('src')) return;
-      currentBtn.classList.add('offline');
-      nowPlaying.textContent = '⚠️ هذه المحطة لا تعمل الآن، جرّب محطة أخرى.';
-    });
-
-    async function loadStations() {
-      try {
-        const res = await fetch('/api/radio');
-        if (!res.ok) throw new Error(res.status);
-        const { stations } = await res.json();
-        const buttons = stations.map(station => {
-          const btn = el('button', { className: 'radio-btn', type: 'button', text: station.name });
-          if (station.tags) btn.title = station.tags;
-          btn.addEventListener('click', () => playStation(station, btn));
-          return btn;
-        });
-        radioList.replaceChildren(...buttons);
-      } catch {
-        radioList.replaceChildren(el('p', { className: 'error', text: 'تعذّر تحميل المحطات. حاول مجدداً لاحقاً.' }));
-      }
-    }
-    loadStations();
-
-    // ---------- TV (official YouTube channels; /live opens the current broadcast) ----------
-    const tvChannels = [
-      { name: 'LBCI', handle: 'lbcilebanonofficial' },
-      { name: 'MTV Lebanon', handle: 'mtvlebanon' },
-      { name: 'Al Jadeed', handle: 'aljadeednewslb' },
-      { name: 'OTV Lebanon', handle: 'otvlebanonofficial' }
-    ];
-
-    document.getElementById('tv-grid').replaceChildren(...tvChannels.map(ch =>
-      el('a', {
-        className: 'tv-card',
-        href: 'https://www.youtube.com/@' + ch.handle + '/live',
-        target: '_blank',
-        rel: 'noopener noreferrer'
-      }, [
-        el('strong', { text: ch.name }),
-        el('span', {}, [document.createTextNode('شاهد مباشر'), el('i', { className: 'live-dot', 'aria-hidden': 'true' })])
-      ])
-    ));
-  </script>
+  <script src="/app.js" defer></script>
 </body>
 </html>

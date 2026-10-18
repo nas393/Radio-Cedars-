@@ -278,8 +278,37 @@ const getStations = cached(RADIO_TTL_MS, async () => {
 });
 
 // ---------------------------------------------------------------------------
+// Beirut weather — free Open-Meteo API, no key needed.
+// ---------------------------------------------------------------------------
+const WEATHER_TTL_MS = 30 * 60 * 1000;
+const WEATHER_URL = 'https://api.open-meteo.com/v1/forecast?latitude=33.8938&longitude=35.5018'
+  + '&current=temperature_2m,weather_code,is_day&timezone=Asia%2FBeirut';
+
+const getWeather = cached(WEATHER_TTL_MS, async () => {
+  const data = await fetchJson(WEATHER_URL);
+  const c = data && data.current;
+  if (!c || typeof c.temperature_2m !== 'number') throw new Error('unexpected weather response');
+  return {
+    updatedAt: new Date().toISOString(),
+    temperature: Math.round(c.temperature_2m),
+    code: Number(c.weather_code),
+    isDay: c.is_day === 1
+  };
+});
+
+// ---------------------------------------------------------------------------
 // Routes
 // ---------------------------------------------------------------------------
+app.get('/api/weather', async (req, res) => {
+  try {
+    res.set('Cache-Control', 'public, max-age=900, s-maxage=1800, stale-while-revalidate=1800');
+    res.json(await getWeather());
+  } catch (err) {
+    console.error('[weather]', err);
+    res.status(502).json({ error: 'Failed to load weather' });
+  }
+});
+
 app.get('/api/news', async (req, res) => {
   try {
     // Browsers keep it 5 min; Vercel's CDN keeps it 10 min and refreshes in the background.

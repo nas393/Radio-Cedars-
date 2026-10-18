@@ -1,0 +1,445 @@
+/* Wardé — "the radio on the balcony"
+   One loud element (the tuning dial); everything else quiet. */
+
+:root {
+  --night: #0E1F19;        /* cedar at night: page */
+  --cedar: #17352B;        /* raised surfaces */
+  --cedar-line: #2B4F42;   /* rules and outlines */
+  --stone: #E7E0D0;        /* limestone: main text */
+  --stone-dim: #A7AE9F;    /* secondary text */
+  --brass: #C9A24A;        /* dial, needle cap, active states */
+  --brass-glow: rgba(201, 162, 74, 0.16);
+  --red: #D2232A;          /* flag red: live and the needle only */
+
+  --font-display: 'Reem Kufi', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+  --font-body: 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Type scale, ratio 1.25 on a 17px base (Arabic reads better a touch larger) */
+  --step--1: 0.8125rem;
+  --step-0: 1.0625rem;
+  --step-1: 1.3125rem;
+  --step-2: 1.625rem;
+  --step-3: 2.0625rem;
+  --step-4: clamp(2.25rem, 7vw, 3.5rem);
+
+  --gutter: clamp(16px, 4vw, 40px);
+  --radius: 14px;
+  --tick: 132px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  background: var(--night);
+  color: var(--stone);
+  font-family: var(--font-body);
+  font-size: var(--step-0);
+  line-height: 1.6;
+  min-height: 100vh;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brass);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+a { color: inherit; }
+
+[hidden] { display: none !important; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+.skip {
+  position: absolute; inset-inline-start: 8px; top: -60px;
+  background: var(--brass); color: var(--night);
+  padding: 8px 14px; border-radius: 8px; z-index: 10;
+}
+.skip:focus { top: 8px; }
+
+/* ---------------------------------------------------------------- header */
+
+.top {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 20px var(--gutter) 0;
+  display: flex;
+  align-items: center;
+  gap: 16px 24px;
+  flex-wrap: wrap;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-mark { width: 30px; height: 30px; color: var(--brass); }
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-2);
+  line-height: 1;
+}
+
+.here {
+  display: flex;
+  gap: 4px 20px;
+  flex-wrap: wrap;
+  margin-inline-start: auto;
+  color: var(--stone-dim);
+  font-size: var(--step--1);
+}
+.clock { display: flex; align-items: baseline; gap: 8px; }
+.clock-time {
+  color: var(--stone);
+  font-size: var(--step-0);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.weather { color: var(--stone); }
+
+.lang {
+  font-size: var(--step--1);
+  color: var(--stone-dim);
+  padding: 6px 12px;
+  border: 1px solid var(--cedar-line);
+  border-radius: 999px;
+}
+.lang:hover { color: var(--stone); border-color: var(--stone-dim); }
+
+/* ---------------------------------------------------------------- radio */
+
+main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+}
+
+.radio { padding: clamp(28px, 6vw, 64px) 0 clamp(32px, 6vw, 56px); }
+
+.morning {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  margin-bottom: 20px;
+  color: var(--stone-dim);
+}
+
+.link-btn {
+  color: var(--brass);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  padding: 4px 0;
+}
+.link-btn:hover { color: var(--stone); }
+.link-btn:disabled { opacity: 0.5; cursor: progress; }
+
+/* The set: the lit radio face */
+.set {
+  position: relative;
+  border-radius: 28px;
+  padding: clamp(20px, 4vw, 36px) 0 18px;
+  background:
+    radial-gradient(120% 90% at 50% 100%, var(--brass-glow), transparent 70%),
+    linear-gradient(180deg, #13291F, #0F221A);
+  border: 1px solid var(--cedar-line);
+  overflow: hidden;
+}
+
+.now {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 0 clamp(20px, 4vw, 36px);
+}
+
+.power {
+  width: 64px; height: 64px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--cedar);
+  border: 2px solid var(--brass);
+  color: var(--brass);
+  transition: background-color .2s, color .2s;
+}
+.power svg {
+  width: 26px; height: 26px;
+  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round;
+}
+.power[aria-pressed="true"] { background: var(--brass); color: var(--night); }
+
+.now-text { min-width: 0; }
+.station-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--step-4);
+  line-height: 1.15;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
+}
+.station-status {
+  color: var(--stone-dim);
+  font-size: var(--step--1);
+  min-height: 1.6em;
+}
+.station-status.is-live { color: var(--stone); }
+.station-status.is-live::before {
+  content: '';
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--red);
+  margin-inline-end: 8px;
+  vertical-align: 1px;
+}
+.station-status.is-error { color: #E9A58A; }
+
+.fav {
+  width: 44px; height: 44px;
+  display: grid; place-items: center;
+  color: var(--stone-dim);
+  border-radius: 50%;
+}
+.fav svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; }
+.fav:hover { color: var(--stone); }
+.fav[aria-pressed="true"] { color: var(--brass); }
+.fav[aria-pressed="true"] svg { fill: currentColor; }
+
+/* Little level meter, only moves while playing */
+.eq { display: flex; align-items: flex-end; gap: 3px; height: 22px; opacity: 0; transition: opacity .3s; }
+.eq i { width: 4px; height: 30%; background: var(--brass); border-radius: 2px; }
+.is-playing .eq { opacity: 1; }
+.is-playing .eq i { animation: level 1.1s ease-in-out infinite; }
+.is-playing .eq i:nth-child(2) { animation-delay: -.4s; }
+.is-playing .eq i:nth-child(3) { animation-delay: -.8s; }
+.is-playing .eq i:nth-child(4) { animation-delay: -.2s; }
+@keyframes level { 0%, 100% { height: 25%; } 50% { height: 100%; } }
+
+/* The dial: scrolls under a fixed needle */
+.dial { position: relative; margin-top: clamp(20px, 4vw, 32px); }
+/* the warm light behind the glass, strongest at the needle */
+.dial::after {
+  content: '';
+  position: absolute;
+  inset: -20px 0 0;
+  background: radial-gradient(240px 120px at 50% 40%, rgba(201, 162, 74, 0.18), transparent 70%);
+  pointer-events: none;
+}
+
+.dial-scale {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  overscroll-behavior-x: contain;
+  /* graduations: a major mark every five minor ones */
+  background-image:
+    repeating-linear-gradient(90deg, #44695B 0 2px, transparent 2px 60px),
+    repeating-linear-gradient(90deg, var(--cedar-line) 0 1px, transparent 1px 12px);
+  background-size: 100% 20px, 100% 11px;
+  background-repeat: no-repeat;
+  padding-top: 26px;
+  background-attachment: local;
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  cursor: grab;
+  touch-action: pan-x;
+}
+.dial-scale::-webkit-scrollbar { display: none; }
+/* Spacers let the first and last station reach the needle */
+.dial-spacer { flex: 0 0 calc(50% - var(--tick) / 2); }
+.dial-scale:focus-visible { outline-offset: -2px; }
+.dial-scale.is-dragging { cursor: grabbing; scroll-snap-type: none; }
+
+.dial-loading { color: var(--stone-dim); padding: 30px 0; white-space: nowrap; }
+
+.tick {
+  flex: 0 0 auto;
+  width: var(--tick);
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 0 6px 6px;
+  color: var(--stone-dim);
+  font-size: var(--step--1);
+  line-height: 1.35;
+  text-align: center;
+}
+.tick::before {
+  content: '';
+  width: 2px; height: 24px;
+  background: var(--stone-dim);
+  border-radius: 1px;
+}
+.tick span {
+  max-width: 100%;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.tick:hover { color: var(--stone); }
+.tick[aria-selected="true"] { color: var(--brass); font-size: var(--step-0); font-weight: 600; }
+.tick[aria-selected="true"]::before { background: var(--brass); }
+.tick.is-fav span::after { content: ' ★'; color: var(--brass); }
+.tick.is-offline { opacity: .45; }
+
+.needle {
+  position: absolute;
+  top: -4px;
+  bottom: 44px;
+  left: 50%;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--red);
+  pointer-events: none;
+  box-shadow: 0 0 12px rgba(210, 35, 42, .5);
+}
+.needle::before {
+  content: '';
+  position: absolute;
+  top: -6px; left: 50%;
+  width: 12px; height: 12px;
+  margin-left: -6px;
+  border-radius: 50%;
+  background: var(--brass);
+}
+
+.dial-hint {
+  text-align: center;
+  color: var(--stone-dim);
+  font-size: var(--step--1);
+  margin-top: 6px;
+}
+
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--cedar-line);
+  color: var(--stone-dim);
+  font-size: var(--step--1);
+}
+.chip:hover { color: var(--stone); }
+.chip[aria-pressed="true"] { border-color: var(--brass); color: var(--brass); }
+
+/* ---------------------------------------------------------------- news + tv */
+
+.lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 48px;
+  padding-bottom: 48px;
+}
+@media (min-width: 880px) {
+  .lower { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 64px; }
+}
+
+h2 {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--step-2);
+  line-height: 1.2;
+}
+
+.section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; }
+
+.tabs {
+  display: flex;
+  gap: 4px 22px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 14px 0 6px;
+  border-bottom: 1px solid var(--cedar-line);
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex: 0 0 auto;
+  padding: 10px 0 12px;
+  color: var(--stone-dim);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--stone); }
+.tab[aria-selected="true"] { color: var(--stone); border-bottom-color: var(--brass); }
+.tab.is-down { opacity: .5; }
+
+.headlines { min-height: 240px; }
+.headline {
+  display: block;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--cedar-line);
+  text-decoration: none;
+  max-width: 68ch;
+}
+.headline-title {
+  display: block;
+  font-size: var(--step-1);
+  line-height: 1.5;
+  font-weight: 500;
+}
+.headline:hover .headline-title { color: var(--brass); }
+.headline time { display: block; margin-top: 4px; color: var(--stone-dim); font-size: var(--step--1); }
+
+.quiet { color: var(--stone-dim); padding: 16px 0; }
+.quiet.small { font-size: var(--step--1); padding: 12px 0 0; }
+.error { color: #E9A58A; padding: 16px 0; }
+.updated { color: var(--stone-dim); font-size: var(--step--1); margin-top: 12px; min-height: 1.6em; }
+
+.channels { list-style: none; margin-top: 14px; border-top: 1px solid var(--cedar-line); }
+.channel a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--cedar-line);
+  text-decoration: none;
+}
+.channel-name { font-family: var(--font-display); font-weight: 500; font-size: var(--step-1); }
+.channel-live { display: flex; align-items: center; gap: 8px; color: var(--stone-dim); font-size: var(--step--1); }
+.channel-live::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+.channel a:hover .channel-name { color: var(--brass); }
+.channel a:hover .channel-live { color: var(--stone); }
+
+.foot {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px var(--gutter) 40px;
+  color: var(--stone-dim);
+  font-size: var(--step--1);
+}
+.foot p { border-top: 1px solid var(--cedar-line); padding-top: 24px; }
+
+/* ---------------------------------------------------------------- small screens */
+
+@media (max-width: 560px) {
+  .here { order: 3; width: 100%; margin-inline-start: 0; }
+  .lang { margin-inline-start: auto; }
+  .now { grid-template-columns: auto 1fr auto; gap: 14px; }
+  .eq { display: none; }
+  .power { width: 56px; height: 56px; }
+  :root { --tick: 112px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .is-playing .eq i { height: 60%; }
+}
+
+/* Station names can be Arabic or Latin; keep them next to the play button either way. */
+[dir="rtl"] .station-name { text-align: right; }
+[dir="ltr"] .station-name { text-align: left; }
