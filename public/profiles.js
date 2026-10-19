@@ -43,9 +43,9 @@
       hello: n => `Bonjour ${n} 👋`
     }
   };
-  Object.assign(T.ar, { whoIn: 'مين داخل؟', someoneNew: 'حدا جديد', haveAccount: '🔑 عندي حساب (من جهاز تاني)', login: 'فوت بحسابي', loginLede: 'اكتب اسم المستخدم والرمز اللي عملتهن على جهازك التاني، وبتلاقي كل أغراضك هون.', notYou: n => `مش ${n}؟ اختار مين داخل` });
-  Object.assign(T.en, { whoIn: 'Who’s coming in?', someoneNew: 'Someone new', haveAccount: '🔑 I have an account (from another device)', login: 'Sign in', loginLede: 'Type the username and passcode you made on your other device, and all your things come here.', notYou: n => `Not ${n}? Choose who’s coming in` });
-  Object.assign(T.fr, { whoIn: 'Qui entre ?', someoneNew: 'Quelqu’un d’autre', haveAccount: '🔑 J’ai un compte (d’un autre appareil)', login: 'Me connecter', loginLede: 'Tapez le nom d’utilisateur et le code créés sur votre autre appareil, et retrouvez toutes vos affaires ici.', notYou: n => `Pas ${n} ? Choisissez qui entre` });
+  Object.assign(T.ar, { acctAsk: 'احفظ أغراضك ☁️ اعمل اسم مستخدم ورمز، وإذا غيّرت تلفونك بتلاقي كل شي: المفضّلة، ضيعتك، طبخاتك ونتايجك.', acctYes: 'اعمل حساب', acctLater: 'بعدين', whoIn: 'مين داخل؟', someoneNew: 'حدا جديد', haveAccount: '🔑 عندي حساب (من جهاز تاني)', login: 'فوت بحسابي', loginLede: 'اكتب اسم المستخدم والرمز اللي عملتهن على جهازك التاني، وبتلاقي كل أغراضك هون.', notYou: n => `مش ${n}؟ اختار مين داخل` });
+  Object.assign(T.en, { acctAsk: 'Keep your things ☁️ Pick a username and passcode, and if you change phones everything comes with you: favourites, village, recipes, scores.', acctYes: 'Make an account', acctLater: 'Later', whoIn: 'Who’s coming in?', someoneNew: 'Someone new', haveAccount: '🔑 I have an account (from another device)', login: 'Sign in', loginLede: 'Type the username and passcode you made on your other device, and all your things come here.', notYou: n => `Not ${n}? Choose who’s coming in` });
+  Object.assign(T.fr, { acctAsk: 'Gardez vos affaires ☁️ Choisissez un nom d’utilisateur et un code : si vous changez de téléphone, tout vous suit (favoris, village, recettes, scores).', acctYes: 'Créer un compte', acctLater: 'Plus tard', whoIn: 'Qui entre ?', someoneNew: 'Quelqu’un d’autre', haveAccount: '🔑 J’ai un compte (d’un autre appareil)', login: 'Me connecter', loginLede: 'Tapez le nom d’utilisateur et le code créés sur votre autre appareil, et retrouvez toutes vos affaires ici.', notYou: n => `Pas ${n} ? Choisissez qui entre` });
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
   const ICONS = ['🙂', '👩🏻', '👨🏻', '👵🏻', '👴🏻', '👧🏻', '👦🏻', '🧕🏻', '👩🏻‍🍳', '🌲', '☕', '🎲', '🌹', '🌙', '⭐', '🐈'];
 
@@ -406,6 +406,26 @@
     btnIn.addEventListener('click', take, true);
     input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); btnIn.click(); } });
   })();
+
+  // ------------------------------------------------------------------ a gentle word about an account
+  // From the second visit on, once in a while (never more than every two weeks), for someone
+  // who has no account yet: a small card with "make an account" and "later".
+  function askAccount() {
+    const p = current();
+    if (!storeOn || !p || (p.sync && p.sync.user) || document.querySelector('.acct-ask')) return;
+    if ((S.store.get('visits', 0) || 0) < 2) return;
+    if (Date.now() - (S.store.get('acctAskAt', 0) || 0) < 14 * 864e5) return;
+    S.store.set('acctAskAt', Date.now());
+    const yes = el('button', { type: 'button', className: 'btn btn-primary', text: t('acctYes') });
+    const no = el('button', { type: 'button', className: 'link-btn', text: t('acctLater') });
+    const card = el('div', { className: 'acct-ask', role: 'dialog', 'aria-label': t('sync') }, [el('p', { dir: 'auto', text: t('acctAsk') }), el('div', { className: 'q-row' }, [yes, no])]);
+    const bye = () => { card.classList.remove('is-on'); setTimeout(() => card.remove(), 350); };
+    yes.addEventListener('click', () => { bye(); openPanel('edit', me); setTimeout(() => { const f = panel.querySelector('.who-sync input'); if (f) f.focus(); }, 120); });
+    no.addEventListener('click', bye);
+    document.body.appendChild(card);
+    requestAnimationFrame(() => card.classList.add('is-on'));
+  }
+  document.addEventListener('sawt:entered', () => setTimeout(askAccount, 20000));
 
   // ------------------------------------------------------------------ at the door: who is it, and the lock
   function gate() {

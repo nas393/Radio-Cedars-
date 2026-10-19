@@ -221,6 +221,9 @@ const RADIO_MIRRORS = [
   'https://fi1.api.radio-browser.info'
 ];
 const MAX_STATIONS = 24;
+// Listed under Lebanon in the directory but not Lebanese stations (a Persian stream,
+// an international news service, a Quran-commentary feed): left out.
+const NOT_LEBANESE = ['avazfarsi.com', 'anghamy', 'qurango.net', 'mc-doualiya', 'montcarlo', 'monte carlo'];
 
 // Signed links (zeno "zt=", radiojar "rj-tok=") expire within minutes, so a
 // cached copy would stop playing. Those are dropped in favour of the station's
@@ -287,6 +290,7 @@ const getStations = cached(RADIO_TTL_MS, async () => {
         const url = pickStreamUrl(s);
         const name = cleanText(s.name, 80);
         if (!url || !name || s.lastcheckok !== 1) continue;
+        if (NOT_LEBANESE.some(x => url.includes(x) || name.toLowerCase().includes(x))) continue;
         const nameKey = name.toLowerCase();
         const urlKey = streamKey(url);
         if (seenNames.has(nameKey) || seenUrls.has(urlKey)) continue;
@@ -584,6 +588,8 @@ app.post('/api/q/:id/game', noStore, needStore, qRoute(req => together.gameSet(r
 app.post('/api/q/:id/move', noStore, needStore, qRoute(req => together.gameMove(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/game/end', noStore, needStore, qRoute(req => together.gameEnd(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/photo', noStore, needStore, qRoute(req => together.photo(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
+app.post('/api/q/:id/push', noStore, needStore, qRoute(req => together.pushOn(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/push/off', noStore, needStore, qRoute(req => together.pushOff(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/react', noStore, needStore, qRoute(req => together.react(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/typing', noStore, needStore, qRoute(req => together.typing(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/score', noStore, needStore, qRoute(req => together.score(req.params.id, { ...req.body, token: qTok(req) })));

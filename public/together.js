@@ -58,21 +58,21 @@
     }
   };
   Object.assign(T.ar, {
-    chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
+    notify: '📲 نبّهني بالرسايل', notifyOn: '📲 بتوصلك الرسايل ✓', blocked: 'التنبيهات مسكّرة لهالموقع بالمتصفّح.', ios: 'على الآيفون، ثبّت التطبيق عالشاشة أوّل (مشاركة ← زيد عالشاشة الرئيسية).', chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
     knock: 'دقّ الجرس', knocked: n => `🔔 ${n} دقّ الجرس!`, react: 'تفاعل', quick: 'كلمات سريعة', bigPhoto: 'كبّر الصورة',
     phrases: ['وصلت بالسلامة 🏠', 'اشتقنالكن ❤️', 'صباح الخير ☕', 'تصبحوا على خير 🌙', 'كيفكن؟', 'الله يخلّيكن 🙏', 'هههههه 😂', 'يلّا نلعب طاولة؟ 🎲'],
     bday: w => `🎂 اليوم عيد ميلاد ${w}! كل سنة وإنت سالم/ة 🎉`, nameday: w => `🕯️ اليوم عيد شفيع ${w}. كل عيد وإنت بخير`,
     errs2: { type: 'هالنوع من الصور ما بيمشي.', big: 'الصورة كبيرة كتير.' }, today: 'اليوم', yesterday: 'مبارح'
   });
   Object.assign(T.en, {
-    chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
+    notify: '📲 Notify me of messages', notifyOn: '📲 Message alerts on ✓', blocked: 'Notifications are blocked for this site in your browser.', ios: 'On iPhone, add the app to your home screen first (Share → Add to Home Screen).', chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
     knock: 'Ring the bell', knocked: n => `🔔 ${n} rang the bell!`, react: 'React', quick: 'Quick words', bigPhoto: 'Open the photo',
     phrases: ['Got home safe 🏠', 'Miss you all ❤️', 'Good morning ☕', 'Good night 🌙', 'How are you all?', 'Love you all 🙏', 'Hahaha 😂', 'Tawleh, anyone? 🎲'],
     bday: w => `🎂 It’s ${w}’s birthday today! Many happy returns 🎉`, nameday: w => `🕯️ Today is ${w}’s name day. Eid mubarak`,
     errs2: { type: 'That kind of picture can’t be sent.', big: 'That picture is too big.' }, today: 'Today', yesterday: 'Yesterday'
   });
   Object.assign(T.fr, {
-    chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
+    notify: '📲 M’avertir des messages', notifyOn: '📲 Alertes activées ✓', blocked: 'Les notifications sont bloquées pour ce site.', ios: 'Sur iPhone, ajoutez d’abord l’app à l’écran d’accueil (Partager → Sur l’écran d’accueil).', chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
     knock: 'Sonner', knocked: n => `🔔 ${n} a sonné !`, react: 'Réagir', quick: 'Mots rapides', bigPhoto: 'Ouvrir la photo',
     phrases: ['Bien arrivé·e 🏠', 'Vous me manquez ❤️', 'Bonjour ☕', 'Bonne nuit 🌙', 'Comment ça va ?', 'Je vous aime 🙏', 'Hahaha 😂', 'Un tawlé ? 🎲'],
     bday: w => `🎂 C’est l’anniversaire de ${w} aujourd’hui ! 🎉`, nameday: w => `🕯️ C’est la fête de ${w} aujourd’hui`,
@@ -542,6 +542,7 @@
     }
     const quick = showQuick ? el('div', { className: 'q-quick' }, t('phrases').map(ph => btn(ph, 'chip', () => { showQuick = false; render(); say(ph); }))) : null;
     const foot = el('div', { className: 'q-row' }, [
+      pushCfg && pushCfg.alerts ? btn(S.store.get('qPush:' + r.id, false) ? t('notifyOn') : t('notify'), S.store.get('qPush:' + r.id, false) ? 'btn' : 'btn btn-primary', () => pushToggle(r)) : null,
       btn('🔔 ' + t('knock'), 'btn', knock),
       btn('🎲 ' + t('playTawleh'), 'btn', () => { openGames('tawleh'); document.dispatchEvent(new CustomEvent('sawt:tawleh-room')); }),
       btn('🃏 ' + t('cards'), 'btn', () => { openGames('cards'); document.dispatchEvent(new CustomEvent('sawt:cards-room', { detail: r.id })); }),
@@ -551,6 +552,27 @@
     return el('div', { className: 'q-room' }, [head, here, log, typingLine(r), quick, composer, err ? el('p', { className: 'form-error', role: 'alert', text: err }) : null, nowCard, foot].filter(Boolean));
   }
   let draft = '', showQuick = false;
+  // ------------------------------------------------------------------ alerts when the app is closed
+  let pushCfg = null;
+  async function pushToggle(r) {
+    const on = S.store.get('qPush:' + r.id, false);
+    try {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !pushCfg || !pushCfg.publicKey) throw new Error('ios');
+      const reg = await navigator.serviceWorker.register('/sw.js');
+      await navigator.serviceWorker.ready;
+      const existing = await reg.pushManager.getSubscription();
+      if (on && existing) {
+        await api(`/api/q/${r.id}/push/off`, { endpoint: existing.endpoint }, r.token).catch(() => {});
+        S.store.set('qPush:' + r.id, false); render(); return;
+      }
+      if ((await Notification.requestPermission()) !== 'granted') { S.toast(t('blocked')); return; }
+      const k = pushCfg.publicKey;
+      const raw = atob((k + '='.repeat((4 - k.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/'));
+      const sub = existing || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: Uint8Array.from(raw, c => c.charCodeAt(0)) });
+      await api(`/api/q/${r.id}/push`, { subscription: sub.toJSON(), lang: S.lang() }, r.token);
+      S.store.set('qPush:' + r.id, true); render();
+    } catch (e) { S.toast(e.message === 'ios' ? t('ios') : t('errs').server); }
+  }
   function openGames(tab) {
     if (window.SawtRoom) window.SawtRoom.open('tawleh');
     setTimeout(() => { if (window.SawtCards) window.SawtCards.showTab(tab); }, 60);
@@ -598,6 +620,7 @@
 
   document.addEventListener('sawt:config', e => {
     storeOn = !!(e.detail && e.detail.dedications);
+    pushCfg = e.detail || null;
     badge();
     arrive().then(render);
     // keep an ear on the last room even when the sofa is closed

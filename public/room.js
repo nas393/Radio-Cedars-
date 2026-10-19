@@ -18,7 +18,7 @@
       introTitle: 'تفضّل، البيت بيتك',
       introSub: 'صالون بيت لبناني من التسعينات. كل غرض فيه بيشتغل.',
       introEnter: 'ادخل',
-      dragHint: 'دوس على أيّ غرض بالصالون، وكبّر بإصبعين لتقرّب',
+      dragHint: 'دوس على أيّ غرض، اسحب لتتفرّج، ودقّتين لتشوف الصالون كلّو',
       dockLabel: 'أغراض الغرفة',
       turnLeft: 'الغرض اللي قبل', turnRight: 'الغرض اللي بعد', tapToOpen: 'اضغط لتفتح',
       lookAround: 'شو في بالصالون؟', allObjects: 'الصالون', allObjectsTitle: 'شو في بالصالون؟',
@@ -28,7 +28,7 @@
       close: 'سكّر',
       scenes: { day: 'النهار', sunset: 'المغرب', night: 'الليل' },
       sceneManual: 'اضغط لتغيّر الوقت والطقس',
-      timeLabel: 'الوقت', weatherLabel: 'الطقس', autoBeirut: 'متل بيروت هلّق', clearW: 'صحو', rainW: 'شتي',
+      timeLabel: 'الوقت', weatherLabel: 'الطقس', autoBeirut: 'متل بيروت هلّق', clearW: 'صحو', rainW: 'شتي', snowW: 'تلج ❄️', occLabel: 'المناسبة', occAuto: 'متل الرزنامة', xmasO: 'الميلاد 🎄', ramadanO: 'رمضان 🌙', noneO: 'ولا شي', feastTape: 'أغاني العيد',
       extrasLabel: 'بالبيت', soundsW: 'أصوات البيت', cutsW: 'انقطاع الكهربا', tryCut: 'جرّب الموتير',
       cutToast: 'قطعت الكهربا…', motorToast: 'اشتغل الموتير 😄', backToast: 'إجت الكهربا!',
       onTheTv: 'شوف عالتلفزيون',
@@ -65,7 +65,7 @@
       introTitle: 'Come in, make yourself at home',
       introSub: 'A 1990s Lebanese living room. Everything in it works.',
       introEnter: 'Come in',
-      dragHint: 'Tap anything in the room; pinch to come closer',
+      dragHint: 'Tap anything, slide to look around, double-tap for the whole room',
       dockLabel: 'Things in the room',
       turnLeft: 'Previous object', turnRight: 'Next object', tapToOpen: 'Tap to open',
       lookAround: 'What’s in the room?', allObjects: 'The room', allObjectsTitle: 'What’s in the room',
@@ -75,7 +75,7 @@
       close: 'Close',
       scenes: { day: 'Day', sunset: 'Sunset', night: 'Night' },
       sceneManual: 'Tap to change the time and weather',
-      timeLabel: 'Time', weatherLabel: 'Weather', autoBeirut: 'Like Beirut now', clearW: 'Clear', rainW: 'Rain',
+      timeLabel: 'Time', weatherLabel: 'Weather', autoBeirut: 'Like Beirut now', clearW: 'Clear', rainW: 'Rain', snowW: 'Snow ❄️', occLabel: 'Occasion', occAuto: 'By the calendar', xmasO: 'Christmas 🎄', ramadanO: 'Ramadan 🌙', noneO: 'None', feastTape: 'Feast songs',
       extrasLabel: 'In the house', soundsW: 'Room sounds', cutsW: 'Power cuts', tryCut: 'Try the generator',
       cutToast: 'The power just went…', motorToast: 'The generator kicked in 😄', backToast: 'The electricity is back!',
       onTheTv: 'Watch on the TV',
@@ -112,7 +112,7 @@
       introTitle: 'Entrez, vous êtes chez vous',
       introSub: 'Un salon libanais des années 90. Tout y fonctionne.',
       introEnter: 'Entrer',
-      dragHint: 'Touchez un objet ; pincez pour vous approcher',
+      dragHint: 'Touchez un objet, glissez pour regarder, double-touchez pour toute la pièce',
       dockLabel: 'Les objets du salon',
       turnLeft: 'Objet précédent', turnRight: 'Objet suivant', tapToOpen: 'Touchez pour ouvrir',
       lookAround: 'Qu’y a-t-il au salon ?', allObjects: 'Le salon', allObjectsTitle: 'Dans le salon',
@@ -122,7 +122,7 @@
       close: 'Fermer',
       scenes: { day: 'Jour', sunset: 'Coucher du soleil', night: 'Nuit' },
       sceneManual: 'Touchez pour changer l’heure et la météo',
-      timeLabel: 'Moment', weatherLabel: 'Météo', autoBeirut: 'Comme à Beyrouth', clearW: 'Dégagé', rainW: 'Pluie',
+      timeLabel: 'Moment', weatherLabel: 'Météo', autoBeirut: 'Comme à Beyrouth', clearW: 'Dégagé', rainW: 'Pluie', snowW: 'Neige ❄️', occLabel: 'Fête', occAuto: 'Selon le calendrier', xmasO: 'Noël 🎄', ramadanO: 'Ramadan 🌙', noneO: 'Aucune', feastTape: 'Chants de fête',
       extrasLabel: 'À la maison', soundsW: 'Sons de la maison', cutsW: 'Coupures de courant', tryCut: 'Essayer le générateur',
       cutToast: 'Le courant vient de sauter…', motorToast: 'Le générateur a démarré 😄', backToast: 'L’électricité est revenue !',
       onTheTv: 'Regarder sur la télé',
@@ -242,13 +242,14 @@
     const code = beirutCode();
     const wet = weatherMode === 'rain' || (weatherMode === 'auto' && code !== null && (code === 3 || code === 45 || code === 48 || code >= 51));
     if (weatherMode === 'clear') return month >= 6 && month <= 9 ? 'summer' : 'clear';
+    if (weatherMode === 'snow' || (weatherMode === 'auto' && (occasion === 'xmas' || snowingInBeirut()))) return 'snowy';
     if (wet) return 'grey';
     if (month === 12 || month <= 2) return 'winter';
     if (month >= 6 && month <= 9) return 'summer';
     return 'clear';
   }
   const GRADE = {                       // multiply rgb, saturation
-    clear: [1, 1, 1, 1], summer: [1.045, 1.0, 0.93, 1.06], winter: [0.97, 0.99, 1.03, 0.92], grey: [0.86, 0.9, 0.97, 0.78]
+    clear: [1, 1, 1, 1], snowy: [0.96, 0.99, 1.06, 0.86], summer: [1.045, 1.0, 0.93, 1.06], winter: [0.97, 0.99, 1.03, 0.92], grey: [0.86, 0.9, 0.97, 0.78]
   };
 
   // Sunrise and sunset around a given moment (searched minute by minute).
@@ -314,6 +315,7 @@
     uniform float mixv;
     uniform vec4 glass;        // the balcony glass (u0, v0, u1, v1)
     uniform float rain;        // 0 dry .. 1 pouring
+    uniform float snow;        // 0 .. 1 snowing
     uniform float time;
     uniform float flash;       // lightning
     uniform float power;       // 1 = mains, 0 = power cut
@@ -364,6 +366,27 @@
       trail *= fog;
       return vec3(drop * dp + trail * tp, max(drop, trail));
     }
+    // rain falling outside, seen through the glass: thin slanted streaks in two depths
+    float streaks(vec2 p, float t, float sp, float dens) {
+      p.x += p.y * 0.22;
+      vec2 q = vec2(p.x * dens, p.y * 2.2 - t * sp);
+      vec2 id = floor(q); vec2 f = fract(q);
+      float r = h21(id + 1.7), r2 = h21(id.yx + 9.3);
+      float line = smoothstep(0.09, 0.0, abs(f.x - (0.15 + 0.7 * r)));
+      float len = smoothstep(0.0, 0.12, f.y) * smoothstep(0.35 + 0.5 * r2, 0.2 + 0.3 * r2, f.y);
+      return line * len * step(0.45, r2);
+    }
+    // snowflakes drifting down and swaying
+    float flakes(vec2 p, float t, float sc) {
+      p *= sc;
+      p.y -= t * 0.9;
+      p.x += sin(p.y * 0.55 + t * 0.7) * 0.3;
+      vec2 id = floor(p); vec2 f = fract(p) - 0.5;
+      float n = h21(id);
+      vec2 o = vec2(n - 0.5, fract(n * 9.1) - 0.5) * 0.6;
+      float r = 0.05 + 0.08 * fract(n * 5.3);
+      return smoothstep(r, r * 0.25, length(f - o)) * step(0.42, fract(n * 3.3));
+    }
     vec3 beads(vec2 g) {
       vec2 id = floor(g); vec2 gv = fract(g) - 0.5;
       float n = h21(id);
@@ -396,20 +419,36 @@
         c.rgb *= 1.0 + glow * m * smoothstep(0.5, 0.85, l) * tw * 0.28;
       }
       if (rain > 0.001 && m > 0.0) {
-        vec2 st = vec2(uv.x * asp, uv.y) * 9.0;
+        vec2 st = vec2(uv.x * asp, uv.y) * 6.5;
         vec3 a = drops(st, time);
         vec3 b = drops(st * 1.65 + vec2(7.54, 2.1), time * 1.1);
         vec3 e = beads(st * 6.0);
         vec2 o = (a.xy + b.xy * 0.7 + e.xy) * rain;
         float wetness = max(max(a.z, b.z), e.z);
-        vec2 u2 = uv + o * 0.03;
-        float bl = 0.0028 * (1.0 - wetness);
+        vec2 u2 = uv - o * 0.07;          // each drop is a little lens
+        float bl = 0.0032 * (1.0 - wetness);
         vec3 g = (texture2D(t0, u2 + vec2(bl, 0.0)).rgb + texture2D(t0, u2 - vec2(bl, 0.0)).rgb +
                   texture2D(t0, u2 + vec2(0.0, bl)).rgb + texture2D(t0, u2 - vec2(0.0, bl)).rgb) * 0.25;
-        g *= mix(vec3(0.74, 0.79, 0.88), vec3(1.05), wetness);
-        g += wetness * 0.05 + pow(wetness, 3.0) * 0.07;
+        g *= mix(vec3(0.72, 0.77, 0.86), vec3(1.0), wetness);
+        g *= 1.0 - clamp(length(o) * 2.6, 0.0, 0.32);    // darker rims, like real drops
+        g += pow(wetness, 8.0) * 0.035;
         c.rgb = mix(c.rgb, g, m * rain);
+        // grey air outside and the rain itself coming down
+        vec2 sp2 = vec2(uv.x * asp, uv.y);
+        float rs = streaks(sp2, time, 2.6, 70.0) + streaks(sp2 * 1.6 + 3.1, time, 3.4, 90.0) * 0.6;
+        c.rgb = mix(c.rgb, vec3(0.6, 0.65, 0.72), 0.14 * m * rain * (1.0 - wetness));
+        c.rgb += rs * 0.32 * m * rain * (1.0 - wetness * 0.7);
         c.rgb += flash * m * 0.9;
+      }
+      if (snow > 0.001 && m > 0.0) {
+        vec2 sp = vec2(uv.x * asp, uv.y);
+        float fl = flakes(sp, time, 12.0) + flakes(sp + 2.3, time * 0.8, 20.0) * 0.75 + flakes(sp + 5.7, time * 0.6, 32.0) * 0.5;
+        c.rgb = mix(c.rgb, vec3(0.86, 0.9, 0.97), 0.2 * m * snow);
+        c.rgb = mix(c.rgb, vec3(1.0), clamp(fl, 0.0, 1.0) * m * snow);
+        // frost creeping in from the edges of the glass
+        float ed = min(min(uv.x - glass.x, glass.z - uv.x) * asp, min(uv.y - glass.y, glass.w - uv.y));
+        float fr = (1.0 - smoothstep(0.0, 0.045, ed)) * (0.5 + 0.5 * vn(uv * vec2(asp, 1.0) * 160.0));
+        c.rgb = mix(c.rgb, vec3(0.93, 0.96, 1.0), fr * 0.6 * m * snow);
       }
       if (decor > 0.0) {
         vec4 dd = texture2D(td, uv);
@@ -455,7 +494,7 @@
     const a = gl.getAttribLocation(prog, 'a');
     gl.enableVertexAttribArray(a);
     gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign', 'tb', 'bgs']) uni[n] = gl.getUniformLocation(prog, n);
+    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'snow', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign', 'tb', 'bgs']) uni[n] = gl.getUniformLocation(prog, n);
     gl.uniform1i(uni.t0, 0);
     gl.uniform1i(uni.t1, 1);
     gl.uniform1i(uni.td, 2);
@@ -522,7 +561,8 @@
   }
   function startView() {
     const portrait = vh() > vw();
-    return clampView({ cx: portrait ? 0.53 : 0.5, cy: 0.5, z: zMin() });
+    // a phone held upright starts a bit closer; a double-tap shows the whole room
+    return clampView({ cx: portrait ? 0.53 : 0.5, cy: 0.5, z: portrait ? Math.min(1, zMin() * 1.6) : zMin() });
   }
 
   function resize() {
@@ -544,6 +584,7 @@
       const g = GLASS[scene];
       gl.uniform4f(uni.glass, g[0] / 100, g[1] / 100, g[2] / 100, g[3] / 100);
       gl.uniform1f(uni.rain, rainNow);
+      gl.uniform1f(uni.snow, snowNow);
       gl.uniform1f(uni.time, (performance.now() / 1000) % 3600);
       gl.uniform1f(uni.flash, flashNow);
       gl.uniform1f(uni.power, powerNow);
@@ -812,7 +853,9 @@
     // weather: ease the rain in and out; keep drops, steam and lights moving (about 30 fps)
     const target = rainTarget();
     if (Math.abs(rainNow - target) > 0.002) { rainNow += (target - rainNow) * 0.03; needsDraw = true; }
-    const animated = rainNow > 0.01 || scene !== 'day' || (decorFor === scene);
+    const st = snowTarget();
+    if (Math.abs(snowNow - st) > 0.002) { snowNow += (st - snowNow) * 0.03; needsDraw = true; }
+    const animated = rainNow > 0.01 || snowNow > 0.01 || scene !== 'day' || (decorFor === scene);
     if (animated && !document.hidden && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
     stepPower(now);
     if (frameHooks.size) frameHooks.forEach(f => f(now));
@@ -825,6 +868,7 @@
   }
 
   // ------------------------------------------------------------------ weather on the glass
+  let snowNow = 0;
   let rainNow = 0, flashNow = 0, lastRainDraw = 0, nextFlash = performance.now() + 6000;
   const frameHooks = new Set();
 
@@ -864,7 +908,11 @@
       }
     }
   }
-  let weatherMode = 'auto';              // auto | clear | rain
+  let weatherMode = S.store.get('weatherMode', 'auto');      // auto | clear | rain | snow
+  if (!['auto', 'clear', 'rain', 'snow'].includes(weatherMode)) weatherMode = 'auto';
+  let occasion = S.store.get('occasion', 'auto');           // auto | xmas | ramadan | none
+  function setWeather(m) { weatherMode = m; S.store.set('weatherMode', m); updateMood(); needsDraw = true; }
+  function setOccasion(o) { occasion = o; S.store.set('occasion', o); decorFor = null; loadDecor(); updateMood(); needsDraw = true; }
   function beirutCode() {
     const w = S.weather();
     const c = w && (w.cities || []).find(x => x.id === 'beirut');
@@ -876,6 +924,10 @@
   }
   function stormy() { const c = beirutCode(); return weatherMode === 'auto' && c !== null && c >= 95; }
   function isRaining() { return weatherMode === 'rain' || (weatherMode === 'auto' && rainingInBeirut()); }
+  function snowingInBeirut() { const c = beirutCode(); return c !== null && ((c >= 71 && c <= 77) || c === 85 || c === 86); }
+  // snow: chosen, or Christmas chosen with the weather left to itself, or real snow
+  function isSnowing() { return weatherMode === 'snow' || (weatherMode === 'auto' && (occasion === 'xmas' || snowingInBeirut())); }
+  function snowTarget() { return isSnowing() ? 0.9 : 0; }
   function rainTarget() {
     if (!isRaining()) return 0;
     const code = beirutCode();
@@ -891,6 +943,8 @@
   function season(date = new Date()) {
     const forced = new URLSearchParams(location.search).get('decor');
     if (forced) return forced;
+    if (occasion === 'none') return null;
+    if (occasion === 'xmas' || occasion === 'ramadan') return occasion;
     const d = beirutDate(date), md = d.slice(5);
     const R0 = C.ramadan;
     if (md >= '12-01' || md <= '01-07') return 'xmas';
@@ -1052,6 +1106,7 @@
       el('span', { className: 'scene-dot scene-' + scene }),
       el('span', { className: 'scene-name', text: r('scenes')[scene] }),
       wet ? el('span', { className: 'scene-rain', 'aria-hidden': 'true' }) : null,
+      isSnowing() ? el('span', { className: 'scene-snow', 'aria-hidden': 'true', text: '❄' }) : null,
       el('span', { className: 'scene-time', text: `${timeIn(now, 'Asia/Beirut')} · ${r('beirut')}` })
     ].filter(Boolean));
     chip.title = r('sceneManual');
@@ -1079,10 +1134,23 @@
       ]),
       el('p', { className: 'pop-k', text: r('weatherLabel') }),
       el('div', { className: 'pop-row' }, [
-        opt(r('autoBeirut'), weatherMode === 'auto', () => { weatherMode = 'auto'; updateMood(); }, 'is-auto'),
-        opt(r('clearW'), weatherMode === 'clear', () => { weatherMode = 'clear'; updateMood(); }),
-        opt(r('rainW'), weatherMode === 'rain', () => { weatherMode = 'rain'; updateMood(); })
+        opt(r('autoBeirut'), weatherMode === 'auto', () => setWeather('auto'), 'is-auto'),
+        opt(r('clearW'), weatherMode === 'clear', () => setWeather('clear')),
+        opt(r('rainW'), weatherMode === 'rain', () => setWeather('rain')),
+        opt(r('snowW'), weatherMode === 'snow', () => setWeather('snow'))
       ]),
+      el('p', { className: 'pop-k', text: r('occLabel') }),
+      el('div', { className: 'pop-row' }, [
+        opt(r('occAuto'), occasion === 'auto', () => setOccasion('auto'), 'is-auto'),
+        opt(r('xmasO'), occasion === 'xmas', () => setOccasion('xmas')),
+        opt(r('ramadanO'), occasion === 'ramadan', () => setOccasion('ramadan')),
+        opt(r('noneO'), occasion === 'none', () => setOccasion('none')),
+        (season() === 'xmas' || season() === 'ramadan') ? opt('🎶 ' + r('feastTape'), false, () => {
+          const m = (C.moods || []).find(x => x.id === 'feasts');
+          pop.hidden = true;
+          if (m && window.SawtScreen) window.SawtScreen.playTape(m);
+        }) : null
+      ].filter(Boolean)),
       el('p', { className: 'pop-k', text: r('extrasLabel') }),
       el('div', { className: 'pop-row' }, [
         opt('🔊 ' + r('soundsW'), !!(window.SawtAmbience && window.SawtAmbience.on()), () => { if (window.SawtAmbience) window.SawtAmbience.toggle(); }),
@@ -1645,6 +1713,7 @@
     scene: () => scene,
     mood: () => mood,
     rain: () => rainNow,
+    snow: () => snowNow,
     motor: () => motorNow,
     power: () => powerNow,
     onFrame: f => frameHooks.add(f),
