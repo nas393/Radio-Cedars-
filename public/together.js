@@ -58,21 +58,21 @@
     }
   };
   Object.assign(T.ar, {
-    notify: '📲 نبّهني بالرسايل', notifyOn: '📲 بتوصلك الرسايل ✓', blocked: 'التنبيهات مسكّرة لهالموقع بالمتصفّح.', ios: 'على الآيفون، ثبّت التطبيق عالشاشة أوّل (مشاركة ← زيد عالشاشة الرئيسية).', chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
+    inviteBtn: '＋ ادعي حدا', inviteGame: (r, g, p) => `تعا نلعب ${g} بغرفة "${r}" بصوت البيت 🎲${p ? `\nالرمز: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} فتح ${g}، تعا العب!`, joinGame: 'العب معهن', gname: { tawleh: 'طاولة', tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'سهرة أسئلة' }, notify: '📲 نبّهني بالرسايل', notifyOn: '📲 بتوصلك الرسايل ✓', blocked: 'التنبيهات مسكّرة لهالموقع بالمتصفّح.', ios: 'على الآيفون، ثبّت التطبيق عالشاشة أوّل (مشاركة ← زيد عالشاشة الرئيسية).', chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
     knock: 'دقّ الجرس', knocked: n => `🔔 ${n} دقّ الجرس!`, react: 'تفاعل', quick: 'كلمات سريعة', bigPhoto: 'كبّر الصورة',
     phrases: ['وصلت بالسلامة 🏠', 'اشتقنالكن ❤️', 'صباح الخير ☕', 'تصبحوا على خير 🌙', 'كيفكن؟', 'الله يخلّيكن 🙏', 'هههههه 😂', 'يلّا نلعب طاولة؟ 🎲'],
     bday: w => `🎂 اليوم عيد ميلاد ${w}! كل سنة وإنت سالم/ة 🎉`, nameday: w => `🕯️ اليوم عيد شفيع ${w}. كل عيد وإنت بخير`,
     errs2: { type: 'هالنوع من الصور ما بيمشي.', big: 'الصورة كبيرة كتير.' }, today: 'اليوم', yesterday: 'مبارح'
   });
   Object.assign(T.en, {
-    notify: '📲 Notify me of messages', notifyOn: '📲 Message alerts on ✓', blocked: 'Notifications are blocked for this site in your browser.', ios: 'On iPhone, add the app to your home screen first (Share → Add to Home Screen).', chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
+    inviteBtn: '＋ Invite someone', inviteGame: (r, g, p) => `Come and play ${g} in "${r}" on Sawt el Beit 🎲${p ? `\nPasscode: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} opened ${g}. Come and play!`, joinGame: 'Join the game', gname: { tawleh: 'tawleh', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'trivia night' }, notify: '📲 Notify me of messages', notifyOn: '📲 Message alerts on ✓', blocked: 'Notifications are blocked for this site in your browser.', ios: 'On iPhone, add the app to your home screen first (Share → Add to Home Screen).', chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
     knock: 'Ring the bell', knocked: n => `🔔 ${n} rang the bell!`, react: 'React', quick: 'Quick words', bigPhoto: 'Open the photo',
     phrases: ['Got home safe 🏠', 'Miss you all ❤️', 'Good morning ☕', 'Good night 🌙', 'How are you all?', 'Love you all 🙏', 'Hahaha 😂', 'Tawleh, anyone? 🎲'],
     bday: w => `🎂 It’s ${w}’s birthday today! Many happy returns 🎉`, nameday: w => `🕯️ Today is ${w}’s name day. Eid mubarak`,
     errs2: { type: 'That kind of picture can’t be sent.', big: 'That picture is too big.' }, today: 'Today', yesterday: 'Yesterday'
   });
   Object.assign(T.fr, {
-    notify: '📲 M’avertir des messages', notifyOn: '📲 Alertes activées ✓', blocked: 'Les notifications sont bloquées pour ce site.', ios: 'Sur iPhone, ajoutez d’abord l’app à l’écran d’accueil (Partager → Sur l’écran d’accueil).', chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
+    inviteBtn: '＋ Inviter quelqu’un', inviteGame: (r, g, p) => `Viens jouer au ${g} dans « ${r} » sur Sawt el Beit 🎲${p ? `\nCode : ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} a ouvert ${g}. Viens jouer !`, joinGame: 'Rejoindre', gname: { tawleh: 'tawlé', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'la soirée quiz' }, notify: '📲 M’avertir des messages', notifyOn: '📲 Alertes activées ✓', blocked: 'Les notifications sont bloquées pour ce site.', ios: 'Sur iPhone, ajoutez d’abord l’app à l’écran d’accueil (Partager → Sur l’écran d’accueil).', chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
     knock: 'Sonner', knocked: n => `🔔 ${n} a sonné !`, react: 'Réagir', quick: 'Mots rapides', bigPhoto: 'Ouvrir la photo',
     phrases: ['Bien arrivé·e 🏠', 'Vous me manquez ❤️', 'Bonjour ☕', 'Bonne nuit 🌙', 'Comment ça va ?', 'Je vous aime 🙏', 'Hahaha 😂', 'Un tawlé ? 🎲'],
     bday: w => `🎂 C’est l’anniversaire de ${w} aujourd’hui ! 🎉`, nameday: w => `🕯️ C’est la fête de ${w} aujourd’hui`,
@@ -320,9 +320,10 @@
   }
   async function cancelRec() { if (!recording) return; const h = recording; recording = null; await h.stop(); render(); }
 
-  async function invite(r, withPin) {
+  async function invite(r, withPin, game) {
     const url = `${location.origin}/q/${r.id}`;
-    const text = t('inviteText', r.title, withPin && r.pin ? r.pin : '');
+    const pin = withPin && r.pin ? r.pin : '';
+    const text = game ? t('inviteGame', r.title, t('gname')[game] || game, pin) : t('inviteText', r.title, pin);
     if (navigator.share) { try { await navigator.share({ text, url }); return; } catch (e) { if (e && e.name === 'AbortError') return; } }
     window.open('https://wa.me/?text=' + encodeURIComponent(`${text}\n${url}`), '_blank', 'noopener');
   }
@@ -441,6 +442,12 @@
     return d.toLocaleDateString(S.locale ? S.locale() : undefined, { weekday: 'long', day: 'numeric', month: 'long' });
   }
   function msgView(m, r) {
+    if (m.sys === 'game') {
+      const kids = [el('span', { dir: 'auto', text: t('gameStarted', m.name, t('gname')[m.game] || m.game) })];
+      if (m.name !== r.name) kids.push(btn('▶ ' + t('joinGame'), 'btn btn-primary q-join', () => joinGame(m.game)));
+      const n = el('div', { className: 'q-sys q-game' }, kids);
+      n.dataset.n = m.n; return n;
+    }
     if (m.sys || m.knock) {
       const n = el('div', { className: 'q-sys' + (m.knock ? ' q-knock' : ''), dir: 'auto', text: m.knock ? t('knocked', m.name) : t(m.sys === 'nameday' ? 'nameday' : 'bday', m.who) });
       n.dataset.n = m.n; return n;
@@ -508,10 +515,11 @@
     const head = el('div', { className: 'q-head' }, [
       btn('‹', 'q-back', () => { openRoom = null; screen = 'home'; clearTimeout(timer); render(); }),
       el('h3', { className: 'q-title', dir: 'auto', text: r.title }),
-      btn('📲', 'q-inv', () => invite(r, true))
+      btn(t('inviteBtn'), 'chip q-inv', () => invite(r, true))
     ]);
     head.querySelector('.q-back').setAttribute('aria-label', t('back'));
     head.querySelector('.q-inv').setAttribute('aria-label', t('invite'));
+    head.querySelector('.q-inv').title = t('invite');
     const here = el('div', { className: 'q-here' }, [el('span', { className: 'q-k', text: t('here') }), ...r.here.map(n => el('span', { className: 'q-person' + (n === r.name ? ' is-me' : ''), dir: 'auto', text: n }))]);
     const now = r.now && r.now.kind !== 'none' ? r.now : null;
     const shareToggle = el('label', { className: 'q-switch' }, [(() => { const c = el('input', { type: 'checkbox' }); c.checked = !!r.sharing; c.addEventListener('change', () => { r.sharing = c.checked; S.store.set('qShare:' + r.id, r.sharing); lastShared = null; shareNow(); }); return c; })(), el('span', { text: t('share') })]);
@@ -572,6 +580,20 @@
       await api(`/api/q/${r.id}/push`, { subscription: sub.toJSON(), lang: S.lang() }, r.token);
       S.store.set('qPush:' + r.id, true); render();
     } catch (e) { S.toast(e.message === 'ios' ? t('ios') : t('errs').server); }
+  }
+  function joinGame(game) {
+    if (game === 'tawleh') { openGames('tawleh'); document.dispatchEvent(new CustomEvent('sawt:tawleh-room')); }
+    else if (game === 'trivia') { openGames('trivia'); document.dispatchEvent(new CustomEvent('sawt:trivia-room')); }
+    else { openGames('cards'); document.dispatchEvent(new CustomEvent('sawt:cards-room', { detail: openRoom && openRoom.id })); }
+  }
+  // tell the room a game is open (not twice in a row for the same game)
+  const announced = {};
+  async function announce(r, game) {
+    if (!r || !storeOn) return;
+    const k = r.id + ':' + game;
+    if (announced[k] && Date.now() - announced[k] < 120000) return;
+    announced[k] = Date.now();
+    try { await api(`/api/q/${r.id}/say`, { game }, r.token); } catch { /* the game still opens */ }
   }
   function openGames(tab) {
     if (window.SawtRoom) window.SawtRoom.open('tawleh');
@@ -640,6 +662,7 @@
     api: (r, path, body) => api(`/api/q/${r.id}${path}`, body, r.token),
     sendVoice,
     invite,
+    announce,
     greet: (r, who, kind, day) => api(`/api/q/${r.id}/greet`, { who, kind, day }, r.token),
     bday: (r, who, md, remove) => api(`/api/q/${r.id}/bday`, { who, md, remove }, r.token),
     scores: r => api(`/api/q/${r.id}/scores`, null, r.token),

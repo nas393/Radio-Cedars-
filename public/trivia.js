@@ -147,6 +147,7 @@
     host = true; ctx.other = null;
     st = newState([{ n: me(), bot: false }]);
     push(true); render(); tick();
+    if (R().announce) R().announce(ctx.room, 'trivia');
   }
   async function send(move) {
     if (mode !== 'room' || !ctx) return;
@@ -260,6 +261,7 @@
     if (!inIt) { const j = el('button', { type: 'button', className: 'btn btn-primary', text: '🙋 ' + t('join') }); j.addEventListener('click', () => send({ type: 'join' })); row.appendChild(j); }
     else row.appendChild(el('span', { className: 'quiet', text: t('joined') }));
     if (host) { const go = el('button', { type: 'button', className: 'btn btn-primary', text: '🧠 ' + t('start') }); go.addEventListener('click', startGame); row.appendChild(go); }
+    if (ctx) { const inv = el('button', { type: 'button', className: 'btn', text: { ar: '＋ ادعي حدا يلعب', en: '＋ Invite someone to play', fr: '＋ Inviter quelqu’un à jouer' }[S.lang()] || '＋' }); inv.addEventListener('click', () => R().invite(ctx.room, true, 'trivia')); row.appendChild(inv); }
     kids.push(row);
     return el('div', { className: 'cg-lobby' }, kids);
   }

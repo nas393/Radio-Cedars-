@@ -383,6 +383,7 @@
     rm.lobby = { at: Date.now() }; rm.seats = [roomName(), null]; rm.bots = [false, false]; rm.me = 0; G = null; rm.other = null;
     await pushRoom({ lobby: rm.lobby, seats: rm.seats }, true);
     render();
+    if (Rm().announce) Rm().announce(rm.room, 'tawleh');
   }
   async function sit(i) {
     if (!rm || !rm.lobby || rm.seats[i]) return;
@@ -477,7 +478,11 @@
         return b;
       }));
       const kids = [el('p', { className: 'q-k', dir: 'auto', text: t('lobby', rm.room.title) }), grid, el('p', { className: 'quiet small', text: t('autoStart', left) })];
-      if (rm.me >= 0) { const go = el('button', { type: 'button', className: 'btn btn-primary', text: '🎲 ' + t('startNow') }); go.addEventListener('click', () => maybeStartRoom(true)); kids.push(go); }
+      const inv = el('button', { type: 'button', className: 'btn', text: { ar: '＋ ادعي حدا يلعب', en: '＋ Invite someone to play', fr: '＋ Inviter quelqu’un à jouer' }[S.lang()] || '＋' });
+      inv.addEventListener('click', () => Rm().invite(rm.room, true, 'tawleh'));
+      const row = el('div', { className: 'q-row' }, [inv]);
+      if (rm.me >= 0) { const go = el('button', { type: 'button', className: 'btn btn-primary', text: '🎲 ' + t('startNow') }); go.addEventListener('click', () => maybeStartRoom(true)); row.prepend(go); }
+      kids.push(row);
       return el('div', { className: 'cg-lobby' }, kids);
     }
     if (G && rm.me >= 0 && rm.bots[rm.me] === 'away') {

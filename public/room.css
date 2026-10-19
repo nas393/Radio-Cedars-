@@ -1636,3 +1636,13 @@ body.intro-on .tv-ctl, body.intro-on .tvset { display: none; }
 }
 .acct-ask.is-on { opacity: 1; transform: translate(-50%, 0); }
 .acct-ask p { margin: 0; font-size: .9375rem; line-height: 1.5; }
+
+/* smaller type everywhere (buttons keep their size for easy tapping); Teta's chair stays big */
+html { font-size: 93.75%; }
+@media (max-width: 700px) { html { font-size: 87.5%; } }
+html:has(body.is-simple) { font-size: 100%; }
+/* phones zoom into fields with small text: keep fields at 16px */
+@media (pointer: coarse) { input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea { font-size: 16px; } }
+.q-head .q-inv { width: auto; height: auto; min-height: 36px; padding: 6px 14px; border-radius: 999px; white-space: nowrap; font-size: .8125rem; font-weight: 600; background: var(--brass); color: #2A1E15; }
+.q-game { display: grid; justify-items: center; gap: 8px; padding: 10px 14px; }
+.q-join { min-height: 38px; padding: 6px 16px; font-size: .875rem; }

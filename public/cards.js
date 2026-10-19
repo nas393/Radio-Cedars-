@@ -532,6 +532,7 @@
     roomCtx.isHost = true; roomCtx.lobby = lobby; G = null;
     try { await R().api(roomCtx.room, '/game', { kind: k, state: { lobby }, fresh: true, takeOver: true }); } catch (e) { console.warn(e); }
     render();
+    if (R().announce) R().announce(roomCtx.room, k);
   }
   function lobbyView() {
     const lb = roomCtx.lobby;
@@ -550,11 +551,16 @@
     wrap.appendChild(grid);
     const left = Math.max(0, Math.ceil((LOBBY_MS - (Date.now() - (lb.at || Date.now()))) / 1000));
     wrap.appendChild(el('p', { className: 'quiet small cg-auto', text: t('autoStart', left) }));
+    const row = el('div', { className: 'q-row' });
     if (roomCtx.isHost) {
       const go = el('button', { type: 'button', className: 'btn btn-primary', text: '🃏 ' + t('start') });
       go.addEventListener('click', hostStart);
-      wrap.appendChild(go);
+      row.appendChild(go);
     }
+    const inv = el('button', { type: 'button', className: 'btn', text: { ar: '＋ ادعي حدا يلعب', en: '＋ Invite someone to play', fr: '＋ Inviter quelqu’un à jouer' }[S.lang()] || '＋' });
+    inv.addEventListener('click', () => R().invite(roomCtx.room, true, lb.kind));
+    row.appendChild(inv);
+    wrap.appendChild(row);
     return wrap;
   }
   const LOBBY_MS = 60000;
