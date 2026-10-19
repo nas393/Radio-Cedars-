@@ -204,7 +204,7 @@
     if (big) { set.style.transform = ''; }
     else if (!set.hidden) set.style.transform = R.quadTransform(400, 300, q);
     // the buttons sit on the side of the set, sized to it
-    const size = Math.max(26, Math.min(52, w * 0.24));
+    const size = Math.max(innerWidth < 700 ? 18 : 26, Math.min(52, w * 0.24));
     ctl.hidden = offscreen || document.body.classList.contains('intro-on');
     if (!ctl.hidden) {
       ctl.style.setProperty('--s', size + 'px');

@@ -1610,3 +1610,18 @@ body.intro-on .tv-ctl, body.intro-on .tvset { display: none; }
 .intro-who-b.is-add .who-avatar { background: rgba(255, 255, 255, .12); font-weight: 600; }
 .intro-who-b:hover { background: rgba(201, 164, 92, .24); }
 .intro-acct { color: rgba(242, 232, 213, .85); font-size: .875rem; }
+
+/* phones: smaller dots and names over the room (the long shot shows the whole room small) */
+@media (max-width: 700px) {
+  .hot-dot { width: 7px; height: 7px; left: -3.5px; top: -3.5px; box-shadow: 0 0 0 2px rgba(255, 244, 222, .2), 0 0 8px 1px rgba(255, 226, 170, .5); }
+  .hot-dot::before { inset: -4px; border-width: 1px; }
+  .hot.is-focus .hot-dot, .hot:hover .hot-dot, .hot.is-active .hot-dot { transform: scale(1.35); }
+  .hot::after { left: -18px; top: -18px; width: 36px; height: 36px; }
+  .hot-label { bottom: 12px; padding: 2px 8px 1px; font-size: .6875rem; line-height: 1.45; box-shadow: 0 3px 10px rgba(0, 0, 0, .35); }
+  .hot-label::after { height: 5px; }
+  @keyframes hot-pulse { 0% { transform: scale(.7); opacity: .8; } 80%, 100% { transform: scale(1.8); opacity: 0; } }
+}
+@media (max-aspect-ratio: 3/4) {
+  .drag-hint { top: auto; bottom: calc(190px + env(safe-area-inset-bottom)); transform: translateX(-50%); font-size: .8125rem; gap: 8px; text-align: center; width: max-content; max-width: 86vw; }
+  .drag-hint::before { width: 40px; height: 40px; background: radial-gradient(circle, rgba(242, 232, 213, .9) 0 6px, transparent 7px); }
+}

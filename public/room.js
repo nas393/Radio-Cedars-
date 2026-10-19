@@ -18,7 +18,7 @@
       introTitle: 'تفضّل، البيت بيتك',
       introSub: 'صالون بيت لبناني من التسعينات. كل غرض فيه بيشتغل.',
       introEnter: 'ادخل',
-      dragHint: 'اسحب لتتفرّج على الصالون، ودوس على أيّ غرض',
+      dragHint: 'دوس على أيّ غرض بالصالون، وكبّر بإصبعين لتقرّب',
       dockLabel: 'أغراض الغرفة',
       turnLeft: 'الغرض اللي قبل', turnRight: 'الغرض اللي بعد', tapToOpen: 'اضغط لتفتح',
       lookAround: 'شو في بالصالون؟', allObjects: 'الصالون', allObjectsTitle: 'شو في بالصالون؟',
@@ -65,7 +65,7 @@
       introTitle: 'Come in, make yourself at home',
       introSub: 'A 1990s Lebanese living room. Everything in it works.',
       introEnter: 'Come in',
-      dragHint: 'Slide to look around, then tap anything',
+      dragHint: 'Tap anything in the room; pinch to come closer',
       dockLabel: 'Things in the room',
       turnLeft: 'Previous object', turnRight: 'Next object', tapToOpen: 'Tap to open',
       lookAround: 'What’s in the room?', allObjects: 'The room', allObjectsTitle: 'What’s in the room',
@@ -112,7 +112,7 @@
       introTitle: 'Entrez, vous êtes chez vous',
       introSub: 'Un salon libanais des années 90. Tout y fonctionne.',
       introEnter: 'Entrer',
-      dragHint: 'Glissez pour regarder, puis touchez un objet',
+      dragHint: 'Touchez un objet ; pincez pour vous approcher',
       dockLabel: 'Les objets du salon',
       turnLeft: 'Objet précédent', turnRight: 'Objet suivant', tapToOpen: 'Touchez pour ouvrir',
       lookAround: 'Qu’y a-t-il au salon ?', allObjects: 'Le salon', allObjectsTitle: 'Dans le salon',
@@ -1177,6 +1177,7 @@
     if (hidden.has(id)) return;
     if (id === 'teta') { const b = $('simple-btn'); if (b) b.click(); return; }
     if (id === 'ac') { togglePop(true); return; }
+    if (!pop.hidden) togglePop(false);
     if (!document.querySelector(`.pv[data-panel="${id}"]`)) return;
     returnFocus = document.activeElement;
     if (!openId) beforeOpen = { cx: view.cx, cy: view.cy, z: view.z };
