@@ -56,9 +56,9 @@
       aiWin: 'Je te l’avais dit : personne ne bat Abou Samir ☕', aiLose: 'Quelle chance ! On remet ça ?'
     }
   };
-  Object.assign(T.ar, { vsRoom: 'مع العيلة بالغرفة 🛋️', lobby: r => `طاولة بغرفة "${r}"`, sit: 'اقعد هون', seatFree: 'كرسي فاضي (أبو سمير)', autoStart: n => `منبلّش بعد ${S.num(n)} ثانية، وإذا ما إجا حدا بيلعب أبو سمير`, startNow: 'بلّش هلّق', other: k => `عالطاولة هلّق: ${k}`, playHere: 'العبوا طاولة بدالها', away: 'غبت شوي، فأبو سمير لعب عنّك.', imBack: 'رجعت! بكمّل أنا', games: { tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'أسئلة' } });
-  Object.assign(T.en, { vsRoom: 'With the family 🛋️', lobby: r => `Tawleh in "${r}"`, sit: 'Sit here', seatFree: 'Empty seat (Abou Samir)', autoStart: n => `Starting in ${n}s; if nobody comes, Abou Samir plays`, startNow: 'Start now', other: k => `On the table now: ${k}`, playHere: 'Play tawleh instead', away: 'You were away, so Abou Samir played for you.', imBack: 'I’m back, my turn', games: { tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'Trivia' } });
-  Object.assign(T.fr, { vsRoom: 'En famille 🛋️', lobby: r => `Tawlé dans « ${r} »`, sit: 'S’asseoir ici', seatFree: 'Place libre (Abou Samir)', autoStart: n => `On commence dans ${n} s ; sinon Abou Samir joue`, startNow: 'Commencer', other: k => `Sur la table : ${k}`, playHere: 'Jouer au tawlé à la place', away: 'Vous étiez absent·e, Abou Samir a joué pour vous.', imBack: 'Je suis là, je reprends', games: { tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'Quiz' } });
+  Object.assign(T.ar, { rematch: '🔁 دقّة كمان، نفس اللاعبين', vsRoom: 'مع العيلة بالغرفة 🛋️', lobby: r => `طاولة بغرفة "${r}"`, sit: 'اقعد هون', seatFree: 'كرسي فاضي (أبو سمير)', autoStart: n => `منبلّش بعد ${S.num(n)} ثانية، وإذا ما إجا حدا بيلعب أبو سمير`, startNow: 'بلّش هلّق', other: k => `عالطاولة هلّق: ${k}`, playHere: 'العبوا طاولة بدالها', away: 'غبت شوي، فأبو سمير لعب عنّك.', imBack: 'رجعت! بكمّل أنا', games: { tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'أسئلة' } });
+  Object.assign(T.en, { rematch: '🔁 Rematch, same players', vsRoom: 'With the family 🛋️', lobby: r => `Tawleh in "${r}"`, sit: 'Sit here', seatFree: 'Empty seat (Abou Samir)', autoStart: n => `Starting in ${n}s; if nobody comes, Abou Samir plays`, startNow: 'Start now', other: k => `On the table now: ${k}`, playHere: 'Play tawleh instead', away: 'You were away, so Abou Samir played for you.', imBack: 'I’m back, my turn', games: { tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'Trivia' } });
+  Object.assign(T.fr, { rematch: '🔁 Revanche, mêmes joueurs', vsRoom: 'En famille 🛋️', lobby: r => `Tawlé dans « ${r} »`, sit: 'S’asseoir ici', seatFree: 'Place libre (Abou Samir)', autoStart: n => `On commence dans ${n} s ; sinon Abou Samir joue`, startNow: 'Commencer', other: k => `Sur la table : ${k}`, playHere: 'Jouer au tawlé à la place', away: 'Vous étiez absent·e, Abou Samir a joué pour vous.', imBack: 'Je suis là, je reprends', games: { tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'Quiz' } });
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
   const pickOne = a => a[Math.floor(Math.random() * a.length)];
 
@@ -367,13 +367,14 @@
     if (!rm) return Promise.resolve();
     rm.writing++;
     const snap = JSON.parse(JSON.stringify(state));
+    const turn = state.game && state.game.over < 0 && !rm.bots[state.game.turn] ? rm.seats[state.game.turn] : null;
     const r = rm;
-    chain = chain.then(() => (rm === r ? doPush(snap, fresh) : (r.writing = 0))).catch(() => {});
+    chain = chain.then(() => (rm === r ? doPush(snap, fresh, turn) : (r.writing = 0))).catch(() => {});
     return chain;
   }
-  async function doPush(state, fresh) {
+  async function doPush(state, fresh, turn) {
     if (!rm) return;
-    try { const d = await Rm().api(rm.room, '/game', { kind: 'tawleh', state, base: fresh ? null : rm.v, takeOver: true, fresh: !!fresh }); rm.v = d.v; rm.seen = d.v; }
+    try { const d = await Rm().api(rm.room, '/game', { kind: 'tawleh', state, base: fresh ? null : rm.v, takeOver: true, fresh: !!fresh, turn }); rm.v = d.v; rm.seen = d.v; }
     catch (e) { if (e.code === 'stale') { rm.seen = 0; setTimeout(pollRoom, 100); } else console.warn(e); }
     finally { if (rm) rm.writing = Math.max(0, rm.writing - 1); }
   }
@@ -424,6 +425,7 @@
       else G.options = [];
     }
     if (was && G.played.length) { const m = G.played[G.played.length - 1]; lastMoved = { pl: G.turn, to: m.to }; }
+    if (G.over < 0 && G.turn === rm.me && !rm.bots[rm.me] && (!was || was.turn !== G.turn) && !(window.SawtRoom && window.SawtRoom.isOpen() === 'tawleh')) S.toast(t('yourTurn') + ' 🎲');
     if (G.over >= 0 && (!was || was.over < 0)) { msg = t('won', rm.seats[G.over]) + (G.mars ? ' ' + t('mars') : ''); recordEnd(); }
   }
   function checkAway() {
@@ -458,7 +460,7 @@
       }
     } catch (e) { console.warn(e); }
     const open = window.SawtRoom && window.SawtRoom.isOpen() === 'tawleh' && !$('tawleh').hidden;
-    if (mode === 'room') rTimer = setTimeout(pollRoom, document.hidden ? 15000 : open ? 1500 : 5000);
+    if (mode === 'room') rTimer = setTimeout(pollRoom, document.hidden ? 60000 : open ? 1800 : 12000);
   }
   function roomBits() {
     // what goes above the board in a room: another game on the table, the waiting seats, or "I'm back"
@@ -594,6 +596,17 @@
     if (G.over >= 0) {
       const b = el('button', { type: 'button', className: 'btn btn-primary', text: t('newGame') });
       b.addEventListener('click', () => { if (mode === 'link') { link = null; G = null; render(); } else if (mode === 'room') { startRoomLobby(); } else newGame(); });
+      if (mode === 'room' && rm && rm.me >= 0) {
+        // the same two at the same table, straight away
+        const again = el('button', { type: 'button', className: 'btn btn-primary', text: t('rematch') });
+        again.addEventListener('click', () => {
+          rm.bots = rm.bots.map(x => x === true);
+          newGameSilent(); G.gid = rm.room.id + '-tw-' + Date.now().toString(36); G.turn = Math.random() < 0.5 ? 0 : 1; msg = '';
+          pushGame(); render(); if (aiSeat() >= 0) setTimeout(aiTurn, 900);
+        });
+        btns.appendChild(again);
+        b.className = 'btn';
+      }
       btns.appendChild(b);
     } else if (humanTurn() && !busy) {
       if (!G.dice) {
@@ -780,6 +793,7 @@
   }
   document.addEventListener('sawt:lang', () => render());
   // the sofa's "play in this room" opens the table in room mode
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && mode === 'room' && rm) pollRoom(); });
   document.addEventListener('sawt:tawleh-room', () => { if (Rm() && Rm().current()) { clearTimeout(rTimer); busy = false; mode = 'room'; link = null; enterRoomMode(); render(); } });
   document.addEventListener('sawt:gametab', e => { if (e.detail === 'tawleh' && mode === 'room') pollRoom(); });
   window.SawtTawleh = { _engine: { START, sequences, apply, pips, aiChoose, singles } };

@@ -1270,6 +1270,12 @@
     return (good.find(s => s.lang === lang) || good[0] || news.sources[0] || {}).source || null;
   }
 
+  let editingSources = false;
+  const NEWS_SRC = {
+    ar: { pick: 'اختار الجرايد', lede: 'اختار الجرايد اللي بدّك تشوفها (بتنحفظ إلك إنت):' },
+    en: { pick: 'Choose sources', lede: 'Pick the papers you want to see (saved for you):' },
+    fr: { pick: 'Choisir les sources', lede: 'Choisissez les journaux à afficher (gardé pour vous) :' }
+  };
   function renderNews() {
     const tabs = $('news-tabs');
     const list = $('headlines');
@@ -1277,9 +1283,15 @@
       if (newsFailed) list.replaceChildren(el('p', { className: 'error', text: t('newsFailed') }));
       return;
     }
-    if (!activeSource || !news.sources.some(s => s.source === activeSource)) activeSource = defaultSource();
+    // each person can hide the sources they don't want
+    const hiddenSrc = new Set(store.get('newsHidden', []) || []);
+    const shown = news.sources.filter(s => !hiddenSrc.has(s.source));
+    const visible = shown.length ? shown : news.sources;
+    if (!activeSource || !visible.some(s => s.source === activeSource)) activeSource = (visible.find(s => s.source === defaultSource()) || visible[0]).source;
 
-    tabs.replaceChildren(...news.sources.map(s => {
+    const gear = el('button', { type: 'button', className: 'tab news-gear', 'aria-expanded': String(editingSources), 'aria-label': NEWS_SRC[lang].pick, title: NEWS_SRC[lang].pick, text: '⚙︎' });
+    gear.addEventListener('click', () => { editingSources = !editingSources; renderNews(); });
+    tabs.replaceChildren(gear, ...visible.map(s => {
       const tab = el('button', {
         type: 'button',
         role: 'tab',
@@ -1292,6 +1304,20 @@
       tab.addEventListener('click', () => { activeSource = s.source; renderNews(); });
       return tab;
     }));
+    document.querySelectorAll('.news-pick').forEach(n => n.remove());
+    if (editingSources) {
+      const pick = el('div', { className: 'news-pick' }, [el('p', { className: 'quiet small', text: NEWS_SRC[lang].lede }), el('div', { className: 'news-pick-row' }, news.sources.map(s => {
+        const b = el('button', { type: 'button', className: 'chip', text: (hiddenSrc.has(s.source) ? '' : '✓ ') + s.source, lang: s.lang || undefined });
+        b.setAttribute('aria-pressed', String(!hiddenSrc.has(s.source)));
+        b.addEventListener('click', () => {
+          if (hiddenSrc.has(s.source)) hiddenSrc.delete(s.source);
+          else if (news.sources.length - hiddenSrc.size > 1) hiddenSrc.add(s.source);
+          store.set('newsHidden', [...hiddenSrc]); renderNews();
+        });
+        return b;
+      }))]);
+      tabs.after(pick);
+    }
 
     const src = news.sources.find(s => s.source === activeSource);
     const srcLang = (src && src.lang) || 'en';

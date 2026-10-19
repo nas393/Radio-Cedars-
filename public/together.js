@@ -58,25 +58,25 @@
     }
   };
   Object.assign(T.ar, {
-    inviteBtn: '＋ ادعي حدا', inviteGame: (r, g, p) => `تعا نلعب ${g} بغرفة "${r}" بصوت البيت 🎲${p ? `\nالرمز: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} فتح ${g}، تعا العب!`, joinGame: 'العب معهن', gname: { tawleh: 'طاولة', tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'سهرة أسئلة' }, notify: '📲 نبّهني بالرسايل', notifyOn: '📲 بتوصلك الرسايل ✓', blocked: 'التنبيهات مسكّرة لهالموقع بالمتصفّح.', ios: 'على الآيفون، ثبّت التطبيق عالشاشة أوّل (مشاركة ← زيد عالشاشة الرئيسية).', chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
+    inviteBtn: '＋ ادعي حدا', eventToday: w => `🎉 اليوم: ${w}!`, plTitle: 'أغاني الغرفة', plPaste: 'حطّ رابط أغنية من يوتيوب', plPlayAll: '▶ شغّلها كلّها عالتلفزيون', plEmpty: 'بعد ما حدا زاد أغنية. زيد أوّل وحدة!', plBy: n => `زادها ${n}`, reply: 'ردّ', del: 'امحي', delAsk: 'تمحي هالرسالة عند الكل؟', deleted: '🚫 انمحت هالرسالة', replyingTo: n => `↩ عم تردّ على ${n}`, seenBy: l => `✓✓ شافها ${l}`, seenAll: '✓✓ شافوها الكل', inviteGame: (r, g, p) => `تعا نلعب ${g} بغرفة "${r}" بصوت البيت 🎲${p ? `\nالرمز: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} فتح ${g}، تعا العب!`, joinGame: 'العب معهن', gname: { tawleh: 'طاولة', tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'سهرة أسئلة' }, notify: '📲 نبّهني بالرسايل', notifyOn: '📲 بتوصلك الرسايل ✓', blocked: 'التنبيهات مسكّرة لهالموقع بالمتصفّح.', ios: 'على الآيفون، ثبّت التطبيق عالشاشة أوّل (مشاركة ← زيد عالشاشة الرئيسية).', chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
     knock: 'دقّ الجرس', knocked: n => `🔔 ${n} دقّ الجرس!`, react: 'تفاعل', quick: 'كلمات سريعة', bigPhoto: 'كبّر الصورة',
     phrases: ['وصلت بالسلامة 🏠', 'اشتقنالكن ❤️', 'صباح الخير ☕', 'تصبحوا على خير 🌙', 'كيفكن؟', 'الله يخلّيكن 🙏', 'هههههه 😂', 'يلّا نلعب طاولة؟ 🎲'],
     bday: w => `🎂 اليوم عيد ميلاد ${w}! كل سنة وإنت سالم/ة 🎉`, nameday: w => `🕯️ اليوم عيد شفيع ${w}. كل عيد وإنت بخير`,
-    errs2: { type: 'هالنوع من الصور ما بيمشي.', big: 'الصورة كبيرة كتير.' }, today: 'اليوم', yesterday: 'مبارح'
+    errs2: { type: 'هالنوع من الصور ما بيمشي.', big: 'الصورة كبيرة كتير.', yt: 'هيدا مش رابط يوتيوب.' }, today: 'اليوم', yesterday: 'مبارح'
   });
   Object.assign(T.en, {
-    inviteBtn: '＋ Invite someone', inviteGame: (r, g, p) => `Come and play ${g} in "${r}" on Sawt el Beit 🎲${p ? `\nPasscode: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} opened ${g}. Come and play!`, joinGame: 'Join the game', gname: { tawleh: 'tawleh', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'trivia night' }, notify: '📲 Notify me of messages', notifyOn: '📲 Message alerts on ✓', blocked: 'Notifications are blocked for this site in your browser.', ios: 'On iPhone, add the app to your home screen first (Share → Add to Home Screen).', chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
+    inviteBtn: '＋ Invite someone', eventToday: w => `🎉 Today: ${w}!`, plTitle: 'The room’s songs', plPaste: 'Paste a YouTube song link', plPlayAll: '▶ Play them all on the TV', plEmpty: 'No songs yet. Add the first one!', plBy: n => `added by ${n}`, reply: 'Reply', del: 'Delete', delAsk: 'Delete this message for everyone?', deleted: '🚫 This message was deleted', replyingTo: n => `↩ Replying to ${n}`, seenBy: l => `✓✓ Seen by ${l}`, seenAll: '✓✓ Seen by everyone', inviteGame: (r, g, p) => `Come and play ${g} in "${r}" on Sawt el Beit 🎲${p ? `\nPasscode: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} opened ${g}. Come and play!`, joinGame: 'Join the game', gname: { tawleh: 'tawleh', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'trivia night' }, notify: '📲 Notify me of messages', notifyOn: '📲 Message alerts on ✓', blocked: 'Notifications are blocked for this site in your browser.', ios: 'On iPhone, add the app to your home screen first (Share → Add to Home Screen).', chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
     knock: 'Ring the bell', knocked: n => `🔔 ${n} rang the bell!`, react: 'React', quick: 'Quick words', bigPhoto: 'Open the photo',
     phrases: ['Got home safe 🏠', 'Miss you all ❤️', 'Good morning ☕', 'Good night 🌙', 'How are you all?', 'Love you all 🙏', 'Hahaha 😂', 'Tawleh, anyone? 🎲'],
     bday: w => `🎂 It’s ${w}’s birthday today! Many happy returns 🎉`, nameday: w => `🕯️ Today is ${w}’s name day. Eid mubarak`,
-    errs2: { type: 'That kind of picture can’t be sent.', big: 'That picture is too big.' }, today: 'Today', yesterday: 'Yesterday'
+    errs2: { type: 'That kind of picture can’t be sent.', big: 'That picture is too big.', yt: 'That isn’t a YouTube link.' }, today: 'Today', yesterday: 'Yesterday'
   });
   Object.assign(T.fr, {
-    inviteBtn: '＋ Inviter quelqu’un', inviteGame: (r, g, p) => `Viens jouer au ${g} dans « ${r} » sur Sawt el Beit 🎲${p ? `\nCode : ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} a ouvert ${g}. Viens jouer !`, joinGame: 'Rejoindre', gname: { tawleh: 'tawlé', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'la soirée quiz' }, notify: '📲 M’avertir des messages', notifyOn: '📲 Alertes activées ✓', blocked: 'Les notifications sont bloquées pour ce site.', ios: 'Sur iPhone, ajoutez d’abord l’app à l’écran d’accueil (Partager → Sur l’écran d’accueil).', chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
+    inviteBtn: '＋ Inviter quelqu’un', eventToday: w => `🎉 Aujourd’hui : ${w} !`, plTitle: 'Les chansons de la pièce', plPaste: 'Collez un lien YouTube', plPlayAll: '▶ Tout jouer sur la télé', plEmpty: 'Pas encore de chanson. Ajoutez la première !', plBy: n => `ajoutée par ${n}`, reply: 'Répondre', del: 'Supprimer', delAsk: 'Supprimer ce message pour tout le monde ?', deleted: '🚫 Message supprimé', replyingTo: n => `↩ Réponse à ${n}`, seenBy: l => `✓✓ Vu par ${l}`, seenAll: '✓✓ Vu par tout le monde', inviteGame: (r, g, p) => `Viens jouer au ${g} dans « ${r} » sur Sawt el Beit 🎲${p ? `\nCode : ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} a ouvert ${g}. Viens jouer !`, joinGame: 'Rejoindre', gname: { tawleh: 'tawlé', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'la soirée quiz' }, notify: '📲 M’avertir des messages', notifyOn: '📲 Alertes activées ✓', blocked: 'Les notifications sont bloquées pour ce site.', ios: 'Sur iPhone, ajoutez d’abord l’app à l’écran d’accueil (Partager → Sur l’écran d’accueil).', chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
     knock: 'Sonner', knocked: n => `🔔 ${n} a sonné !`, react: 'Réagir', quick: 'Mots rapides', bigPhoto: 'Ouvrir la photo',
     phrases: ['Bien arrivé·e 🏠', 'Vous me manquez ❤️', 'Bonjour ☕', 'Bonne nuit 🌙', 'Comment ça va ?', 'Je vous aime 🙏', 'Hahaha 😂', 'Un tawlé ? 🎲'],
     bday: w => `🎂 C’est l’anniversaire de ${w} aujourd’hui ! 🎉`, nameday: w => `🕯️ C’est la fête de ${w} aujourd’hui`,
-    errs2: { type: 'Ce type d’image ne passe pas.', big: 'Image trop lourde.' }, today: 'Aujourd’hui', yesterday: 'Hier'
+    errs2: { type: 'Ce type d’image ne passe pas.', big: 'Image trop lourde.', yt: 'Ce n’est pas un lien YouTube.' }, today: 'Aujourd’hui', yesterday: 'Hier'
   });
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
   const EMOJI = ['❤️', '😂', '👍', '😮', '😢', '🙏', '🔥', '🌲'];
@@ -154,12 +154,16 @@
     const r = openRoom;
     try {
       const wantBd = !r.bdAt || Date.now() - r.bdAt > 120000;
-      const d = await api(`/api/q/${r.id}?since=${r.since}&rxv=${r.rxv}${wantBd ? '&bd=1' : ''}`, null, r.token);
+      const looking0 = chatOpen();
+      const d = await api(`/api/q/${r.id}?since=${r.since}&rxv=${r.rxv}&nogame=1${wantBd ? '&bd=1&ev=1' : ''}${looking0 ? `&chat=1&seen=${r.since}` : ''}`, null, r.token);
       if (openRoom !== r) return;
       r.here = d.here; r.hostName = d.host; r.title = d.title; r.game = d.game || null; r.members = d.members || [];
       r.typing = d.typing || [];
-      if (d.rx) { r.rx = d.rx; r.rxv = d.rxv; rxChanged = true; }
+      if (d.rd) r.rd = d.rd;
+      if (d.rx) { r.rx = d.rx; r.rxv = d.rxv; r.del = new Set(d.del || []); rxChanged = true; }
+      if (d.events || d.playlist) { r.events = d.events || []; r.playlist = d.playlist || []; document.dispatchEvent(new CustomEvent('sawt:room-extras', { detail: { room: r } })); }
       if (d.bdays) { r.bdays = d.bdays; r.bdAt = Date.now(); document.dispatchEvent(new CustomEvent('sawt:room-bdays', { detail: { room: r, bdays: d.bdays } })); }
+      quiet = d.msgs.length || (d.typing && d.typing.length) ? 0 : quiet + 1;
       if (d.msgs.length) {
         const fresh = d.msgs.filter(m => !r.msgs.some(x => x.n === m.n));
         r.msgs = r.msgs.concat(fresh).slice(-150);
@@ -195,9 +199,13 @@
   function schedule() {
     clearTimeout(timer);
     if (!openRoom) return;
-    const open = window.SawtRoom && window.SawtRoom.isOpen() === 'together';
-    timer = setTimeout(poll, document.hidden ? 30000 : open ? 2000 : 8000);
+    // quick while people are talking, slower when the room is quiet (it saves the small database)
+    const open = chatOpen();
+    const base = document.hidden ? 60000 : open ? 2500 : 15000;
+    timer = setTimeout(poll, open ? Math.min(6000, base + quiet * 300) : base);
   }
+  let quiet = 0;
+  const chatOpen = () => !!(window.SawtRoom && window.SawtRoom.isOpen() === 'together' && !document.hidden);
   let lastShared = null;
   async function shareNow() {
     if (!openRoom || !openRoom.sharing) return;
@@ -213,7 +221,8 @@
   async function say(text) {
     if (!openRoom || !text) return;
     typedAt = 0;
-    try { await api(`/api/q/${openRoom.id}/say`, { text }, openRoom.token); err = ''; poll(true); }
+    const re = replyTo; replyTo = null;
+    try { await api(`/api/q/${openRoom.id}/say`, { text, re }, openRoom.token); err = ''; quiet = 0; render(); poll(true); }
     catch (e) { err = errText(e); render(); }
   }
   async function knock() {
@@ -307,7 +316,8 @@
       const rec = await h.stop();
       render();
       if (rec.seconds < 0.6) return;
-      try { await sendVoice(openRoom, rec); err = ''; poll(true); } catch (e) { err = errText(e); render(); }
+      const re = replyTo; replyTo = null;
+      try { await sendVoice(openRoom, rec, re ? { re } : {}); err = ''; poll(true); } catch (e) { err = errText(e); render(); }
       return;
     }
     try {
@@ -364,7 +374,6 @@
         return b;
       })) : el('p', { className: 'quiet', text: t('none') }));
       kids.push(btn('＋ ' + t('newRoom'), 'btn btn-primary', () => { screen = 'new'; err = ''; render(); }));
-      kids.push(el('div', { className: 'q-or' }, [btn('📲 ' + t('sendThis'), 'link-btn', shareLink)]));
     }
     if (err && screen === 'home') kids.push(el('p', { className: 'form-error', role: 'alert', text: err }));
     box.replaceChildren(...kids);
@@ -425,6 +434,18 @@
   function picker(m, r, host) {
     const old = box.querySelector('.q-pick'); if (old) { const same = old.dataset.n === String(m.n); old.remove(); if (same) return; }
     const p = el('div', { className: 'q-pick', role: 'group', 'aria-label': t('react') }, EMOJI.map(e => { const b = el('button', { type: 'button', text: e }); b.addEventListener('click', () => { p.remove(); react(m, e); }); return b; }));
+    const rb = el('button', { type: 'button', className: 'q-pick-w', text: '↩ ' + t('reply') });
+    rb.addEventListener('click', () => { p.remove(); replyTo = { n: m.n, name: m.name, text: (m.text || (m.voice ? '🎙️' : m.photo ? '📷' : '')).slice(0, 80) }; render(); const i = box.querySelector('.q-say input'); if (i) i.focus(); });
+    p.appendChild(rb);
+    if (m.name === r.name) {
+      const db = el('button', { type: 'button', className: 'q-pick-w', text: '🗑 ' + t('del') });
+      db.addEventListener('click', async () => {
+        p.remove();
+        if (!window.confirm(t('delAsk'))) return;
+        try { await api(`/api/q/${r.id}/del`, { n: m.n }, r.token); (r.del = r.del || new Set()).add(m.n); updateRx(); } catch (e) { err = errText(e); render(); }
+      });
+      p.appendChild(db);
+    }
     p.dataset.n = m.n;
     host.appendChild(p);
   }
@@ -449,10 +470,16 @@
       n.dataset.n = m.n; return n;
     }
     if (m.sys || m.knock) {
-      const n = el('div', { className: 'q-sys' + (m.knock ? ' q-knock' : ''), dir: 'auto', text: m.knock ? t('knocked', m.name) : t(m.sys === 'nameday' ? 'nameday' : 'bday', m.who) });
+      const n = el('div', { className: 'q-sys' + (m.knock ? ' q-knock' : ''), dir: 'auto', text: m.knock ? t('knocked', m.name) : m.sys === 'event' ? t('eventToday', m.who) : t(m.sys === 'nameday' ? 'nameday' : 'bday', m.who) });
       n.dataset.n = m.n; return n;
     }
+    if (r.del && r.del.has(m.n)) { const n = el('div', { className: 'q-msg is-gone' + (m.name === r.name ? ' is-me' : '') }, [el('b', { dir: 'auto', text: m.name }), el('i', { text: t('deleted') })]); n.dataset.n = m.n; return n; }
     const kids = [el('b', { dir: 'auto', text: m.name })];
+    if (m.re) {
+      const q = el('button', { type: 'button', className: 'q-quote', dir: 'auto' }, [el('b', { text: m.re.name }), el('span', { text: m.re.text || '…' })]);
+      q.addEventListener('click', () => { const o = box.querySelector(`.q-log [data-n="${m.re.n}"]`); if (o) { o.scrollIntoView({ block: 'center', behavior: 'smooth' }); o.classList.add('is-flash'); setTimeout(() => o.classList.remove('is-flash'), 1200); } });
+      kids.push(q);
+    }
     if (m.photo) {
       const src = `/api/q/${r.id}/photo/${m.photo}?token=${encodeURIComponent(r.token)}`;
       const im = el('img', { className: 'q-photo', src, alt: '', loading: 'lazy', width: m.w, height: m.h });
@@ -502,14 +529,26 @@
     if (!openRoom) return;
     box.querySelectorAll('.q-msg[data-n]').forEach(node => {
       const m = openRoom.msgs.find(x => String(x.n) === node.dataset.n);
+      if (m && openRoom.del && openRoom.del.has(m.n) && !node.classList.contains('is-gone')) { node.replaceWith(msgView(m, openRoom)); return; }
       const old = node.querySelector('.q-rx');
       if (m && old) old.replaceWith(rxRow(m, openRoom));
     });
   }
   function typingLine(r) {
     const n = (r.typing || []).length;
-    return el('p', { className: 'q-typing', 'aria-live': 'polite', dir: 'auto', text: n === 1 ? t('typing1', r.typing[0]) : n > 1 ? t('typingN', n) : '' });
+    if (n) return el('p', { className: 'q-typing', 'aria-live': 'polite', dir: 'auto', text: n === 1 ? t('typing1', r.typing[0]) : t('typingN', n) });
+    // who has seen my last message
+    const mine = [...r.msgs].reverse().find(m => m.name === r.name && !m.sys && !m.knock);
+    let text = '';
+    if (mine && r.rd) {
+      const others = (r.members || []).filter(x => x !== r.name);
+      const saw = others.filter(x => (r.rd[x] || 0) >= mine.n);
+      if (saw.length && saw.length === others.length && others.length > 1) text = t('seenAll');
+      else if (saw.length) text = t('seenBy', saw.join('، '));
+    }
+    return el('p', { className: 'q-typing q-seen', dir: 'auto', text });
   }
+  let replyTo = null;
   function roomView() {
     const r = openRoom;
     const head = el('div', { className: 'q-head' }, [
@@ -548,6 +587,10 @@
       f.addEventListener('submit', e => { e.preventDefault(); const v = input.value.trim(); input.value = ''; draft = ''; say(v); });
       composer.append(f);
     }
+    if (replyTo && !recording) {
+      const x = btn('×', 'link-btn q-reply-x', () => { replyTo = null; render(); });
+      composer.prepend(el('div', { className: 'q-reply', dir: 'auto' }, [el('span', { text: t('replyingTo', replyTo.name) + ': ' + (replyTo.text || '') }), x]));
+    }
     const quick = showQuick ? el('div', { className: 'q-quick' }, t('phrases').map(ph => btn(ph, 'chip', () => { showQuick = false; render(); say(ph); }))) : null;
     const foot = el('div', { className: 'q-row' }, [
       pushCfg && pushCfg.alerts ? btn(S.store.get('qPush:' + r.id, false) ? t('notifyOn') : t('notify'), S.store.get('qPush:' + r.id, false) ? 'btn' : 'btn btn-primary', () => pushToggle(r)) : null,
@@ -557,9 +600,43 @@
       btn('🧠 ' + t('playTrivia'), 'btn', () => { openGames('trivia'); document.dispatchEvent(new CustomEvent('sawt:trivia-room')); }),
       btn(t('leave'), 'link-btn', () => { rooms = rooms.filter(x => x.id !== r.id); saveRooms(); openRoom = null; screen = 'home'; render(); })
     ]);
-    return el('div', { className: 'q-room' }, [head, here, log, typingLine(r), quick, composer, err ? el('p', { className: 'form-error', role: 'alert', text: err }) : null, nowCard, foot].filter(Boolean));
+    return el('div', { className: 'q-room' }, [head, here, log, typingLine(r), quick, composer, err ? el('p', { className: 'form-error', role: 'alert', text: err }) : null, playlistView(r), nowCard, foot].filter(Boolean));
   }
   let draft = '', showQuick = false;
+  // ------------------------------------------------------------------ the room's songs
+  let plOpen = false, plBusy = false;
+  function playlistView(r) {
+    const list = r.playlist || [];
+    const head = btn(`🎵 ${t('plTitle')} (${S.num(list.length)}) ${plOpen ? '▴' : '▾'}`, 'q-pl-head', () => { plOpen = !plOpen; render(); });
+    head.setAttribute('aria-expanded', String(plOpen));
+    if (!plOpen) return el('div', { className: 'q-pl' }, [head]);
+    const input = el('input', { placeholder: t('plPaste'), 'aria-label': t('plPaste'), inputMode: 'url', dir: 'ltr' });
+    const f = el('form', { className: 'q-say q-pl-add' }, [input, el('button', { type: 'submit', className: 'btn btn-primary', text: '＋', disabled: plBusy })]);
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      const url = input.value.trim(); if (!url) return;
+      plBusy = true; render();
+      try { const d = await api(`/api/q/${r.id}/playlist`, { url }, r.token); r.playlist = d.playlist; err = ''; } catch (ex) { err = errText(ex); }
+      plBusy = false; render();
+    });
+    const ordered = [...list].reverse();          // first added plays first
+    const items = ordered.map((x, i) => el('li', { className: 'q-pl-item' }, [
+      btn('▶', 'q-pl-play', () => playRoomList(ordered, i, r)),
+      el('span', { className: 'q-pl-t', dir: 'auto' }, [el('b', { text: x.title }), el('small', { text: t('plBy', x.by) })]),
+      x.by === r.name ? btn('×', 'link-btn q-pl-x', async () => { try { const d = await api(`/api/q/${r.id}/playlist`, { remove: x.k }, r.token); r.playlist = d.playlist; render(); } catch (ex) { err = errText(ex); render(); } }) : null
+    ].filter(Boolean)));
+    return el('div', { className: 'q-pl is-open' }, [
+      head, f,
+      list.length ? btn(t('plPlayAll'), 'btn q-pl-all', () => playRoomList(ordered, 0, r)) : el('p', { className: 'quiet small', text: t('plEmpty') }),
+      el('ul', { className: 'q-pl-list' }, items)
+    ]);
+  }
+  function playRoomList(ordered, i, r) {
+    const ids = ordered.slice(i).concat(ordered.slice(0, i)).map(x => x.vid);
+    if (!ids.length || !window.SawtTV) return;
+    window.SawtTV.playVideos(ids, { ar: `🎵 ${r.title}`, en: `🎵 ${r.title}`, fr: `🎵 ${r.title}` });
+    if (window.SawtRoom) { window.SawtRoom.close(); setTimeout(() => window.SawtRoom.focusTv && window.SawtRoom.focusTv(), 320); }
+  }
   // ------------------------------------------------------------------ alerts when the app is closed
   let pushCfg = null;
   async function pushToggle(r) {
@@ -603,7 +680,8 @@
     const old = box.querySelector('.q-room');
     if (!old) { render(); return; }
     const v = roomView();
-    ['.q-here', '.q-now', '.q-typing'].forEach(sel => { const a = old.querySelector(sel), b = v.querySelector(sel); if (a && b) a.replaceWith(b); });
+    const plBusyTyping = document.activeElement && document.activeElement.closest && document.activeElement.closest('.q-pl');
+    ['.q-here', '.q-now', '.q-typing', ...(plBusyTyping ? [] : ['.q-pl'])].forEach(sel => { const a = old.querySelector(sel), b = v.querySelector(sel); if (a && b) a.replaceWith(b); });
     // only add new messages, so audio that is playing keeps playing
     const log = old.querySelector('.q-log');
     const have = new Set([...log.querySelectorAll('[data-n]')].map(n => n.dataset.n));
@@ -634,7 +712,12 @@
     }
     if (!id || !storeOn) return;
     const saved = rooms.find(r => r.id === id);
-    if (saved && saved.token) { enter(saved); openRoom.following = true; return; }
+    if (saved && saved.token) {
+      enter(saved); openRoom.following = true;
+      const play = new URLSearchParams(location.search).get('play');
+      if (play) setTimeout(() => joinGame(play), 1500);
+      return;
+    }
     joinId = id; screen = 'join';
     try { joinTitle = (await api(`/api/q/${id}/peek`)).title; } catch (e) { err = errText(e); screen = 'home'; }
     render();
@@ -663,6 +746,7 @@
     sendVoice,
     invite,
     announce,
+    event: (r, body) => api(`/api/q/${r.id}/event`, body, r.token).then(d => { r.bdAt = 0; poll(true); return d; }),
     greet: (r, who, kind, day) => api(`/api/q/${r.id}/greet`, { who, kind, day }, r.token),
     bday: (r, who, md, remove) => api(`/api/q/${r.id}/bday`, { who, md, remove }, r.token),
     scores: r => api(`/api/q/${r.id}/scores`, null, r.token),

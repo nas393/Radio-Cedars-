@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>صوت البيت · راديو لبنان وأخبار لبنان</title>
+  <meta name="description" content="صوت البيت: ادخل على صالون بيت لبناني من التسعينات. الراديو، التلفزيون، الجريدة، الطاولة، إهداءات بصوتك وأغاني الزمن الجميل، كل شي فيه بيشتغل. Step into a 1990s Lebanese living room: radio, TV, news, dedications and classics, all working.">
+  <link rel="canonical" href="https://radio-cedars.vercel.app/">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="صوت البيت · Sawt el Beit">
+  <meta property="og:title" content="صوت البيت · Sawt el Beit">
+  <meta property="og:description" content="ادخل على صالون البيت: الراديو، التلفزيون، الجريدة وكاسيتات الزمن الجميل. Step into the living room back home.">
+  <meta property="og:url" content="https://radio-cedars.vercel.app/">
+  <meta property="og:image" content="https://radio-cedars.vercel.app/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="صالون بيت لبناني من التسعينات عند المغرب">
+  <meta property="og:locale" content="ar_LB">
+  <meta property="og:locale:alternate" content="en_US">
+  <meta property="og:locale:alternate" content="fr_FR">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <meta name="theme-color" content="#17120E">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="صوت البيت">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icon-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Caveat:wght@500;700&family=Lalezar&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/app.css">
+  <link rel="stylesheet" href="/room.css">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "صوت البيت · Sawt el Beit",
+    "alternateName": ["Sawt el Beit", "صوت البيت"],
+    "url": "https://radio-cedars.vercel.app/",
+    "description": "A 1990s Lebanese living room you can step into: live Lebanese radio, TV, news, dedications home, golden-age classics, recipes and more.",
+    "applicationCategory": "EntertainmentApplication",
+    "operatingSystem": "Any",
+    "inLanguage": ["ar", "en", "fr"],
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+  }
+  </script>
+</head>
+<body class="in-room">
+  <a class="skip" href="#focus-card" data-i18n="skipToContent">انتقل إلى المحتوى</a>
+
+  <!-- ===================================================== the room -->
+  <main class="room" id="room">
+    <h1 class="visually-hidden" data-i18n="radioHeading">صوت البيت: راديو لبنان</h1>
+    <canvas id="view" aria-hidden="true"></canvas>
+    <div class="hotspots" id="hotspots"></div>
+    <p class="drag-hint" id="drag-hint" data-r="dragHint" hidden></p>
+
+    <header class="room-top">
+      <a class="brand" href="/" aria-label="صوت البيت" data-i18n-label="brand">
+        <svg class="brand-mark" viewBox="0 0 40 32" aria-hidden="true"><use href="#arches-mark"/></svg>
+        <span class="brand-name" data-i18n="brand">صوت البيت</span>
+      </a>
+      <button type="button" class="scene-chip" id="scene-chip"></button>
+      <div class="langs" role="group" aria-label="اللغة" data-i18n-label="language">
+        <button type="button" class="lang" data-lang="ar" lang="ar" aria-pressed="true">عربي</button>
+        <button type="button" class="lang" data-lang="en" lang="en" aria-pressed="false">EN</button>
+        <button type="button" class="lang" data-lang="fr" lang="fr" aria-pressed="false">FR</button>
+      </div>
+    </header>
+
+    <p class="morning room-morning" id="morning" hidden>
+      <span data-i18n="morning">صباح الخير. فيروز الصبح؟</span>
+      <button type="button" class="link-btn" id="morning-btn" data-i18n="morningAction">شغّل فيروز</button>
+    </p>
+
+    <div class="focus" id="focus">
+      <button type="button" class="focus-step" id="focus-prev" data-r-label="turnLeft">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="focus-card" id="focus-card">
+        <span class="focus-name" id="focus-name"></span>
+        <span class="focus-hint" id="focus-hint"></span>
+      </button>
+      <button type="button" class="focus-step" id="focus-next" data-r-label="turnRight">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </main>
+
+  <!-- ===================================================== walk-in -->
+  <div class="intro" id="intro">
+    <img class="intro-img" id="intro-img" alt="">
+    <div class="intro-text">
+      <svg class="intro-mark" viewBox="0 0 40 32" aria-hidden="true"><use href="#arches-mark"/></svg>
+      <p class="intro-title" data-r="introTitle"></p>
+      <p class="intro-sub" data-r="introSub"></p>
+      <button type="button" class="btn btn-primary intro-btn" id="intro-btn" data-r="introEnter"></button>
+    </div>
+  </div>
+
+  <!-- ===================================================== the object panel -->
+  <aside class="sheet" id="sheet" role="dialog" aria-modal="false" aria-labelledby="sheet-title" hidden>
+    <div class="sheet-head">
+      <h2 class="sheet-title" id="sheet-title"></h2>
+      <button type="button" class="sheet-close" id="sheet-close" data-r-label="close">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div class="sheet-body" id="sheet-body">
+
+      <!-- radio -->
+      <section class="pv" data-panel="radio" hidden>
+        <div class="sill" id="set">
+          <div class="now">
+            <button class="power" id="power" type="button" aria-pressed="false" aria-label="تشغيل">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-power"/></svg>
+            </button>
+            <div class="now-text">
+              <p class="station-name" id="station-name" dir="auto" aria-live="polite">…</p>
+              <p class="station-status" id="station-status" aria-live="polite"></p>
+            </div>
+            <div class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <button class="fav" id="fav" type="button" aria-pressed="false" aria-label="أضف إلى المفضلة">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-star"/></svg>
+            </button>
+          </div>
+          <div class="dial">
+            <div class="dial-scale" id="dial" tabindex="0" role="listbox" aria-label="المحطات" data-i18n-label="stations">
+              <p class="dial-loading" data-i18n="loadingStations">جاري تحميل المحطات…</p>
+            </div>
+            <div class="needle" aria-hidden="true"></div>
+          </div>
+          <p class="dial-hint" data-i18n="dialHint">اسحب المؤشر لتغيير المحطة</p>
+        </div>
+        <div class="controls">
+          <div class="filters" role="group" aria-label="تصفية المحطات" data-i18n-label="filterStations">
+            <button type="button" class="chip" data-filter="all" aria-pressed="true" data-i18n="filterAll">كل المحطات</button>
+            <button type="button" class="chip" data-filter="fav" aria-pressed="false" data-i18n="filterFav">المفضلة</button>
+            <button type="button" class="chip" data-filter="fairuz" aria-pressed="false" data-i18n="filterFairuz">فيروز</button>
+          </div>
+          <label class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-search"/></svg>
+            <span class="visually-hidden" data-i18n="searchLabel">ابحث عن محطة</span>
+            <input type="search" id="search" autocomplete="off" enterkeyhint="search" data-i18n-placeholder="searchPlaceholder" placeholder="ابحث عن محطة">
+          </label>
+        </div>
+        <div class="tools">
+          <button type="button" class="tool" id="share-btn">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-share"/></svg>
+            <span data-i18n="share">شارك المحطة</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- TV -->
+      <section class="pv" data-panel="tv" hidden>
+        <div class="screen-slot" id="tv-slot"></div>
+        <p class="pv-lede" data-r="tvLede"></p>
+        <ul class="channels" id="channels"></ul>
+      </section>
+
+      <!-- newspaper -->
+      <section class="pv" data-panel="news" id="news" hidden>
+        <header class="mast">
+          <p class="mast-name" data-r="paperName"></p>
+          <p class="mast-line"><span id="mast-date"></span><span data-r="paperPrice"></span></p>
+        </header>
+        <div class="head-actions">
+          <button type="button" class="tool" id="alerts-btn" aria-pressed="false" hidden>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-bell"/></svg>
+            <span id="alerts-label" data-i18n="alertsOn">نبّهني بالأخبار العاجلة</span>
+          </button>
+          <button type="button" class="link-btn" id="news-refresh" data-i18n="refresh">تحديث</button>
+        </div>
+        <p class="panel-note" id="alerts-note" hidden></p>
+        <div class="tabs" role="tablist" id="news-tabs" aria-label="المصادر"></div>
+        <div class="headlines" id="headlines" role="tabpanel" aria-live="polite">
+          <p class="quiet" data-i18n="loadingNews">جاري تحميل الأخبار…</p>
+        </div>
+        <p class="updated" id="news-updated"></p>
+      </section>
+
+      <!-- phone: send a dedication -->
+      <section class="pv" data-panel="phone" id="dedications" hidden>
+        <div class="voice" id="voice"></div>
+        <div class="needs-store" hidden>
+        <p class="airmail"><span>بريد جوي</span><span>PAR AVION</span><span>BY AIR MAIL</span></p>
+        <p class="pv-lede" data-i18n="dedLede">أغنية ورسالة من الغربة لأهلك في لبنان. كل إهداء يُراجع قبل ما ينشر.</p>
+        <form class="ded-form" id="ded-form" novalidate>
+          <div class="form-grid">
+            <label class="field"><span data-i18n="dedFromName">اسمك</span><input name="fromName" maxlength="40" required autocomplete="given-name"></label>
+            <label class="field"><span data-i18n="dedFromPlace">وين ساكن؟</span><input name="fromPlace" maxlength="40" data-i18n-placeholder="dedFromPlaceHint" placeholder="مثلاً: مونتريال"></label>
+            <label class="field"><span data-i18n="dedToName">لمين الإهداء؟</span><input name="toName" maxlength="40" required data-i18n-placeholder="dedToNameHint" placeholder="مثلاً: تيتا"></label>
+            <label class="field"><span data-i18n="dedToPlace">بأيّ ضيعة أو مدينة؟</span><input name="toPlace" maxlength="40" data-i18n-placeholder="dedToPlaceHint" placeholder="مثلاً: زحلة"></label>
+          </div>
+          <label class="field"><span data-i18n="dedSong">الأغنية</span><input name="song" maxlength="80" required list="song-list" data-i18n-placeholder="dedSongHint" placeholder="اختر من الزمن الجميل أو اكتب اسم أغنية"><datalist id="song-list"></datalist></label>
+          <label class="field"><span><span data-i18n="dedMessage">رسالتك</span> <span class="counter" id="ded-count"></span></span><textarea name="message" maxlength="240" rows="3" data-i18n-placeholder="dedMessageHint" placeholder="اشتقتلكن…"></textarea></label>
+          <p class="form-note" data-i18n="dedRules">بدون روابط أو أرقام هواتف. بيظهر الإهداء بعد الموافقة عليه.</p>
+          <p class="form-error" id="ded-error" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary" id="ded-submit" data-i18n="dedSubmit">أرسل الإهداء</button>
+          <div class="form-done" id="ded-done" hidden tabindex="-1">
+            <p class="form-done-title" data-i18n="dedDoneTitle">وصل إهداؤك 💌</p>
+            <p data-i18n="dedDoneText">بيظهر على الحائط بعد المراجعة، عادةً خلال ساعات.</p>
+            <button type="button" class="link-btn" id="ded-again" data-i18n="dedAgain">أرسل إهداء آخر</button>
+          </div>
+        </form>
+        </div>
+      </section>
+
+      <!-- family photos: the dedications wall -->
+      <section class="pv" data-panel="photos" hidden>
+        <div class="needs-store" hidden>
+          <h3 class="pv-sub" data-i18n="wallHeading">حائط الإهداءات</h3>
+          <p class="pv-lede" data-r="photosLede"></p>
+          <div class="ded-wall" id="ded-wall" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <!-- cassette shelf: moods + classics -->
+      <section class="pv" data-panel="cassettes" id="classics" hidden>
+        <div class="screen-slot" id="tape-slot"></div>
+        <p class="pv-lede" data-r="cassettesLede"></p>
+        <div class="tapes" id="tapes"></div>
+        <h3 class="pv-sub" data-i18n="classicsHeading">الزمن الجميل</h3>
+        <div class="moods" role="tablist" id="moods" aria-label="الزمن الجميل"></div>
+        <div class="mood" id="mood" role="tabpanel"></div>
+      </section>
+
+      <!-- clock: Beirut time + morning alarm -->
+      <section class="pv" data-panel="clock" hidden>
+        <div class="analog" id="analog" aria-hidden="true"></div>
+        <div class="two-clocks" id="two-clocks"></div>
+        <form class="panel" id="alarm-panel">
+          <p class="panel-title" data-i18n="alarmTitle">أيقظني على المحطة المختارة الآن.</p>
+          <div class="panel-row">
+            <label class="field field-inline"><span data-i18n="alarmTime">الساعة</span><input type="time" id="alarm-time" value="07:00" required></label>
+            <button type="submit" class="btn btn-primary" id="alarm-set" data-i18n="alarmSet">اضبط المنبّه</button>
+            <button type="button" class="link-btn" id="alarm-cancel" data-i18n="alarmCancel" hidden>ألغِ المنبّه</button>
+          </div>
+          <p class="panel-note" data-i18n="alarmNote">اترك هذه الصفحة مفتوحة والجهاز على الشاحن.</p>
+        </form>
+        <button type="button" class="tool" id="alarm-btn" aria-expanded="true" aria-controls="alarm-panel" hidden><span id="alarm-label"></span></button>
+      </section>
+
+      <!-- lamp: sleep timer -->
+      <section class="pv" data-panel="lamp" hidden>
+        <p class="pv-lede" data-r="lampLede"></p>
+        <button type="button" class="tool" id="sleep-btn" aria-expanded="true" aria-controls="sleep-panel">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-moon"/></svg>
+          <span id="sleep-label" data-i18n="sleep">مؤقت النوم</span>
+        </button>
+        <div class="panel" id="sleep-panel">
+          <p class="panel-title" data-i18n="sleepTitle">أطفئ الراديو بعد:</p>
+          <div class="panel-row" id="sleep-options"></div>
+        </div>
+      </section>
+
+      <!-- window: weather across Lebanon -->
+      <section class="pv" data-panel="window" hidden>
+        <div class="lb-map" id="lb-map"></div>
+        <p class="pv-lede" id="window-now"></p>
+        <section class="weather-list" aria-label="الطقس في لبنان">
+          <ul class="towns" id="towns"></ul>
+        </section>
+      </section>
+
+      <!-- calendar: occasions, sunrise/sunset, iftar -->
+      <section class="pv" data-panel="calendar" hidden>
+        <div class="tear" id="tear"></div>
+        <div class="sun-today" id="sun-today"></div>
+        <h3 class="pv-sub" data-r="comingUp"></h3>
+        <ol class="occasions" id="occasions"></ol>
+        <p class="quiet small" data-r="approxNote"></p>
+      </section>
+
+      <!-- coffee cup reading -->
+      <section class="pv" data-panel="coffee" hidden>
+        <div class="cup" id="cup" aria-hidden="true"><img class="cup-photo" src="/room/cup.jpg" alt="" loading="lazy" decoding="async"></div>
+        <p class="pv-lede" data-r="coffeeLede"></p>
+        <button type="button" class="btn btn-primary" id="cup-btn" data-r="coffeeFlip"></button>
+        <div class="reading" id="reading" aria-live="polite" hidden></div>
+      </section>
+
+      <!-- Teta's cookbook -->
+      <section class="pv" data-panel="books" hidden>
+        <div class="recipe-tabs" role="tablist" id="recipe-tabs"></div>
+        <article class="recipe" id="recipe" role="tabpanel"></article>
+      </section>
+
+      <!-- the painting of the bay: life far from home -->
+      <section class="pv" data-panel="expat" hidden><div id="expat"></div></section>
+
+      <!-- tawleh on the coffee table -->
+      <section class="pv" data-panel="tawleh" hidden><div class="games-tabs" id="games-tabs" role="tablist"></div><div id="tawleh"></div><div id="cards" hidden></div><div id="trivia" hidden></div><div id="scores" hidden></div></section>
+
+      <!-- the sofa: listen together -->
+      <section class="pv" data-panel="together" hidden><div id="together"></div></section>
+
+      <p class="credits" id="credits"></p>
+    </div>
+  </aside>
+
+  <!-- Mini-player -->
+  <div class="mini" id="mini" hidden>
+    <button type="button" class="mini-power" id="mini-power" aria-label="تشغيل"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-power"/></svg></button>
+    <button type="button" class="mini-name" id="mini-name" dir="auto"></button>
+    <button type="button" class="mini-step" id="mini-prev" aria-label="المحطة السابقة" data-i18n-label="prevStation"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-prev"/></svg></button>
+    <button type="button" class="mini-step" id="mini-next" aria-label="المحطة التالية" data-i18n-label="nextStation"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-next"/></svg></button>
+    <span class="bar-sep" aria-hidden="true"></span>
+    <button type="button" class="bar-all" id="all-btn" aria-expanded="false" aria-controls="objects">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5L12 4l8 7.5M6.5 9.5V20h11V9.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><path d="M10 20v-5.5h4V20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span data-r="allObjects"></span>
+    </button>
+  </div>
+
+  <!-- Everything in the room at a glance -->
+  <div class="objects" id="objects" role="dialog" aria-modal="true" aria-labelledby="objects-title" hidden>
+    <div class="objects-inner">
+      <div class="objects-head">
+        <h2 id="objects-title" data-r="allObjectsTitle"></h2>
+        <button type="button" class="sheet-close" id="objects-close" data-r-label="close">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="objects-grid" id="objects-grid"></div>
+    </div>
+  </div>
+
+  <!-- Alarm ringing -->
+  <div class="ring" id="ring" role="alertdialog" aria-modal="true" aria-labelledby="ring-title" hidden>
+    <div class="ring-box">
+      <svg class="ring-mark" viewBox="0 0 40 32" aria-hidden="true"><use href="#arches-mark"/></svg>
+      <p class="ring-title" id="ring-title" data-i18n="ringTitle">صباح الخير</p>
+      <p class="ring-station" id="ring-station" dir="auto"></p>
+      <div class="ring-actions">
+        <button type="button" class="btn btn-primary" id="ring-play" data-i18n="ringPlay" hidden>شغّل الراديو</button>
+        <button type="button" class="btn" id="ring-snooze" data-i18n="ringSnooze">غفوة ١٠ دقائق</button>
+        <button type="button" class="btn btn-primary" id="ring-stop" data-i18n="ringStop">أنا صاحي</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="toast" id="toast" role="status" aria-live="polite"></p>
+  <audio id="audio" preload="none"></audio>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="arches-mark" viewBox="0 0 40 32">
+      <path fill="currentColor" fill-rule="evenodd" d="M0 0H40V32H0Z M4 32V14A5 5 0 0 1 9 7A5 5 0 0 1 14 14V32Z M15.5 32V12A4.5 6 0 0 1 20 5A4.5 6 0 0 1 24.5 12V32Z M26 32V14A5 5 0 0 1 31 7A5 5 0 0 1 36 14V32Z"/>
+    </symbol>
+    <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 3v8M6.3 6.8a8 8 0 1 0 11.4 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8L3.5 9.7l5.9-.9z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M16 16l4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="6" cy="12" r="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="18" cy="18.5" r="2.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.2 10.8l7.6-4.1M8.2 13.2l7.6 4.1" stroke="currentColor" stroke-width="1.7"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M19.5 14.5A8 8 0 0 1 9.5 4.5a8 8 0 1 0 10 10z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16.5V11a6 6 0 0 1 12 0v5.5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/></symbol>
+  </svg>
+
+  <script src="/classics.js" defer></script>
+  <script src="/content.js" defer></script>
+  <script src="/app.js" defer></script>
+  <script src="/extras.js" defer></script>
+  <script src="/room.js" defer></script>
+  <script src="/music.js" defer></script>
+  <script src="/ambience.js" defer></script>
+  <script src="/home.js" defer></script>
+  <script src="/profiles.js" defer></script>
+  <script src="/tv-channels.js" defer></script>
+  <script src="/tvset.js" defer></script>
+  <script src="/rec.js" defer></script>
+  <script src="/tawleh.js" defer></script>
+  <script src="/cards.js" defer></script>
+  <script src="/scores.js" defer></script>
+  <script src="/trivia-qs.js" defer></script>
+  <script src="/trivia.js" defer></script>
+  <script src="/together.js" defer></script>
+  <script src="/bdays.js" defer></script>
+  <script src="/words.js" defer></script>
+  <script src="/voice.js" defer></script>
+  <script src="/expat.js" defer></script>
+  <script src="/village.js" defer></script>
+  <script src="/morning.js" defer></script>
+  <script src="/recipes.js" defer></script>
+  <script src="/cook.js" defer></script>
+  <script src="/install.js" defer></script>
+  <script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>

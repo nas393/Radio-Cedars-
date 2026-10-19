@@ -18,18 +18,24 @@
       title: '🎂 أعياد العيلة', add: 'زيد عيد ميلاد', who: 'مين؟', day: 'النهار', month: 'الشهر', save: 'زيد', cancel: 'رجوع', share: n => `شاركو بغرفة "${n}"`,
       none: 'زيدوا أعياد الميلاد، ومنذكّركن فيها كل سنة.', today: 'اليوم!', tomorrow: 'بكرا', inDays: n => `بعد ${S.num(n)} يوم`, bday: 'عيد ميلاد', nameday: s => `عيد ${s}`,
       hbd: n => `🎂 كل سنة وإنت سالم/ة يا ${n}!`, hnd: n => `🕯️ كل عيد وإنت بخير يا ${n}!`, del: 'امحي', sent: 'بعتنا المعايدة عالغرفة 🎉', fromRoom: 'من الغرفة',
+      evTitle: '📅 مناسبات العيلة', evAdd: 'زيد مناسبة', evWhat: 'شو المناسبة؟', evWhatPh: 'مثلاً: عرس جورج، أو نازلين عبيروت', evDate: 'إيمتى؟', evNone: 'عرس، زيارة عالبلد، عمادة… زيدها ومنعدّ الإيام سوا.',
+      evKinds: { wedding: '💍 عرس', visit: '✈️ نازلين عالبلد', baby: '👶 عمادة أو ولادة', grad: '🎓 تخرّج', party: '🎉 حفلة', other: '📌 غيرها' }, evToday: w => `🎉 اليوم: ${w}!`,
       months: ['كانون التاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تمّوز', 'آب', 'أيلول', 'تشرين الأوّل', 'تشرين التاني', 'كانون الأوّل']
     },
     en: {
       title: '🎂 Family birthdays', add: 'Add a birthday', who: 'Who?', day: 'Day', month: 'Month', save: 'Add', cancel: 'Back', share: n => `Share in "${n}"`,
       none: 'Add the family’s birthdays and we’ll remind you every year.', today: 'Today!', tomorrow: 'Tomorrow', inDays: n => `In ${n} days`, bday: 'Birthday', nameday: s => `Name day (${s})`,
       hbd: n => `🎂 Happy birthday, ${n}!`, hnd: n => `🕯️ Happy name day, ${n}!`, del: 'Delete', sent: 'Greeting sent to the room 🎉', fromRoom: 'from the room',
+      evTitle: '📅 Family events', evAdd: 'Add an event', evWhat: 'What is it?', evWhatPh: 'e.g. George’s wedding, or flying home', evDate: 'When?', evNone: 'A wedding, a visit home, a baptism… add it and we’ll count the days together.',
+      evKinds: { wedding: '💍 Wedding', visit: '✈️ Going home', baby: '👶 Baptism or birth', grad: '🎓 Graduation', party: '🎉 Party', other: '📌 Other' }, evToday: w => `🎉 Today: ${w}!`,
       months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
     },
     fr: {
       title: '🎂 Anniversaires de la famille', add: 'Ajouter un anniversaire', who: 'Qui ?', day: 'Jour', month: 'Mois', save: 'Ajouter', cancel: 'Retour', share: n => `Partager dans « ${n} »`,
       none: 'Ajoutez les anniversaires de la famille, on vous les rappellera chaque année.', today: 'Aujourd’hui !', tomorrow: 'Demain', inDays: n => `Dans ${n} jours`, bday: 'Anniversaire', nameday: s => `Fête (${s})`,
       hbd: n => `🎂 Joyeux anniversaire, ${n} !`, hnd: n => `🕯️ Bonne fête, ${n} !`, del: 'Supprimer', sent: 'Vœux envoyés dans la pièce 🎉', fromRoom: 'de la pièce',
+      evTitle: '📅 Événements de la famille', evAdd: 'Ajouter un événement', evWhat: 'Quoi ?', evWhatPh: 'ex. Mariage de Georges, ou retour au pays', evDate: 'Quand ?', evNone: 'Un mariage, une visite au pays, un baptême… ajoutez-le et on compte les jours ensemble.',
+      evKinds: { wedding: '💍 Mariage', visit: '✈️ Retour au pays', baby: '👶 Baptême ou naissance', grad: '🎓 Diplôme', party: '🎉 Fête', other: '📌 Autre' }, evToday: w => `🎉 Aujourd’hui : ${w} !`,
       months: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
     }
   };
@@ -92,6 +98,74 @@
   const daysTo = dt => Math.round((dt - today0()) / 864e5);
   function when(dt) { const n = daysTo(dt); return n === 0 ? t('today') : n === 1 ? t('tomorrow') : t('inDays', n); }
 
+  // ------------------------------------------------------------------ family events
+  let localEv = S.store.get('events', []) || [];       // [{ id, title, date, kind }]
+  let roomEv = [];
+  let addingEv = false;
+  const isoToday = () => new Intl.DateTimeFormat('en-CA').format(new Date());
+  const EMO = { wedding: '💍', visit: '✈️', baby: '👶', grad: '🎓', party: '🎉', other: '📌' };
+  function events() {
+    const seen = new Set();
+    return [...roomEv.map(e => ({ ...e, room: true })), ...localEv.map(e => ({ ...e, local: true }))]
+      .filter(e => e.date >= isoToday() && !seen.has(e.title + e.date) && seen.add(e.title + e.date))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }
+  function eventsView() {
+    const kids = [el('h3', { className: 'pv-sub', text: t('evTitle') })];
+    const list = events();
+    if (!list.length && !addingEv) kids.push(el('p', { className: 'quiet small', text: t('evNone') }));
+    if (list.length) kids.push(el('ul', { className: 'bd-list' }, list.slice(0, 12).map(e => {
+      const dt = new Date(e.date + 'T00:00:00');
+      const n = daysTo(dt);
+      const me = (R() && R().current() && R().current().name) || '';
+      const canDel = e.local || (e.room && e.by === me);
+      const del = canDel ? el('button', { type: 'button', className: 'link-btn bd-del', text: '×', 'aria-label': t('del'), title: t('del') }) : null;
+      if (del) del.addEventListener('click', () => {
+        if (e.local) { localEv = localEv.filter(x => x.id !== e.id); S.store.set('events', localEv); }
+        if (e.room) { const r = R().current(); if (r) R().event(r, { remove: e.id }).catch(() => {}); roomEv = roomEv.filter(x => x.id !== e.id); }
+        render();
+      });
+      return el('li', { className: 'bd-item' + (n === 0 ? ' is-today' : '') }, [
+        el('span', { className: 'bd-ic', text: EMO[e.kind] || '📌' }),
+        el('span', { className: 'bd-n', dir: 'auto' }, [el('b', { text: e.title }), el('small', { text: (t('evKinds')[e.kind] || '').replace(/^\S+\s/, '') + (e.room ? ' · ' + t('fromRoom') : '') })]),
+        el('span', { className: 'bd-when', text: `${S.num(dt.getDate())} ${t('months')[dt.getMonth()]} · ${when(dt)}` }),
+        del
+      ].filter(Boolean));
+    })));
+    if (addingEv) kids.push(evForm());
+    else { const b = el('button', { type: 'button', className: 'btn', text: '＋ ' + t('evAdd') }); b.addEventListener('click', () => { addingEv = true; render(); }); kids.push(b); }
+    return el('div', { className: 'bd-ev' }, kids);
+  }
+  function evForm() {
+    const what = el('input', { maxLength: 60, required: true, placeholder: t('evWhatPh') });
+    const date = el('input', { type: 'date', required: true, min: isoToday() });
+    let kind = 'wedding';
+    const kinds = el('div', { className: 'news-pick-row' }, Object.entries(t('evKinds')).map(([k, label]) => {
+      const b = el('button', { type: 'button', className: 'chip', text: label });
+      b.setAttribute('aria-pressed', String(k === kind));
+      b.addEventListener('click', () => { kind = k; kinds.querySelectorAll('.chip').forEach(x => x.setAttribute('aria-pressed', String(x === b))); });
+      return b;
+    }));
+    const r = R() && R().storeOn() && R().current();
+    const share = r ? el('input', { type: 'checkbox', checked: true }) : null;
+    const f = el('form', { className: 'bd-form' }, [
+      el('label', { className: 'field' }, [el('span', { text: t('evWhat') }), what]),
+      kinds,
+      el('label', { className: 'field' }, [el('span', { text: t('evDate') }), date]),
+      share ? el('label', { className: 'q-switch' }, [share, el('span', { dir: 'auto', text: t('share', r.title) })]) : null,
+      el('div', { className: 'q-row' }, [el('button', { type: 'submit', className: 'btn btn-primary', text: t('save') }), (() => { const c = el('button', { type: 'button', className: 'link-btn', text: t('cancel') }); c.addEventListener('click', () => { addingEv = false; render(); }); return c; })()])
+    ].filter(Boolean));
+    f.addEventListener('submit', async e => {
+      e.preventDefault();
+      const title = what.value.trim(); if (!title || !date.value) return;
+      if (share && share.checked) { try { await R().event(r, { title, date: date.value, kind }); roomEv.push({ id: 'tmp' + Date.now(), title, date: date.value, kind, by: r.name }); } catch { /* keep it here */ } }
+      else { localEv.push({ id: 'l' + Date.now().toString(36), title, date: date.value, kind }); S.store.set('events', localEv); }
+      addingEv = false; render(); check();
+    });
+    setTimeout(() => what.focus({ preventScroll: true }), 50);
+    return f;
+  }
+
   function render() {
     const kids = [el('h3', { className: 'pv-sub', text: t('title') })];
     const ps = people().filter(p => p.kind === 'bday' || daysTo(p.at) <= 60);
@@ -109,6 +183,7 @@
     })));
     if (adding) kids.push(form());
     else { const b = el('button', { type: 'button', className: 'btn', text: '＋ ' + t('add') }); b.addEventListener('click', () => { adding = true; render(); }); kids.push(b); }
+    kids.push(eventsView());
     box.replaceChildren(...kids);
   }
   function form() {
@@ -145,11 +220,17 @@
       if (!done[key]) { done[key] = 1; S.toast(p.kind === 'bday' ? t('hbd', p.n) : t('hnd', p.n)); }
       if (r && !done[key + ':' + r.id]) { done[key + ':' + r.id] = 1; R().greet(r, p.n, p.kind, iso).catch(() => {}); }
     });
+    events().filter(e => e.date === iso).forEach(e => {
+      const key = `${iso}:ev:${e.title}`;
+      if (!done[key]) { done[key] = 1; S.toast(t('evToday', e.title)); }
+      if (r && e.room && !done[key + ':' + r.id]) { done[key + ':' + r.id] = 1; R().greet(r, e.title, 'event', iso).catch(() => {}); }
+    });
     // keep only this year's marks
     Object.keys(done).forEach(k => { if (!k.startsWith(iso.slice(0, 4))) delete done[k]; });
     S.store.set('bdGreeted', done);
   }
 
+  document.addEventListener('sawt:room-extras', e => { roomEv = (e.detail && e.detail.room && e.detail.room.events) || []; render(); check(); });
   document.addEventListener('sawt:room-bdays', e => { roomB = (e.detail && e.detail.bdays) || {}; render(); check(); });
   document.addEventListener('sawt:panel', e => { if (e.detail === 'calendar') render(); });
   document.addEventListener('sawt:lang', render);

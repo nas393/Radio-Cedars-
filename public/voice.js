@@ -14,7 +14,7 @@
 
   const T = {
     ar: {
-      title: '🎙️ إهداء بصوتك', lede: 'سجّل كلمتين لأهلك (لحد ٤٠ ثانية) واختار أغنية. بيسمعوا صوتك، وبعدها بتبلّش الأغنية.',
+      title: '🎙️ رسالة بصوتك للعيلة', lede: 'سجّل كلمتين (لحد ٤٠ ثانية) واختار أغنية، وبتوصل عغرفة العيلة متل أيّ رسالة بالدردشة. بيسمعوا صوتك، وبعدها بتبلّش الأغنية.',
       sendTo: 'وين تبعتها؟', newRoomWith: n => `غرفة جديدة مع ${n}`, roomPin: 'رمز الغرفة (٤ لـ ٨ أرقام، قولو إلهن)', roomNote: 'بتوصل عغرفة خاصة بالعيلة، بس اللي معه الرمز بيفوت. بيسمعوا صوتك وبيردّوا بصوتهن.',
       forX: n => `لـ ${n}`, from: 'من', to: 'لمين؟', toHint: 'مثلاً: ماما', song: 'الأغنية', songNow: n => `اللي عم يشتغل: ${n}`, songNone: 'بلا أغنية',
       rec: 'سجّل', stop: 'وقّف', play: 'اسمع', again: 'سجّل من جديد', send: 'ابعتها', sending: 'عم نبعت…',
@@ -25,7 +25,7 @@
       errs: { pin: 'رمز الغرفة لازم يكون ٤ لـ ٨ أرقام.', links: 'بلا روابط بالأسامي.', phone: 'بلا أرقام.', rate: 'كتير رسائل هالساعة. جرّب بعد شوي.', audio: 'التسجيل طويل كتير.', missing: 'اكتب اسمك ولمين الرسالة.', server: 'في مشكلة، جرّب كمان مرة.' }
     },
     en: {
-      title: '🎙️ A dedication in your voice', lede: 'Record a few words for your family (up to 40 seconds) and pick a song. They hear your voice, then the song starts.',
+      title: '🎙️ A voice message for the family', lede: 'Record a few words (up to 40 seconds) and pick a song; it lands in the family room like any chat message. They hear your voice, then the song starts.',
       sendTo: 'Send it to', newRoomWith: n => `A new room with ${n}`, roomPin: 'Room passcode (4 to 8 digits, tell them)', roomNote: 'It goes to a private family room; only people with the passcode come in. They hear your voice and answer with theirs.',
       forX: n => `For ${n}`, from: 'From', to: 'To whom?', toHint: 'e.g. Mama', song: 'Song', songNow: n => `Playing now: ${n}`, songNone: 'No song',
       rec: 'Record', stop: 'Stop', play: 'Listen', again: 'Record again', send: 'Send it', sending: 'Sending…',
@@ -36,7 +36,7 @@
       errs: { pin: 'The room passcode is 4 to 8 digits.', links: 'No links in the names.', phone: 'No numbers.', rate: 'Too many messages this hour. Try again later.', audio: 'The recording is too long.', missing: 'Add your name and who it’s for.', server: 'Something went wrong, try again.' }
     },
     fr: {
-      title: '🎙️ Une dédicace de vive voix', lede: 'Enregistrez quelques mots pour la famille (jusqu’à 40 secondes) et choisissez une chanson. Ils entendent votre voix, puis la chanson.',
+      title: '🎙️ Un message vocal pour la famille', lede: 'Enregistrez quelques mots (jusqu’à 40 secondes) et choisissez une chanson ; il arrive dans la pièce de famille comme un message. Ils entendent votre voix, puis la chanson.',
       sendTo: 'Envoyer à', newRoomWith: n => `Une nouvelle pièce avec ${n}`, roomPin: 'Code de la pièce (4 à 8 chiffres, donnez-le)', roomNote: 'Le message arrive dans une pièce familiale privée : seuls ceux qui ont le code entrent. Ils écoutent votre voix et répondent avec la leur.',
       forX: n => `Pour ${n}`, from: 'De', to: 'Pour qui ?', toHint: 'ex. Maman', song: 'Chanson', songNow: n => `En ce moment : ${n}`, songNone: 'Sans chanson',
       rec: 'Enregistrer', stop: 'Arrêter', play: 'Écouter', again: 'Recommencer', send: 'Envoyer', sending: 'Envoi…',
@@ -57,7 +57,7 @@
   let got = null;               // a voice note that arrived by link
   const fromSaved = S.store.get('dedFrom', null) || {};
   const fields = { from: (window.SawtMe && window.SawtMe.name()) || fromSaved.fromName || '', to: '' };
-  let target = 'new', roomPin = '';
+  let target = 'new', roomPin = '', targetPicked = false;
 
   let handle = null;
   async function startRec() {
@@ -175,9 +175,11 @@
       if (storeOn && window.SawtRooms && state !== 'sent') {
         const rs = window.SawtRooms.list();
         const sel2 = el('select', { 'aria-label': t('sendTo') }, [el('option', { value: 'new', text: t('newRoomWith', fields.to || '…') }), ...rs.map(r => el('option', { value: r.id, text: '🛋️ ' + r.title }))]);
+        // straight to the family room you use (or the first one), unless you picked another
+        if (!targetPicked && rs.length) { const cur = window.SawtRooms.current(); target = cur && rs.some(r => r.id === cur.id) ? cur.id : rs[0].id; }
         if (target !== 'new' && !rs.some(r => r.id === target)) target = 'new';
         sel2.value = target;
-        sel2.addEventListener('change', () => { target = sel2.value; render(); });
+        sel2.addEventListener('change', () => { target = sel2.value; targetPicked = true; render(); });
         kids.push(el('label', { className: 'field' }, [el('span', { text: t('sendTo') }), sel2]));
         if (target === 'new') {
           const pin = el('input', { inputMode: 'numeric', maxLength: 8, value: roomPin, placeholder: '1234', autocomplete: 'off' });

@@ -1646,3 +1646,41 @@ html:has(body.is-simple) { font-size: 100%; }
 .q-head .q-inv { width: auto; height: auto; min-height: 36px; padding: 6px 14px; border-radius: 999px; white-space: nowrap; font-size: .8125rem; font-weight: 600; background: var(--brass); color: #2A1E15; }
 .q-game { display: grid; justify-items: center; gap: 8px; padding: 10px 14px; }
 .q-join { min-height: 38px; padding: 6px 16px; font-size: .875rem; }
+
+/* chat: replies, deleted messages, seen */
+.q-compose { flex-wrap: wrap; }
+.q-reply { flex: 1 0 100%; display: flex; align-items: center; gap: 8px; justify-content: space-between; padding: 6px 12px; border-radius: 12px; background: rgba(201, 164, 92, .14); border-inline-start: 3px solid var(--brass); font-size: .8125rem; min-width: 0; }
+.q-reply span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.q-reply-x { font-size: 1.2rem; padding: 0 6px; }
+.q-quote { display: grid; text-align: start; gap: 1px; margin: 2px 0 4px; padding: 4px 10px; border: 0; border-inline-start: 3px solid var(--brass); border-radius: 8px; background: rgba(0, 0, 0, .18); color: inherit; font: inherit; font-size: .8125rem; cursor: pointer; max-width: 100%; }
+.q-quote b { font-size: .75rem; color: var(--brass-hi); }
+.q-quote span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .85; }
+.q-msg.is-gone i { opacity: .6; font-size: .875rem; }
+.q-msg.is-flash { outline: 2px solid var(--brass); outline-offset: 2px; }
+.q-pick-w { width: auto !important; padding: 0 10px !important; font-size: .8125rem !important; border-radius: 999px !important; color: var(--cream); }
+.q-seen { font-style: normal; text-align: end; }
+.news-gear { font-size: 1rem; padding-inline: 10px; }
+.news-pick { margin: 6px 0 10px; }
+.news-pick-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.sheet[data-panel="news"] .news-pick .chip { color: #2A2018; border-color: #C9B79A; background: #FBF6EA; }
+.sheet[data-panel="news"] .news-pick .chip[aria-pressed="false"] { opacity: .55; text-decoration: line-through; }
+.q-pl { margin: 8px 0; border: 1px solid var(--line); border-radius: 14px; padding: 4px 10px; }
+.q-pl.is-open { padding-bottom: 10px; display: grid; gap: 8px; }
+.q-pl-head { width: 100%; text-align: start; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; padding: 8px 2px; cursor: pointer; }
+.q-pl-add { margin: 0; }
+.q-pl-all { justify-self: start; }
+.q-pl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; max-height: 260px; overflow-y: auto; }
+.q-pl-item { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 8px; padding: 4px 0; border-bottom: 1px solid var(--line); }
+.q-pl-play { width: 32px; height: 32px; border-radius: 50%; border: 0; background: var(--brass); color: #2A1E15; cursor: pointer; font-size: .75rem; }
+.q-pl-t { display: grid; min-width: 0; }
+.q-pl-t b { font-weight: 500; font-size: .875rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.q-pl-t small { color: var(--stone-dim); font-size: .75rem; }
+.q-pl-x { font-size: 1.1rem; padding: 2px 8px; }
+.wotd { margin: 4px 0 18px; }
+.wotd-card { display: grid; gap: 4px; padding: 14px 16px; border-radius: 16px; background: rgba(201, 164, 92, .1); border: 1px solid rgba(201, 164, 92, .35); }
+.wotd-w { font-family: var(--font-display); font-size: 2rem; line-height: 1.2; margin: 0; }
+.wotd-tr { font-style: italic; color: var(--stone-dim); margin: 0; }
+.wotd-m { font-weight: 600; margin: 4px 0 0; }
+.wotd-ex { margin: 2px 0 6px; font-size: .9375rem; }
+.bd-ev { margin-top: 18px; }
+.sheet[data-panel="calendar"] .news-pick-row .chip[aria-pressed="true"] { background: var(--brass); color: #2A1E15; }

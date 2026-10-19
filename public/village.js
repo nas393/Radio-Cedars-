@@ -51,7 +51,7 @@
     paint();
   }
   async function loadWall() {
-    if (!storeOn || !village) return;
+    if (true || !storeOn || !village) return;     // the public dedications wall was retired
     try { const r = await fetch('/api/dedications'); wall = r.ok ? (await r.json()).items || [] : []; } catch { wall = []; }
     paint();
   }
@@ -97,7 +97,7 @@
       ]))));
     } else kids.push(el('p', { className: 'quiet', text: t('loading') }));
     const row = el('div', { className: 'q-row vl-acts' });
-    if (storeOn) {
+    if (false) {
       const b = el('button', { type: 'button', className: 'btn', text: t('send', village.name) });
       b.addEventListener('click', () => {
         document.dispatchEvent(new CustomEvent('sawt:open', { detail: 'phone' }));
@@ -109,7 +109,7 @@
     v.addEventListener('click', () => document.dispatchEvent(new CustomEvent('sawt:open', { detail: 'phone' })));
     row.appendChild(v);
     kids.push(row);
-    if (storeOn && wall) {
+    if (false && storeOn && wall) {
       const here = wall.filter(matches).slice(0, 6);
       kids.push(el('h4', { className: 'vl-sub', text: t('toHere', village.name) }));
       kids.push(here.length ? el('div', { className: 'vl-wall' }, here.map(d => el('article', { className: 'postcard', dir: d.lang === 'ar' ? 'rtl' : 'ltr' }, [

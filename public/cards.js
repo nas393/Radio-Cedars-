@@ -47,9 +47,9 @@
       noRooms: 'Pour jouer ensemble à distance, entrez dans une pièce sur le canapé (Pièces de famille), puis revenez ici.', suits: { S: 'Pique ♠', H: 'Cœur ♥', D: 'Carreau ♦', C: 'Trèfle ♣' }
     }
   };
-  Object.assign(T.ar, { autoStart: n => `منبلّش بعد ${S.num(n)} ثانية، والكراسي الفاضية للكمبيوتر`, away: n => `${n} مش هون، الكمبيوتر عم يلعب عنّو`, imBack: 'رجعت! بكمّل أنا', youAway: 'غبت شوي، فالكمبيوتر لعب عنّك.', other: k => `عالطاولة هلّق: ${k}`, playCardsHere: 'لعبوا شدّة بدالها', tookOver: 'صاحب الطاولة راح، فكمّلنا عندك.', trivia: 'أسئلة', tawleh: 'طاولة' });
-  Object.assign(T.en, { autoStart: n => `Starting in ${n}s; empty seats go to the computer`, away: n => `${n} is away; the computer is playing for them`, imBack: 'I’m back, my turn', youAway: 'You were away, so the computer played for you.', other: k => `On the table now: ${k}`, playCardsHere: 'Play cards instead', tookOver: 'The table host left, so the game carries on here.', trivia: 'Trivia', tawleh: 'Tawleh' });
-  Object.assign(T.fr, { autoStart: n => `On commence dans ${n} s ; les places vides vont à l’ordinateur`, away: n => `${n} est absent·e ; l’ordinateur joue pour lui/elle`, imBack: 'Je suis là, je reprends', youAway: 'Vous étiez absent·e, l’ordinateur a joué pour vous.', other: k => `Sur la table : ${k}`, playCardsHere: 'Jouer aux cartes à la place', tookOver: 'L’hôte est parti, la partie continue ici.', trivia: 'Quiz', tawleh: 'Tawlé' });
+  Object.assign(T.ar, { rematch: '🔁 دقّة كمان، نفس اللاعبين', autoStart: n => `منبلّش بعد ${S.num(n)} ثانية، والكراسي الفاضية للكمبيوتر`, away: n => `${n} مش هون، الكمبيوتر عم يلعب عنّو`, imBack: 'رجعت! بكمّل أنا', youAway: 'غبت شوي، فالكمبيوتر لعب عنّك.', other: k => `عالطاولة هلّق: ${k}`, playCardsHere: 'لعبوا شدّة بدالها', tookOver: 'صاحب الطاولة راح، فكمّلنا عندك.', trivia: 'أسئلة', tawleh: 'طاولة' });
+  Object.assign(T.en, { rematch: '🔁 Rematch, same players', autoStart: n => `Starting in ${n}s; empty seats go to the computer`, away: n => `${n} is away; the computer is playing for them`, imBack: 'I’m back, my turn', youAway: 'You were away, so the computer played for you.', other: k => `On the table now: ${k}`, playCardsHere: 'Play cards instead', tookOver: 'The table host left, so the game carries on here.', trivia: 'Trivia', tawleh: 'Tawleh' });
+  Object.assign(T.fr, { rematch: '🔁 Revanche, mêmes joueurs', autoStart: n => `On commence dans ${n} s ; les places vides vont à l’ordinateur`, away: n => `${n} est absent·e ; l’ordinateur joue pour lui/elle`, imBack: 'Je suis là, je reprends', youAway: 'Vous étiez absent·e, l’ordinateur a joué pour vous.', other: k => `Sur la table : ${k}`, playCardsHere: 'Jouer aux cartes à la place', tookOver: 'L’hôte est parti, la partie continue ici.', trivia: 'Quiz', tawleh: 'Tawlé' });
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
 
   // ================================================================== the rules (pure functions on a plain state object)
@@ -493,6 +493,17 @@
           if (G.over) { if (roomCtx) hostNew(G.kind); else startLocal(G.kind); return; }
           G = nextHand(G); picks = []; commit().then(drive);
         });
+        if (G.over && roomCtx) {
+          // the same people around the same table, straight away
+          const again = el('button', { type: 'button', className: 'btn btn-primary', text: t('rematch') });
+          again.addEventListener('click', async () => {
+            G = newGame(G.kind, G.names, G.bots.map(x => x === true));
+            G.gid = roomCtx.room.id + '-' + Date.now().toString(36);
+            picks = []; await pushRoom(true); render(); drive();
+          });
+          row.appendChild(again);
+          b.className = 'btn';
+        }
         row.appendChild(b);
       }
       return row;
@@ -577,7 +588,8 @@
   }
   async function pushRoom(fresh) {
     if (!roomCtx || !roomCtx.isHost) return;
-    try { const d = await R().api(roomCtx.room, '/game', { kind: G ? G.kind : kind, state: G ? { game: G } : { lobby: roomCtx.lobby }, fresh: !!fresh, takeOver: !!roomCtx.takeOver }); roomCtx.v = d.v; }
+    const turn = G && !G.over && G.phase !== 'handEnd' && G.phase !== 'pass' && !G.bots[G.turn] ? G.names[G.turn] : null;
+    try { const d = await R().api(roomCtx.room, '/game', { kind: G ? G.kind : kind, state: G ? { game: G } : { lobby: roomCtx.lobby }, fresh: !!fresh, takeOver: !!roomCtx.takeOver, turn }); roomCtx.v = d.v; }
     catch (e) { if (e.code === 'busy') { roomCtx.isHost = false; roomCtx.takeOver = false; roomCtx.seenV = 0; } else console.warn(e); }
   }
   async function sendMove(a) {
@@ -648,6 +660,7 @@
             const prev = G;
             roomCtx.lobby = null; G = s.game;
             mySeat = G.names.indexOf(myRoomName()); if (mySeat < 0) mySeat = 0;
+            if (!G.over && G.turn === mySeat && G.phase !== 'handEnd' && (!prev || prev.turn !== G.turn || prev.phase !== G.phase) && !(window.SawtRoom && window.SawtRoom.isOpen() === 'tawleh')) S.toast(t('yourTurn') + ' 🃏');
             if (prev && prev.trick.length && !G.trick.length && G.lastTrick) holdTrick(G.lastTrick);
           }
           if (d.moves && d.moves.length) roomCtx.movesSeen = d.moves[d.moves.length - 1].i;
@@ -661,8 +674,9 @@
         await hostNew(kind);
       }
     } catch (e) { console.warn(e); }
-    if (roomCtx) gTimer = setTimeout(pollGame, document.hidden ? 15000 : open ? 1500 : 5000);
+    if (roomCtx) gTimer = setTimeout(pollGame, document.hidden ? 60000 : open ? 1500 : 12000);
   }
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && roomCtx) pollGame(); });
   document.addEventListener('sawt:cards-room', () => { const cur = R() && R().current(); if (cur) { joinRoomTable(cur); showTab('cards'); } });
 
   // ================================================================== tabs over the coffee table: tawleh / tarneeb / likha

@@ -14,7 +14,7 @@
 
   const T = {
     ar: {
-      title: 'سهرة أسئلة 🧠', lede: 'عشر أسئلة عن لبنان: ضيع، أغاني، أكل، أمثال وألعاب. كل سؤال ١٥ ثانية، والأسرع بياخد أكتر.',
+      rematch: '🔁 كمان مرّة، نفس اللاعبين', title: 'سهرة أسئلة 🧠', lede: 'عشر أسئلة عن لبنان: ضيع، أغاني، أكل، أمثال وألعاب. كل سؤال ١٥ ثانية، والأسرع بياخد أكتر.',
       solo: '📱 أنا والكمبيوتر', inRoom: '🛋️ مع العيلة بالغرفة', start: 'يلّا نبلّش', again: 'كمان مرّة', join: 'أنا معكن', joined: 'إنت معهن ✓',
       lobby: r => `أسئلة بغرفة "${r}"`, autoStart: n => `منبلّش بعد ${S.num(n)} ثانية؛ إذا كنّا قلال بينضمّ الكمبيوتر`, players: 'اللاعبين',
       qOf: (i, n) => `سؤال ${S.num(i)} من ${S.num(n)}`, secs: n => `${S.num(n)}″`, waiting: 'ناطرين الباقيين…', right: 'صح! 👏', wrong: 'لأ 😅', late: 'خلص الوقت ⏰',
@@ -22,7 +22,7 @@
       bots: ['أبو سمير', 'أم جورج', 'خالد'], tookOver: 'اللي كان عم يدير الأسئلة راح، فكمّلنا عندك.', games: { tawleh: 'طاولة', tarneeb: 'طرنيب', likha: 'ليخة' }
     },
     en: {
-      title: 'Trivia night 🧠', lede: 'Ten questions on Lebanon: villages, songs, food, proverbs and games. Fifteen seconds each; the quicker, the more points.',
+      rematch: '🔁 Again, same players', title: 'Trivia night 🧠', lede: 'Ten questions on Lebanon: villages, songs, food, proverbs and games. Fifteen seconds each; the quicker, the more points.',
       solo: '📱 Me and the computer', inRoom: '🛋️ With the family', start: 'Let’s go', again: 'Play again', join: 'Count me in', joined: 'You’re in ✓',
       lobby: r => `Trivia in "${r}"`, autoStart: n => `Starting in ${n}s; if we’re few, the computer joins`, players: 'Players',
       qOf: (i, n) => `Question ${i} of ${n}`, secs: n => `${n}s`, waiting: 'Waiting for the others…', right: 'Right! 👏', wrong: 'Nope 😅', late: 'Time’s up ⏰',
@@ -30,7 +30,7 @@
       bots: ['Abou Samir', 'Im George', 'Khaled'], tookOver: 'The quiz host left, so the game carries on here.', games: { tawleh: 'Tawleh', tarneeb: 'Tarneeb', likha: 'Likha' }
     },
     fr: {
-      title: 'Soirée quiz 🧠', lede: 'Dix questions sur le Liban : villages, chansons, cuisine, proverbes et jeux. Quinze secondes chacune ; plus vite, plus de points.',
+      rematch: '🔁 Encore, mêmes joueurs', title: 'Soirée quiz 🧠', lede: 'Dix questions sur le Liban : villages, chansons, cuisine, proverbes et jeux. Quinze secondes chacune ; plus vite, plus de points.',
       solo: '📱 Moi et l’ordinateur', inRoom: '🛋️ En famille', start: 'On y va', again: 'Rejouer', join: 'Je joue', joined: 'Vous jouez ✓',
       lobby: r => `Quiz dans « ${r} »`, autoStart: n => `On commence dans ${n} s ; si on est peu, l’ordinateur joue`, players: 'Joueurs',
       qOf: (i, n) => `Question ${i} sur ${n}`, secs: n => `${n} s`, waiting: 'On attend les autres…', right: 'Bravo ! 👏', wrong: 'Raté 😅', late: 'Temps écoulé ⏰',
@@ -201,7 +201,7 @@
       }
     } catch (e) { console.warn(e); }
     const open = window.SawtRoom && window.SawtRoom.isOpen() === 'tawleh' && !box.hidden;
-    if (mode === 'room') pT = setTimeout(poll, document.hidden ? 15000 : open ? 1000 : 5000);
+    if (mode === 'room') pT = setTimeout(poll, document.hidden ? 60000 : open ? 1000 : 10000);
   }
   function resumeClock() {
     if (!st) return;
@@ -296,8 +296,13 @@
     const medals = ['🥇', '🥈', '🥉'];
     const kids = [el('p', { className: 'sb-champ', dir: 'auto', text: t('won', rows[0].n) }), el('h4', { className: 'q-k', text: t('final') })];
     kids.push(el('ol', { className: 'tq-final' }, rows.map((p, i) => el('li', { className: p.n === me() ? 'is-me' : '' }, [el('span', { text: medals[i] || S.num(i + 1) }), el('span', { dir: 'auto', text: (p.bot ? '🤖 ' : '') + p.n }), el('b', { text: t('pts', st.scores[p.n] || 0) })]))));
+    if (host && mode === 'room') {
+      const again = el('button', { type: 'button', className: 'btn btn-primary', text: t('rematch') });
+      again.addEventListener('click', () => { st = newState(st.players.filter(p => !p.bot).map(p => ({ n: p.n, bot: false }))); startGame(); tick(); });
+      kids.push(again);
+    }
     if (host || mode === 'solo') {
-      const b = el('button', { type: 'button', className: 'btn btn-primary', text: '🧠 ' + t('again') });
+      const b = el('button', { type: 'button', className: mode === 'room' ? 'btn' : 'btn btn-primary', text: '🧠 ' + t('again') });
       b.addEventListener('click', () => { if (mode === 'room') hostNew(); else { st = newState([{ n: me(), bot: false }]); startGame(); tick(); } });
       kids.push(b);
     }
@@ -305,6 +310,7 @@
   }
 
   document.addEventListener('sawt:gametab', e => { if (e.detail === 'trivia') { if (mode === 'room') poll(); render(); } });
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && mode === 'room' && ctx) poll(); });
   document.addEventListener('sawt:trivia-room', () => { if (R() && R().current()) { clearTimeout(tickT); enterRoom(); render(); } });
   document.addEventListener('sawt:lang', () => { if (!box.hidden) render(); });
   window.SawtTrivia = { render, _st: () => st };

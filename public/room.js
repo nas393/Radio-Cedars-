@@ -35,13 +35,13 @@
       beirut: 'بيروت',
       here: 'عندك',
       objects: {
-        radio: 'الراديو', tv: 'التلفزيون', news: 'الجريدة', phone: 'إهداء للأهل', photos: 'صور العيلة',
+        radio: 'الراديو', tv: 'التلفزيون', news: 'الجريدة', phone: 'رسالة بصوتك', photos: 'صور العيلة',
         cassettes: 'الشرايط', clock: 'الساعة', lamp: 'اللمبادير', window: 'البلكون', calendar: 'المناسبات',
         coffee: 'فنجان القهوة', books: 'سفرة تيتا', expat: 'الغربة', tawleh: 'الطاولة والشدّة', together: 'قعدة سوا',
         teta: 'كرسي تيتا', ac: 'المكيّف'
       },
       hints: {
-        radio: 'محطات لبنان مباشرة', tv: 'برامج ومسلسلات القنوات', news: 'أخبار اليوم', phone: 'بصوتك أو بكلمة', photos: 'علّق صورك',
+        radio: 'محطات لبنان مباشرة', tv: 'برامج ومسلسلات القنوات', news: 'أخبار اليوم', phone: 'لغرفة العيلة، مع أغنية', photos: 'علّق صورك',
         cassettes: 'أغاني لكل جوّ', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'ضيعتي والطقس', calendar: 'الأعياد والمناسبات',
         coffee: 'نقرا الفنجان؟', books: '٣٠ طبخة + طبخاتك', expat: 'بيروت من بعيد', tawleh: 'طاولة، طرنيب، ليخة', together: 'غرف العيلة برمز',
         teta: 'كبير وسهل', ac: 'الوقت والطقس'
@@ -82,13 +82,13 @@
       beirut: 'Beirut',
       here: 'Where you are',
       objects: {
-        radio: 'Radio', tv: 'Television', news: 'Newspaper', phone: 'Dedication', photos: 'Family photos',
+        radio: 'Radio', tv: 'Television', news: 'Newspaper', phone: 'Voice message', photos: 'Family photos',
         cassettes: 'Tapes', clock: 'Clock', lamp: 'Lamp', window: 'Balcony', calendar: 'Occasions',
         coffee: 'Coffee cup', books: 'Teta’s table', expat: 'Far from home', tawleh: 'Tawleh & cards', together: 'Family rooms',
         teta: 'Teta’s chair', ac: 'Air conditioner'
       },
       hints: {
-        radio: 'Lebanese stations, live', tv: 'Lebanese channels’ shows', news: 'Today’s headlines', phone: 'In your voice or in words', photos: 'Hang your photos',
+        radio: 'Lebanese stations, live', tv: 'Lebanese channels’ shows', news: 'Today’s headlines', phone: 'To a family room, with a song', photos: 'Hang your photos',
         cassettes: 'A song for every mood', clock: 'Alarm', lamp: 'Sleep timer', window: 'My village, weather', calendar: 'Feasts and holidays',
         coffee: 'Read my cup?', books: '30 recipes + yours', expat: 'Beirut from afar', tawleh: 'Tawleh, Tarneeb, Likha', together: 'Private, with a passcode',
         teta: 'Big and simple', ac: 'Time and weather'
@@ -129,13 +129,13 @@
       beirut: 'Beyrouth',
       here: 'Chez vous',
       objects: {
-        radio: 'Radio', tv: 'Télévision', news: 'Journal', phone: 'Dédicace', photos: 'Photos de famille',
+        radio: 'Radio', tv: 'Télévision', news: 'Journal', phone: 'Message vocal', photos: 'Photos de famille',
         cassettes: 'Cassettes', clock: 'Horloge', lamp: 'Lampe', window: 'Balcon', calendar: 'Fêtes',
         coffee: 'Tasse de café', books: 'La table de Teta', expat: 'Loin du pays', tawleh: 'Tawlé et cartes', together: 'Pièces de famille',
         teta: 'Le fauteuil de Teta', ac: 'Climatiseur'
       },
       hints: {
-        radio: 'Radios libanaises en direct', tv: 'Émissions des chaînes', news: 'Les titres du jour', phone: 'De vive voix ou par écrit', photos: 'Accrochez vos photos',
+        radio: 'Radios libanaises en direct', tv: 'Émissions des chaînes', news: 'Les titres du jour', phone: 'Pour une pièce de famille, avec une chanson', photos: 'Accrochez vos photos',
         cassettes: 'Une chanson pour chaque humeur', clock: 'Réveil', lamp: 'Minuterie', window: 'Mon village, la météo', calendar: 'Fêtes et jours fériés',
         coffee: 'Lire ma tasse ?', books: '30 recettes + les vôtres', expat: 'Beyrouth de loin', tawleh: 'Tawlé, Tarneeb, Likha', together: 'Privées, avec un code',
         teta: 'Grand et simple', ac: 'Heure et météo'
@@ -876,7 +876,7 @@
   // Now and then the power goes, the room drops dark, and the neighbourhood
   // generator kicks in with its warmer, weaker light. Then the mains come back.
   let powerNow = 1, motorNow = 0, cut = null;
-  let cutsOn = S.store.get('powerCuts', true);
+  let cutsOn = S.store.get('powerCuts', false);
   let nextCut = performance.now() + (4 + Math.random() * 5) * 60e3;
   function startCut() {
     if (cut || introOn) return;
@@ -1306,7 +1306,8 @@
   document.addEventListener('sawt:config', e => {
     const cfg = e.detail || {};
     // without the shared store, written dedications are off; voice notes still go by WhatsApp
-    document.querySelectorAll('.needs-store').forEach(n => { n.hidden = !cfg.dedications; });
+    // the public dedications wall and its written form were retired: private rooms do that job now
+    document.querySelectorAll('.needs-store').forEach(n => { n.hidden = true; });
     renderHotspots(); renderGrid(); setFocus(null); needsDraw = true;
   });
 

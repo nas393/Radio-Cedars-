@@ -76,7 +76,7 @@
     const songs = el('ul', { className: 'songs' }, m.songs.map(song => {
       const artist = DATA.artists[song.artist];
       const query = `${artist.search} ${song.latin}`;
-      const dedicate = config.dedications ? el('button', { type: 'button', text: '💌 ' + t('dedicateSong') }) : null;
+      const dedicate = false ? el('button', { type: 'button', text: '💌 ' + t('dedicateSong') }) : null;
       if (dedicate) dedicate.addEventListener('click', () => startDedication(songLabel(song)));
       return el('li', { className: 'song' }, [
         el('div', {}, [
@@ -330,11 +330,7 @@
     } catch { /* features stay off */ }
 
     document.dispatchEvent(new CustomEvent('sawt:config', { detail: config }));
-    if (config.dedications) {
-      focusId = dedicationFromUrl();
-      await loadWall();
-      renderMoods(); // adds the "dedicate" buttons
-    }
+    // the public dedications wall was retired (family rooms do that job now)
 
     if (config.alerts) {
       try { alertsOn = Boolean(await currentSubscription()) && Notification.permission === 'granted'; } catch { alertsOn = false; }
@@ -344,7 +340,6 @@
 
   document.addEventListener('sawt:lang', () => { renderMoods(); renderWall(); renderAlerts(); updateCount(); syncAlertLanguage(); });
   document.addEventListener('sawt:stations', renderMoods);
-  setInterval(() => { if (!document.hidden && config.dedications) loadWall(); }, 5 * 60 * 1000);
 
   start();
 })();

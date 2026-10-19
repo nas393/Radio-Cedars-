@@ -81,6 +81,7 @@
   }
   function src() {
     const q = `autoplay=1&playsinline=1&controls=0&disablekb=1&iv_load_policy=3&rel=0&modestbranding=1&enablejsapi=1&mute=${gestured && vol > 0 && !ducked ? 0 : 1}&origin=${encodeURIComponent(location.origin)}&hl=${S.lang()}`;
+    if (tape && tape.vids) return `https://www.youtube-nocookie.com/embed/${tape.vids[0]}?playlist=${tape.vids.slice(1).join(',')}&loop=1&${q}`;
     return `https://www.youtube-nocookie.com/embed/videoseries?list=${tape ? tape.yt : list}&${q}`;
   }
   // a video the channel doesn't let other sites show: go on to the next one
@@ -298,6 +299,8 @@
 
   window.SawtTV = {
     tune, step, setOn, setVolume: setVol,
+    // a list of single videos (a family room's songs)
+    playVideos(ids, label) { tape = { ...(label || {}), vids: ids.slice(0, 50) }; gestured = true; if (!on) { on = true; S.store.set('tvOn', true); } mount(); },
     playTape(mood) { tape = { ...mood }; gestured = true; if (!on) { on = true; S.store.set('tvOn', true); } mount(); },
     isOn: () => on, channel: () => ch, channels: () => CHANNELS.slice(), current: () => (on ? (tape ? { kind: 'tape', mood: tape } : { kind: 'live', id: `${ch}:${list}`, ch, list, name: name() }) : null),
     // "UC…:PL…" from listen-together, or just a channel id
