@@ -223,7 +223,7 @@ const RADIO_MIRRORS = [
 const MAX_STATIONS = 24;
 // Listed under Lebanon in the directory but not Lebanese stations (a Persian stream,
 // an international news service, a Quran-commentary feed): left out.
-const NOT_LEBANESE = ['avazfarsi.com', 'anghamy', 'qurango.net', 'mc-doualiya', 'montcarlo', 'monte carlo'];
+const NOT_LEBANESE = ['avazfarsi.com', 'mp3islam.com', 'anghamy', 'qurango.net', 'mc-doualiya', 'montcarlo', 'monte carlo'];
 
 // Signed links (zeno "zt=", radiojar "rj-tok=") expire within minutes, so a
 // cached copy would stop playing. Those are dropped in favour of the station's
