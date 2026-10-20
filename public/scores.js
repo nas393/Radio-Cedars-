@@ -13,17 +13,17 @@
     ar: {
       title: 'لوح النتايج', week: 'هالجمعة', all: 'من الأوّل', mine: 'نتايجي على هالجهاز', none: 'بعد ما في نتايج. العبوا شي دقّة! 🎲',
       inRoom: r => `غرفة "${r}"`, games: { tawleh: 'طاولة', tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'أسئلة' }, wins: 'ربح', of: 'من', total: 'المجموع',
-      pickRoom: 'لتشوفوا لوح العيلة كلّها، فوتوا عغرفة عالكنباية (قعدة سوا).', champ: n => `👑 ${n} بطل/ة الجمعة`, loading: '…', err: 'ما قدرنا نجيب النتايج هلّق.'
+      pickRoom: 'لتشوفوا لوح العيلة كلّها، فوتوا عغرفة عالكنباية (قعدة سوا).', champ: n => `👑 ${n} بطل/ة الجمعة`, arcade: '👾 أبطال الأتاري هالجمعة', loading: '…', err: 'ما قدرنا نجيب النتايج هلّق.'
     },
     en: {
       title: 'Scoreboard', week: 'This week', all: 'All time', mine: 'My scores on this device', none: 'No scores yet. Go play a game! 🎲',
       inRoom: r => `Room "${r}"`, games: { tawleh: 'Tawleh', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'Trivia' }, wins: 'won', of: 'of', total: 'Total',
-      pickRoom: 'To see the whole family’s board, enter a room on the sofa (Family rooms).', champ: n => `👑 ${n} is this week’s champion`, loading: '…', err: 'Couldn’t load the scores right now.'
+      pickRoom: 'To see the whole family’s board, enter a room on the sofa (Family rooms).', champ: n => `👑 ${n} is this week’s champion`, arcade: '👾 Console champions this week', loading: '…', err: 'Couldn’t load the scores right now.'
     },
     fr: {
       title: 'Tableau des scores', week: 'Cette semaine', all: 'Depuis le début', mine: 'Mes scores sur cet appareil', none: 'Pas encore de scores. À vous de jouer ! 🎲',
       inRoom: r => `Pièce « ${r} »`, games: { tawleh: 'Tawlé', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'Quiz' }, wins: 'gagnées', of: 'sur', total: 'Total',
-      pickRoom: 'Pour voir le tableau de toute la famille, entrez dans une pièce sur le canapé.', champ: n => `👑 ${n}, champion·ne de la semaine`, loading: '…', err: 'Impossible de charger les scores.'
+      pickRoom: 'Pour voir le tableau de toute la famille, entrez dans une pièce sur le canapé.', champ: n => `👑 ${n}, champion·ne de la semaine`, arcade: '👾 Champions de la console cette semaine', loading: '…', err: 'Impossible de charger les scores.'
     }
   };
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
@@ -68,6 +68,17 @@
     });
     return el('div', { className: 'sb-wrap' }, [el('table', { className: 'sb-table' }, [el('thead', {}, [head]), el('tbody', {}, body)])]);
   }
+  // the console: the best score on each cartridge this week
+  function arcadeChamps(ar) {
+    const A = window.SawtAtari;
+    if (!ar || !A) return null;
+    const rows = A.carts().map(c => {
+      let top = null;
+      for (const [name, rec] of Object.entries(ar)) { const v = Number((rec || {})[c.id]) || 0; if (v && (!top || v > top[1])) top = [name, v]; }
+      return top ? el('li', { dir: 'auto' }, [el('span', { text: `${c.icon} ${A.cartName(c.id)}` }), el('b', { text: `👑 ${top[0]} · ${S.num(top[1])}` })]) : null;
+    }).filter(Boolean);
+    return rows.length ? el('div', { className: 'sb-arcade' }, [el('p', { className: 'q-k', text: t('arcade') }), el('ul', {}, rows)]) : null;
+  }
   const total = rec => GAMES.reduce((a, g) => a + ((rec[g] || {}).w || 0), 0);
   function render() {
     const kids = [el('h3', { className: 'pv-sub', text: '🏆 ' + t('title') })];
@@ -89,6 +100,7 @@
           if (span === 'week' && total(rows[0][1]) > 0) kids.push(el('p', { className: 'sb-champ', dir: 'auto', text: t('champ', rows[0][0]) }));
           kids.push(table(rows));
         }
+        if (span === 'week') { const a = arcadeChamps(data.arcade); if (a) kids.push(a); }
       }
     } else if (R() && R().storeOn()) kids.push(el('p', { className: 'quiet small', text: t('pickRoom') }));
     // mine, here

@@ -1785,3 +1785,19 @@ body.is-simple .bbar, body.is-radio-only .bbar { display: none; }
 }
 .q-mic { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
 .q-mic.is-holding { background: #E2573C; transform: scale(1.15); }
+
+/* the console: tennis modes, two players on one phone, challenges, live tennis */
+.at-modes { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 8px; }
+.at-modes .chip { font-size: .8125rem; }
+.at-pad2 { justify-content: space-between; }
+.at-col { display: grid; gap: 6px; }
+.at-col .at-btn { width: 64px; height: 52px; font-size: 1.2rem; }
+.at-gold { background: linear-gradient(180deg, #F5C66A, #b98b2f); color: #2A1E15; }
+.at-blue { background: linear-gradient(180deg, #5BC0EB, #2b7fa3); color: #0b2633; }
+.at-target { margin: 4px 0; padding: 6px 10px; border-radius: 10px; background: rgba(245, 198, 106, .14); color: var(--brass, #F5C66A); font-weight: 600; font-size: .875rem; }
+.at-champ { color: var(--brass, #F5C66A); font-size: .6875rem; }
+.at-live { margin: 6px 0; font-size: .875rem; }
+.at-live.is-bad { color: #F0A08C; }
+.sb-arcade ul { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 4px; }
+.sb-arcade li { display: flex; justify-content: space-between; gap: 8px; font-size: .875rem; padding: 6px 10px; border-radius: 10px; background: var(--wall-2); }
+.q-arcade { display: grid; gap: 6px; justify-items: center; }

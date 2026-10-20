@@ -23,7 +23,7 @@ app.use((req, res, next) => {
   const p = req.path;
   if (/^\/api\/q\/[^/]+\/photo$/.test(p)) return photoJson(req, res, next);
   if (p === '/api/voice' || /^\/api\/q\/[^/]+\/voice$/.test(p)) return bigJson(req, res, next);
-  if (p.startsWith('/api/profile') || p === '/api/recipes' || /^\/api\/q\/[^/]+\/game$/.test(p)) return midJson(req, res, next);
+  if (p.startsWith('/api/profile') || p === '/api/recipes' || /^\/api\/q\/[^/]+\/(game|rtc)$/.test(p)) return midJson(req, res, next);
   return smallJson(req, res, next);
 });
 const PORT = process.env.PORT || 3000;
@@ -610,6 +610,9 @@ app.post('/api/q/:id/react', noStore, needStore, qRoute(req => together.react(re
 app.post('/api/q/:id/typing', noStore, needStore, qRoute(req => together.typing(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/score', noStore, needStore, qRoute(req => together.score(req.params.id, { ...req.body, token: qTok(req) })));
 app.get('/api/q/:id/scores', noStore, needStore, qRoute(req => together.scores(req.params.id, qTok(req))));
+app.post('/api/q/:id/arcade', noStore, needStore, qRoute(req => together.arcade(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
+app.post('/api/q/:id/rtc', noStore, needStore, qRoute(req => together.rtc(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
+app.get('/api/q/:id/rtc/:sid', noStore, needStore, qRoute(req => together.rtcGet(req.params.id, req.params.sid, qTok(req))));
 app.post('/api/q/:id/bday', noStore, needStore, qRoute(req => together.bday(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/greet', noStore, needStore, qRoute(req => together.greet(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
 app.get('/api/q/:id/photo/:pid', needStore, async (req, res) => {
