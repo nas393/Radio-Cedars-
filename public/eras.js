@@ -30,7 +30,28 @@
         ar: { ac: 'مروحة السقف' }, en: { ac: 'Ceiling fan' }, fr: { ac: 'Ventilateur' }
       }
     },
-    '00s': { ready: false, base: '/room/00s/' },
+    // the 2000s, a Beirut apartment
+    '00s': {
+      ready: false,
+      base: '/room/00s/',
+      spots: S3({
+        phone: [9.5, 61], books: [16, 62], news: [17, 78], together: [17, 84], window: [22, 30], coffee: [49, 74], calendar: [55, 30],
+        clock: [56, 20], cassettes: [57, 54], tawleh: [58, 82], ac: [69, 8], expat: [71, 27], tv: [72, 49], atari: [72.5, 73],
+        lamp: [83.5, 22], radio: [92.5, 63], photos: [94, 30], teta: [93, 92]
+      }),
+      objects: ['phone', 'books', 'news', 'together', 'window', 'coffee', 'calendar', 'clock', 'cassettes', 'tawleh', 'ac', 'expat', 'tv', 'atari', 'lamp', 'radio', 'photos', 'teta'],
+      px: all([1264, 848]),
+      tv: all([[819, 361.6], [989, 372], [989, 510], [820, 496.8]]),
+      frames: all([[1138, 154, 1195, 217], [1222, 157, 1264, 209], [1136, 277, 1177, 327], [1220, 297, 1264, 332], [1131, 422, 1192, 467]]),
+      glass: all([3.5, 6, 21.5, 60]),
+      steam: { day: [[0, 0, 0], [0, 0, 0]], sunset: [[47.5, 77, 1], [53, 73, 0.7]], night: [[47.5, 77, 1], [53, 73, 0.7]] },
+      pelmet: all([40, 53, 2.5, 5]),
+      labels: {
+        ar: { cassettes: 'السيديات', atari: 'البلاي', phone: 'الخلوي' },
+        en: { cassettes: 'CDs', atari: 'Game console', phone: 'Mobile phone' },
+        fr: { cassettes: 'Les CD', atari: 'Console', phone: 'Portable' }
+      }
+    },
     // 2026, a Beirut apartment (pictures made with Gemini, chosen by Nassim)
     '26': {
       ready: false,
