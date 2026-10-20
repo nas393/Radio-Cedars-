@@ -17,6 +17,8 @@
     ar: {
       introTitle: 'تفضّل، البيت بيتك',
       introSub: 'صالون بيت لبناني من التسعينات. كل غرض فيه بيشتغل.',
+      eraAsk: 'أيّ صالون بدّك؟', eras: { '80s': 'التمانينات', '90s': 'التسعينات', '00s': 'الألفين', '20s': 'هلّق' },
+      eraSub: { '80s': 'صالون بيت لبناني من التمانينات. كل غرض فيه بيشتغل.', '00s': 'صالون بيت لبناني من سنين الألفين. كل غرض فيه بيشتغل.', '20s': 'صالون بيت لبناني اليوم. كل غرض فيه بيشتغل.' },
       introEnter: 'ادخل',
       dragHint: 'دوس على أيّ غرض، اسحب لتتفرّج، ودقّتين لتشوف الصالون كلّو',
       dockLabel: 'أغراض الغرفة',
@@ -64,6 +66,8 @@
     en: {
       introTitle: 'Come in, make yourself at home',
       introSub: 'A 1990s Lebanese living room. Everything in it works.',
+      eraAsk: 'Which living room?', eras: { '80s': '1980s', '90s': '1990s', '00s': '2000s', '20s': '2020s' },
+      eraSub: { '80s': 'A 1980s Lebanese living room. Everything in it works.', '00s': 'A 2000s Lebanese living room. Everything in it works.', '20s': 'A Lebanese living room today. Everything in it works.' },
       introEnter: 'Come in',
       dragHint: 'Tap anything, slide to look around, double-tap for the whole room',
       dockLabel: 'Things in the room',
@@ -111,6 +115,8 @@
     fr: {
       introTitle: 'Entrez, vous êtes chez vous',
       introSub: 'Un salon libanais des années 90. Tout y fonctionne.',
+      eraAsk: 'Quel salon ?', eras: { '80s': 'Années 80', '90s': 'Années 90', '00s': 'Années 2000', '20s': 'Années 2020' },
+      eraSub: { '80s': 'Un salon libanais des années 80. Tout y fonctionne.', '00s': 'Un salon libanais des années 2000. Tout y fonctionne.', '20s': 'Un salon libanais d’aujourd’hui. Tout y fonctionne.' },
       introEnter: 'Entrer',
       dragHint: 'Touchez un objet, glissez pour regarder, double-touchez pour toute la pièce',
       dockLabel: 'Les objets du salon',
@@ -163,10 +169,29 @@
 
   // ================================================================== the room in three lights
 
+  // ================================================================== the eras
+  // The same family's salon in the 1980s, 1990s (this one), 2000s and 2020s. Each other era has
+  // its own photos and spots in eras.js; only eras whose photos are in are offered.
+  const ERA_LIST = ['80s', '90s', '00s', '20s'];
+  const ERA_DATA = window.SawtEras || {};
+  const eraReady = id => id === '90s' || !!(ERA_DATA[id] && ERA_DATA[id].ready);
+  const erasReady = () => ERA_LIST.filter(eraReady);
+  let era = S.store.get('era', '90s'); if (!eraReady(era)) era = '90s';
+  const E = era === '90s' ? {} : ERA_DATA[era];
+  const BASE = E.base || '/room/';
+  function setEra(id) {
+    if (!eraReady(id)) return;
+    S.store.set('eraPicked', true);
+    if (id === era) return;
+    S.store.set('era', id);
+    try { sessionStorage.setItem('sawt:era-switch', '1'); } catch { /* fine */ }
+    location.reload();
+  }
+
   const SCENES = ['day', 'sunset', 'night'];
   const SI = { day: 0, night: 1, sunset: 2 };          // index into the per-picture positions below
   // Where things are in each picture, in % of its width and height ([day, night, sunset]).
-  const SPOTS = {
+  const SPOTS = E.spots || {
     radio: [[25.5, 41.5], [25.5, 41.5], [25.5, 40]],
     phone: [[20.3, 37.5], [20.5, 38], [20.5, 36.5]],
     tv: [[91.5, 44], [91.5, 44], [90, 42]],
@@ -187,23 +212,23 @@
     ac: [[9, 2.5], [9, 2.5], [9, 2.5]]
   };
   // The objects in the order they sit in the room, left to right.
-  const OBJECT_IDS = ['ac', 'lamp', 'expat', 'phone', 'clock', 'radio', 'calendar', 'together', 'news', 'tawleh', 'window', 'coffee', 'teta', 'photos', 'cassettes', 'tv', 'atari', 'books'];
+  const OBJECT_IDS = E.objects || ['ac', 'lamp', 'expat', 'phone', 'clock', 'radio', 'calendar', 'together', 'news', 'tawleh', 'window', 'coffee', 'teta', 'photos', 'cassettes', 'tv', 'atari', 'books'];
   const OBJECTS = OBJECT_IDS.map(id => ({ id }));
   const ACTION_ONLY = { teta: true, ac: true };          // these do something instead of opening a drawer
-  const PX = { day: [1264, 843], night: [1264, 843], sunset: [1536, 1024] };
-  const TV = {
+  const PX = E.px || { day: [1264, 843], night: [1264, 843], sunset: [1536, 1024] };
+  const TV = E.tv || {
     day: [[1088.3, 320], [1204, 319.3], [1202.7, 419.3], [1089.3, 418.3]],
     night: [[1094, 321], [1204, 319.5], [1203, 416], [1092, 411]],
     sunset: [[1330, 381], [1459, 379.5], [1457.5, 490], [1330, 481]]
   };
-  const FRAMES = {
+  const FRAMES = E.frames || {
     day: [[959, 213, 991, 268], [304, 286, 332, 318], [247, 303, 268, 330], [373, 236, 400, 278], [1161, 133, 1197, 166]],
     night: [[958, 212, 992, 270], [306, 286, 334, 318], [262, 304, 282, 330], [375, 238, 400, 275], [1158, 132, 1196, 168]],
     sunset: [[1163, 251, 1203, 318], [371, 337, 404, 374], [285, 373, 303, 392], [455, 282, 485, 325], [1402, 153, 1468, 200]]
   };
-  const GLASS = { day: [44.5, 21, 60.9, 55.8], night: [44.5, 21, 60.9, 55.8], sunset: [44.9, 20.7, 60.2, 54.7] };
-  const STEAM = { night: [[44.7, 55.6, 1], [48, 59.3, 0]], sunset: [[44.6, 54.2, 1], [53, 57.8, 0.7]], day: [[0, 0, 0], [0, 0, 0]] };
-  const PELMET = { day: [32.6, 66.4, 9.6, 11.4], night: [32.6, 66.4, 9.6, 11.4], sunset: [32.6, 66.6, 9, 10.5] };   // x0, x1, y at the ends
+  const GLASS = E.glass || { day: [44.5, 21, 60.9, 55.8], night: [44.5, 21, 60.9, 55.8], sunset: [44.9, 20.7, 60.2, 54.7] };
+  const STEAM = E.steam || { night: [[44.7, 55.6, 1], [48, 59.3, 0]], sunset: [[44.6, 54.2, 1], [53, 57.8, 0.7]], day: [[0, 0, 0], [0, 0, 0]] };
+  const PELMET = E.pelmet || { day: [32.6, 66.4, 9.6, 11.4], night: [32.6, 66.4, 9.6, 11.4], sunset: [32.6, 66.6, 9, 10.5] };   // x0, x1, y at the ends
 
   const hidden = new Set();   // objects switched off by the server config
   const norm = (scene, [x, y]) => [x / PX[scene][0], y / PX[scene][1]];
@@ -280,7 +305,7 @@
   // ================================================================== pictures
 
   const sharp = Math.max(screen.width, screen.height) * (window.devicePixelRatio || 1) > 1400;
-  function picUrl(sc, small) { return `/room/${sc}${small ? '-s' : ''}.jpg`; }
+  function picUrl(sc, small) { return `${BASE}${sc}${small ? '-s' : ''}.jpg`; }
   function loadImage(src) {
     return new Promise((resolve, reject) => {
       const img = new Image();
@@ -1193,7 +1218,7 @@
   function renderGrid() {
     const order = ['radio', 'tv', 'cassettes', 'tawleh', 'atari', 'together', 'phone', 'news', 'expat', 'window', 'calendar', 'clock', 'coffee', 'books', 'photos', 'lamp', 'teta', 'ac'];
     $('objects-grid').replaceChildren(...order.map(id => ({ id })).filter(o => !hidden.has(o.id)).map((o, i) => {
-      const img = el('img', { className: 'tile-img', alt: '', loading: 'lazy', decoding: 'async', src: `/room/thumb-${o.id}.jpg` });
+      const img = el('img', { className: 'tile-img', alt: '', loading: 'lazy', decoding: 'async', src: `${BASE}thumb-${o.id}.jpg` });
       img.addEventListener('error', () => img.remove());
       const b = el('button', { type: 'button', className: 'tile' }, [
         img,
@@ -1638,6 +1663,8 @@
   function applyRoomLanguage() {
     document.querySelectorAll('[data-r]').forEach(n => { n.textContent = r(n.dataset.r); });
     document.querySelectorAll('[data-r-label]').forEach(n => n.setAttribute('aria-label', r(n.dataset.rLabel)));
+    if (era !== '90s') { const sub = document.querySelector('.intro-sub'); if (sub) sub.textContent = r('eraSub')[era]; }
+    renderEraDoor();
     if (openId) $('sheet-title').textContent = r('objects')[openId];
     renderSceneChip();
     renderHotspots();
@@ -1670,7 +1697,9 @@
     // Teta's radio icon (/radio): no door, no names, just the radio
     if (location.pathname.replace(/\/+$/, '') === '/radio') { introOn = false; intro.hidden = true; document.body.classList.remove('intro-on'); return; }
     let picked = false; try { picked = !!sessionStorage.getItem('sawt:chosen'); } catch { /* fine */ }
-    const fast = S.store.get('visited', false) || deepLink() || picked;
+    renderEraDoor();
+    const askEra = erasReady().length > 1 && !S.store.get('eraPicked', false);
+    const fast = !askEra && (S.store.get('visited', false) || deepLink() || picked);
     if (fast) {
       intro.classList.add('is-quick');
       Promise.race([ready, new Promise(res => setTimeout(res, 2500))]).then(() => {
@@ -1679,6 +1708,27 @@
         setTimeout(enterRoom, reduceMotion ? 0 : 400);
       });
     }
+  }
+
+  // the door: which salon? (only when more than one era's photos are in)
+  function renderEraDoor() {
+    let row = document.querySelector('.intro-era');
+    const list = erasReady();
+    if (list.length < 2) { if (row) row.remove(); return; }
+    if (!row) {
+      row = el('div', { className: 'intro-era' });
+      const sub = document.querySelector('.intro-sub');
+      if (sub) sub.after(row);
+    }
+    const label = el('p', { className: 'intro-who-t', text: r('eraAsk') });
+    const cards = el('div', { className: 'intro-era-row', role: 'group' }, list.map(id => {
+      const base = id === '90s' ? '/room/' : (ERA_DATA[id].base || '/room/');
+      const b = el('button', { type: 'button', className: 'intro-era-b' + (id === era ? ' is-on' : ''), style: `background-image:url('${base}day-s.jpg')` }, [el('span', { text: r('eras')[id] })]);
+      b.setAttribute('aria-pressed', String(id === era));
+      b.addEventListener('click', () => { if (id === era) { S.store.set('eraPicked', true); renderEraDoor(); } else setEra(id); });
+      return b;
+    }));
+    row.replaceChildren(label, cards);
   }
 
   // ------------------------------------------------------------------ shared with music.js / home.js / the games
@@ -1747,7 +1797,11 @@
     setSceneChoice,
     lite: () => lite,
     setLite: v => { lite = !!v; S.store.set('liteRoom', lite); breath = 0; needsDraw = true; document.body.classList.toggle('is-lite', lite); },
-    openWeather: () => { setTimeout(() => togglePop(true), 60); }
+    openWeather: () => { setTimeout(() => togglePop(true), 60); },
+    era: () => era,
+    eras: erasReady,
+    eraLabel: id => r('eras')[id || era],
+    setEra
   };
 
   start();

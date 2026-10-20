@@ -1801,3 +1801,11 @@ body.is-simple .bbar, body.is-radio-only .bbar { display: none; }
 .sb-arcade ul { list-style: none; padding: 0; margin: 4px 0 0; display: grid; gap: 4px; }
 .sb-arcade li { display: flex; justify-content: space-between; gap: 8px; font-size: .875rem; padding: 6px 10px; border-radius: 10px; background: var(--wall-2); }
 .q-arcade { display: grid; gap: 6px; justify-items: center; }
+
+/* the door: which salon (80s · 90s · 2000s · 2020s) */
+.intro-era { display: grid; justify-items: center; gap: 6px; margin: 4px 0 10px; }
+.intro-era-row { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; max-width: min(560px, 92vw); }
+.intro-era-b { position: relative; width: 76px; height: 58px; border-radius: 12px; border: 2px solid rgba(255, 255, 255, .25); background: #2a1e15 center / cover no-repeat; color: #fff; font: 600 .75rem/1.1 inherit; cursor: pointer; overflow: hidden; display: flex; align-items: flex-end; justify-content: center; padding: 0 0 5px; }
+.intro-era-b::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, .75)); }
+.intro-era-b span { position: relative; }
+.intro-era-b.is-on { border-color: var(--brass, #F5C66A); box-shadow: 0 0 0 2px rgba(245, 198, 106, .35); }

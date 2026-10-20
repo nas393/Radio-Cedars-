@@ -411,7 +411,7 @@
 
   // Everything is kept per person ("who's home?"), except a few things about the device itself.
   // The first person on a device uses the plain keys, so nothing saved before is lost.
-  const DEVICE_KEYS = new Set(['profiles', 'profileId', 'visited', 'visits', 'installAsked', 'lookedAround']);
+  const DEVICE_KEYS = new Set(['profiles', 'profileId', 'visited', 'visits', 'installAsked', 'lookedAround', 'era', 'eraPicked']);
   let profileId = 'p0';
   try { profileId = JSON.parse(localStorage.getItem('sawt:profileId')) || 'p0'; } catch { profileId = 'p0'; }
   const keyOf = key => (DEVICE_KEYS.has(key) || profileId === 'p0' ? 'sawt:' + key : `sawt:${profileId}:${key}`);
