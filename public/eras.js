@@ -36,6 +36,24 @@
       }
     }
   };
+  // 2026, a village house (the same objects, in a stone house with three arches)
+  window.SawtEras['26h'] = {
+    ready: false,
+    base: '/room/26h/',
+    spots: S3({
+      photos: [6, 42], radio: [12.5, 67], phone: [17, 67], atari: [22.5, 66], tv: [21, 45], coffee: [19.5, 77], ac: [22.5, 10],
+      tawleh: [31, 83], calendar: [31.5, 44], clock: [31.7, 31], cassettes: [32.5, 61], expat: [37, 40], lamp: [48, 40],
+      teta: [59, 63], news: [66, 73], window: [72, 32], together: [73, 77], books: [95.5, 55]
+    }),
+    objects: ['photos', 'radio', 'phone', 'atari', 'tv', 'coffee', 'ac', 'tawleh', 'calendar', 'clock', 'cassettes', 'expat', 'lamp', 'teta', 'news', 'window', 'together', 'books'],
+    px: all([1264, 848]),
+    tv: all([[174.5, 287], [362, 313.6], [362, 462.7], [174.5, 484.5]]),
+    frames: all([[31, 255, 64, 299], [92, 265, 123, 305], [33, 331, 94, 381], [41, 413, 63, 449], [90, 413, 125, 448]]),
+    glass: all([65, 18, 79.5, 62]),
+    steam: { day: [[0, 0, 0], [0, 0, 0]], sunset: [[24, 79, 1], [17.5, 80.5, 0.7]], night: [[24, 79, 1], [17.5, 80.5, 0.7]] },
+    pelmet: all([43, 97, 16, 9]),
+    labels: window.SawtEras['26'].labels
+  };
   // local or preview look at the era switch: add ?eras=test (all eras) or ?eras=preview (unfinished eras that have photos)
   const q = location.search;
   if (/[?&]eras=preview/.test(q) || /-git-eras-/.test(location.hostname)) for (const e of Object.values(window.SawtEras)) if (e.spots) e.ready = true;

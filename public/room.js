@@ -17,7 +17,7 @@
     ar: {
       introTitle: 'تفضّل، البيت بيتك',
       introSub: 'صالون بيت لبناني من التسعينات. كل غرض فيه بيشتغل.',
-      eraAsk: 'أيّ صالون بدّك؟', eras: { '80s': 'التمانينات', '90s': 'التسعينات', '00s': 'الألفين', '26': '٢٠٢٦' },
+      eraAsk: 'أيّ صالون بدّك؟', homes: { apt: '🏢 شقّة ببيروت', house: '🏡 بيت بالضيعة' }, eras: { '80s': 'التمانينات', '90s': 'التسعينات', '00s': 'الألفين', '26': '٢٠٢٦' },
       eraSub: { '80s': 'صالون بيت لبناني من التمانينات. كل غرض فيه بيشتغل.', '00s': 'صالون بيت لبناني من سنين الألفين. كل غرض فيه بيشتغل.', '26': 'صالون بيت لبناني اليوم، ٢٠٢٦. كل غرض فيه بيشتغل.' },
       introEnter: 'ادخل',
       dragHint: 'دوس على أيّ غرض، اسحب لتتفرّج، ودقّتين لتشوف الصالون كلّو',
@@ -66,7 +66,7 @@
     en: {
       introTitle: 'Come in, make yourself at home',
       introSub: 'A 1990s Lebanese living room. Everything in it works.',
-      eraAsk: 'Which living room?', eras: { '80s': '1980s', '90s': '1990s', '00s': '2000s', '26': '2026' },
+      eraAsk: 'Which living room?', homes: { apt: '🏢 Beirut apartment', house: '🏡 Village house' }, eras: { '80s': '1980s', '90s': '1990s', '00s': '2000s', '26': '2026' },
       eraSub: { '80s': 'A 1980s Lebanese living room. Everything in it works.', '00s': 'A 2000s Lebanese living room. Everything in it works.', '26': 'A Lebanese living room today, 2026. Everything in it works.' },
       introEnter: 'Come in',
       dragHint: 'Tap anything, slide to look around, double-tap for the whole room',
@@ -115,7 +115,7 @@
     fr: {
       introTitle: 'Entrez, vous êtes chez vous',
       introSub: 'Un salon libanais des années 90. Tout y fonctionne.',
-      eraAsk: 'Quel salon ?', eras: { '80s': 'Années 80', '90s': 'Années 90', '00s': 'Années 2000', '26': '2026' },
+      eraAsk: 'Quel salon ?', homes: { apt: '🏢 Appartement à Beyrouth', house: '🏡 Maison au village' }, eras: { '80s': 'Années 80', '90s': 'Années 90', '00s': 'Années 2000', '26': '2026' },
       eraSub: { '80s': 'Un salon libanais des années 80. Tout y fonctionne.', '00s': 'Un salon libanais des années 2000. Tout y fonctionne.', '26': 'Un salon libanais d’aujourd’hui, 2026. Tout y fonctionne.' },
       introEnter: 'Entrer',
       dragHint: 'Touchez un objet, glissez pour regarder, double-touchez pour toute la pièce',
@@ -177,10 +177,19 @@
   // ================================================================== the eras
   // The same family's salon in the 1980s, 1990s (this one), 2000s and 2020s. Each other era has
   // its own photos and spots in eras.js; only eras whose photos are in are offered.
-  const ERA_LIST = ['80s', '90s', '00s', '26'];
+  const ERA_LIST = ['80s', '80sh', '90s', '90sh', '00s', '00sh', '26', '26h'];   // 'h': the village house, otherwise the apartment
+  const decadeOf = id => id.replace(/h$/, '');
+  const isHouse = id => /h$/.test(id);
   const ERA_DATA = window.SawtEras || {};
   const eraReady = id => id === '90s' || !!(ERA_DATA[id] && ERA_DATA[id].ready);
   const erasReady = () => ERA_LIST.filter(eraReady);
+  const decadesReady = () => [...new Set(erasReady().map(decadeOf))];
+  const homesOf = d => [d, d + 'h'].filter(eraReady);
+  // pick a decade, keeping the apartment or the house when that decade has it
+  function pickEra(decade, house = isHouse(era)) {
+    const want = decade + (house ? 'h' : '');
+    setEra(eraReady(want) ? want : homesOf(decade)[0]);
+  }
   let era = S.store.get('era', '90s'); if (!eraReady(era)) era = '90s';
   const E = era === '90s' ? {} : ERA_DATA[era];
   const BASE = E.base || '/room/';
@@ -1668,7 +1677,7 @@
   function applyRoomLanguage() {
     document.querySelectorAll('[data-r]').forEach(n => { n.textContent = r(n.dataset.r); });
     document.querySelectorAll('[data-r-label]').forEach(n => n.setAttribute('aria-label', r(n.dataset.rLabel)));
-    if (era !== '90s') { const sub = document.querySelector('.intro-sub'); if (sub) sub.textContent = r('eraSub')[era]; }
+    if (era !== '90s') { const sub = document.querySelector('.intro-sub'); const t = r('eraSub')[decadeOf(era)]; if (sub && t) sub.textContent = t; }
     renderEraDoor();
     if (openId) $('sheet-title').textContent = r('objects')[openId];
     renderSceneChip();
@@ -1718,22 +1727,33 @@
   // the door: which salon? (only when more than one era's photos are in)
   function renderEraDoor() {
     let row = document.querySelector('.intro-era');
-    const list = erasReady();
-    if (list.length < 2) { if (row) row.remove(); return; }
+    if (erasReady().length < 2) { if (row) row.remove(); return; }
     if (!row) {
       row = el('div', { className: 'intro-era' });
       const sub = document.querySelector('.intro-sub');
       if (sub) sub.after(row);
     }
     const label = el('p', { className: 'intro-who-t', text: r('eraAsk') });
-    const cards = el('div', { className: 'intro-era-row', role: 'group' }, list.map(id => {
+    const here = decadeOf(era);
+    const cards = el('div', { className: 'intro-era-row', role: 'group' }, decadesReady().map(d => {
+      const id = eraReady(d + (isHouse(era) ? 'h' : '')) ? d + (isHouse(era) ? 'h' : '') : homesOf(d)[0];
       const base = id === '90s' ? '/room/' : (ERA_DATA[id].base || '/room/');
-      const b = el('button', { type: 'button', className: 'intro-era-b' + (id === era ? ' is-on' : ''), style: `background-image:url('${base}day-s.jpg')` }, [el('span', { text: r('eras')[id] })]);
-      b.setAttribute('aria-pressed', String(id === era));
-      b.addEventListener('click', () => { if (id === era) { S.store.set('eraPicked', true); renderEraDoor(); } else setEra(id); });
+      const b = el('button', { type: 'button', className: 'intro-era-b' + (d === here ? ' is-on' : ''), style: `background-image:url('${base}day-s.jpg')` }, [el('span', { text: r('eras')[d] })]);
+      b.setAttribute('aria-pressed', String(d === here));
+      b.addEventListener('click', () => { if (d === here) { S.store.set('eraPicked', true); renderEraDoor(); } else pickEra(d); });
       return b;
     }));
-    row.replaceChildren(label, cards);
+    const kids = [label, cards];
+    const homes = homesOf(here);
+    if (homes.length > 1) {
+      kids.push(el('div', { className: 'intro-home', role: 'group' }, homes.map(id => {
+        const b = el('button', { type: 'button', className: 'chip intro-home-b', text: r('homes')[isHouse(id) ? 'house' : 'apt'] });
+        b.setAttribute('aria-pressed', String(id === era));
+        b.addEventListener('click', () => { if (id === era) { S.store.set('eraPicked', true); renderEraDoor(); } else setEra(id); });
+        return b;
+      })));
+    }
+    row.replaceChildren(...kids);
   }
 
   // ------------------------------------------------------------------ shared with music.js / home.js / the games
@@ -1805,7 +1825,11 @@
     openWeather: () => { setTimeout(() => togglePop(true), 60); },
     era: () => era,
     eras: erasReady,
-    eraLabel: id => r('eras')[id || era],
+    decades: decadesReady,
+    decade: () => decadeOf(era),
+    homes: () => homesOf(decadeOf(era)).map(id => [id, r('homes')[isHouse(id) ? 'house' : 'apt']]),
+    eraLabel: id => r('eras')[decadeOf(id || era)],
+    pickEra,
     setEra
   };
 

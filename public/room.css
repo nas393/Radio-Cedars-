@@ -1809,3 +1809,6 @@ body.is-simple .bbar, body.is-radio-only .bbar { display: none; }
 .intro-era-b::before { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(0, 0, 0, .75)); }
 .intro-era-b span { position: relative; }
 .intro-era-b.is-on { border-color: var(--brass, #F5C66A); box-shadow: 0 0 0 2px rgba(245, 198, 106, .35); }
+.intro-home { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; margin-top: 2px; }
+.intro-home-b { font-size: .75rem; background: rgba(0, 0, 0, .45); color: #fff; border-color: rgba(255, 255, 255, .3); }
+.intro-home-b[aria-pressed="true"] { background: var(--brass, #F5C66A); color: #2A1E15; }
