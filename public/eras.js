@@ -76,6 +76,24 @@
       }
     }
   };
+  // the 2000s, a village house
+  window.SawtEras['00sh'] = {
+    ready: false,
+    base: '/room/00sh/',
+    spots: S3({
+      cassettes: [6.5, 68], clock: [8.5, 24], tv: [22, 66], atari: [35.5, 91], radio: [36.5, 67], phone: [42, 68], window: [44, 30],
+      together: [57, 70], tawleh: [62, 96], news: [64.5, 67], coffee: [70, 92], lamp: [71, 44], photos: [75, 34], teta: [82, 72],
+      calendar: [84.5, 38], ac: [87.5, 8], books: [94, 96], expat: [95, 34]
+    }),
+    objects: ['cassettes', 'clock', 'tv', 'atari', 'radio', 'phone', 'window', 'together', 'tawleh', 'news', 'coffee', 'lamp', 'photos', 'teta', 'calendar', 'ac', 'books', 'expat'],
+    px: all([1376, 768]),
+    tv: all([[258.3, 445], [407.3, 432.7], [409.3, 573.3], [260, 582.7]]),
+    frames: all([[978, 243, 1004, 290], [1021, 248, 1046, 290], [1061, 230, 1090, 282], [1050, 305, 1076, 348]]),
+    glass: all([39, 26, 50.5, 54]),
+    steam: { day: [[0, 0, 0], [0, 0, 0]], sunset: [[66.5, 88, 1], [70, 88, 0.7]], night: [[66.5, 88, 1], [70, 88, 0.7]] },
+    pelmet: all([36, 67, 1, 11.5]),
+    labels: window.SawtEras['00s'].labels
+  };
   // the 1980s, a village house
   window.SawtEras['80sh'] = {
     ready: false,
