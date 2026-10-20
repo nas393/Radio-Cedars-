@@ -10,7 +10,26 @@
   const S3 = o => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, same(v)]));
   const all = v => ({ day: v, night: v, sunset: v });
   window.SawtEras = {
-    '80s': { ready: false, base: '/room/80s/' },
+    // the 1980s, a Beirut apartment (Gemini, chosen by Nassim)
+    '80s': {
+      ready: false,
+      base: '/room/80s/',
+      spots: S3({
+        teta: [14, 85], photos: [17, 29], tv: [17.5, 53], cassettes: [18, 66], atari: [30, 57], radio: [32, 68], window: [46, 40],
+        coffee: [48, 76], tawleh: [58, 85], ac: [63, 4], phone: [67.5, 65], lamp: [71, 39], clock: [77.5, 30], news: [82, 72],
+        calendar: [85.5, 35], together: [89, 73], books: [93, 88], expat: [95, 33]
+      }),
+      objects: ['teta', 'photos', 'tv', 'cassettes', 'atari', 'radio', 'window', 'coffee', 'tawleh', 'ac', 'phone', 'lamp', 'clock', 'news', 'calendar', 'together', 'books', 'expat'],
+      px: all([1264, 848]),
+      tv: all([[161.7, 402], [282.6, 402], [282.6, 492], [164.3, 494.3]]),
+      frames: all([[35, 215, 79.6, 273.5], [114, 219.6, 154.3, 271.7], [188, 215, 238, 277.8], [269.6, 228, 306.5, 279], [337, 229, 371, 279]]),
+      glass: all([36, 23, 57.8, 74]),
+      steam: { day: [[0, 0, 0], [0, 0, 0]], sunset: [[54.5, 75, 1], [48.5, 73, 0.7]], night: [[54.5, 75, 1], [48.5, 73, 0.7]] },
+      pelmet: all([29, 67, 10, 16.5]),
+      labels: {
+        ar: { ac: 'مروحة السقف' }, en: { ac: 'Ceiling fan' }, fr: { ac: 'Ventilateur' }
+      }
+    },
     '00s': { ready: false, base: '/room/00s/' },
     // 2026, a Beirut apartment (pictures made with Gemini, chosen by Nassim)
     '26': {
