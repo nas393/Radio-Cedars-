@@ -82,6 +82,11 @@ The working memory for this project. Upload it as a file in the Claude Project. 
 
 - Teta's voice recipes, a shared photo album, a "call mama" button, and a family birthday card.
 
-## Next
+## Room eras (built, behind a secret link)
 
-- Room eras (1980s, 2000s, 2020s) next to today's 1990s room, chosen at the door and in My corner. Waiting on Nassim's answers about the pictures and the objects per era.
+- Eight rooms: 1980s, 1990s, 2000s and 2026, each as a **Beirut apartment** or a **village house**. Today's photo room is the 1990s apartment; the other seven were made with Gemini in Nassim's browser and chosen by him.
+- Pictures live in `public/room/<era>/` (`80s`, `80sh`, `90sh`, `00s`, `00sh`, `26`, `26h`): day, sunset, night, the small `-s` copies, and `thumb-<object>.jpg`.
+- Each era's spots, TV corners, photo frames, window glass, coffee steam and curtain line are in `public/eras.js`. Per-era names: e.g. records instead of tapes in 2026.
+- The door asks "which living room?" (era cards, then apartment / village house), and 🙂 My corner can switch. The choice is per phone.
+- Every era is `ready: false` until Nassim says to go live. `?eras=preview` on the live site shows them for testing.
+- To add or redo a room: generate the day picture, then use Gemini's edit for sunset and night (same room, only the light), download all three, place the spots on a % grid, and zoom in for the TV and frame corners in pixels.
