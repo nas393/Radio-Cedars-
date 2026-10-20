@@ -51,13 +51,18 @@ The working memory for this project. Upload it as a file in the Claude Project. 
 | Clock and lamp | Alarm, sleep timer |
 | Time pill at the top | Time of day, weather (rain or snow), occasion (Christmas or Ramadan decorations), room sounds, power cuts (off by default) |
 | Teta's chair | Simple big-button mode (stays at full size) |
-| Console (الأتاري) under the TV | Four cartridges of our own (tennis, wall breaker, snake, space war), with the on-screen pad, drag or the keyboard; best scores, big screen, and sharing a score to the room (`atari.js`) |
+| Console (الأتاري) under the TV | Four cartridges of our own (tennis, wall breaker, snake, space war), with the on-screen pad, drag or the keyboard; best scores and a big screen. Tennis three ways: against the computer, two on one phone, or live on two phones (trial, WebRTC with free STUN only; signalling through `/api/q/:id/rtc`). "Beat my score" challenges post to the room chat with a button; this week's console champions show on the scoreboard (`atari.js`, `/api/q/:id/arcade`) |
 | 🙂 button at the top | My corner: name, picture, passcode, account, switch person, sign out, language, text size, Teta's chair, sounds, power cuts, weather, newspapers, install, my rooms, scores, events, help, and erase this phone |
 | Morning | A 7 am Beirut greeting with Fairuz and the weather |
+| Bottom bar (phones) | Radio, TV, chat, games, everything (`bar.js`); on for phones, off for computers, switchable in My corner |
+| /radio | Teta's radio on its own page with its own home-screen icon (`radio.webmanifest`); no door, no names |
 
 ## Design rules Nassim has asked for
 
+- **Mainly used on phones.** Design for the phone first.
+- Ask Nassim before building anything new; act as a devil's advocate and keep him in the loop.
 - On phones it starts a little closer; double-tap shows the whole room. Small dots and names over the room.
+- The chat is full screen on phones (like WhatsApp); room extras sit behind "⋯ أكتر". Hold the mic to talk.
 - Fonts are small everywhere, but tap targets stay big. Teta's chair stays large.
 - Family photos stay on each phone; they are **not shared**.
 - The public dedications wall was removed. Family rooms replaced it.
@@ -66,11 +71,17 @@ The working memory for this project. Upload it as a file in the Claude Project. 
 ## Things to watch
 
 - **Database use:** Upstash's free tier has a monthly limit. Chat polling backs off when quiet; games use light reads (`since=999999999` skips the chat).
-- **Untested with real people:** the game hand-off when the host leaves, the computer taking over an away player, and real push notifications on phones.
+- **Untested with real people:** the game hand-off when the host leaves, the computer taking over an away player, real push notifications on phones, quiet hours, hold-to-talk, and live tennis on mobile data.
+- **Quiet hours** cover chat and "your turn" alerts only; the morning greeting and breaking news keep their own switches. A room can also be muted.
+- **Console scores** are sent by the phone, so a determined cheater could fake one. Fine for a family.
 - **iPhone:** notifications only work after "Add to Home Screen".
 - **YouTube:** some videos refuse to play inside other sites; the TV skips them automatically.
 - **Admin:** the `/admin` page (password set on first visit) moderates the family cookbook.
 
 ## Ideas offered but not chosen
 
-- Teta's voice recipes, a shared photo album, and a "call mama" button.
+- Teta's voice recipes, a shared photo album, a "call mama" button, and a family birthday card.
+
+## Next
+
+- Room eras (1980s, 2000s, 2020s) next to today's 1990s room, chosen at the door and in My corner. Waiting on Nassim's answers about the pictures and the objects per era.
