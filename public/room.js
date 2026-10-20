@@ -17,8 +17,8 @@
     ar: {
       introTitle: 'تفضّل، البيت بيتك',
       introSub: 'صالون بيت لبناني من التسعينات. كل غرض فيه بيشتغل.',
-      eraAsk: 'أيّ صالون بدّك؟', eras: { '80s': 'التمانينات', '90s': 'التسعينات', '00s': 'الألفين', '20s': 'هلّق' },
-      eraSub: { '80s': 'صالون بيت لبناني من التمانينات. كل غرض فيه بيشتغل.', '00s': 'صالون بيت لبناني من سنين الألفين. كل غرض فيه بيشتغل.', '20s': 'صالون بيت لبناني اليوم. كل غرض فيه بيشتغل.' },
+      eraAsk: 'أيّ صالون بدّك؟', eras: { '80s': 'التمانينات', '90s': 'التسعينات', '00s': 'الألفين', '26': '٢٠٢٦' },
+      eraSub: { '80s': 'صالون بيت لبناني من التمانينات. كل غرض فيه بيشتغل.', '00s': 'صالون بيت لبناني من سنين الألفين. كل غرض فيه بيشتغل.', '26': 'صالون بيت لبناني اليوم، ٢٠٢٦. كل غرض فيه بيشتغل.' },
       introEnter: 'ادخل',
       dragHint: 'دوس على أيّ غرض، اسحب لتتفرّج، ودقّتين لتشوف الصالون كلّو',
       dockLabel: 'أغراض الغرفة',
@@ -66,8 +66,8 @@
     en: {
       introTitle: 'Come in, make yourself at home',
       introSub: 'A 1990s Lebanese living room. Everything in it works.',
-      eraAsk: 'Which living room?', eras: { '80s': '1980s', '90s': '1990s', '00s': '2000s', '20s': '2020s' },
-      eraSub: { '80s': 'A 1980s Lebanese living room. Everything in it works.', '00s': 'A 2000s Lebanese living room. Everything in it works.', '20s': 'A Lebanese living room today. Everything in it works.' },
+      eraAsk: 'Which living room?', eras: { '80s': '1980s', '90s': '1990s', '00s': '2000s', '26': '2026' },
+      eraSub: { '80s': 'A 1980s Lebanese living room. Everything in it works.', '00s': 'A 2000s Lebanese living room. Everything in it works.', '26': 'A Lebanese living room today, 2026. Everything in it works.' },
       introEnter: 'Come in',
       dragHint: 'Tap anything, slide to look around, double-tap for the whole room',
       dockLabel: 'Things in the room',
@@ -115,8 +115,8 @@
     fr: {
       introTitle: 'Entrez, vous êtes chez vous',
       introSub: 'Un salon libanais des années 90. Tout y fonctionne.',
-      eraAsk: 'Quel salon ?', eras: { '80s': 'Années 80', '90s': 'Années 90', '00s': 'Années 2000', '20s': 'Années 2020' },
-      eraSub: { '80s': 'Un salon libanais des années 80. Tout y fonctionne.', '00s': 'Un salon libanais des années 2000. Tout y fonctionne.', '20s': 'Un salon libanais d’aujourd’hui. Tout y fonctionne.' },
+      eraAsk: 'Quel salon ?', eras: { '80s': 'Années 80', '90s': 'Années 90', '00s': 'Années 2000', '26': '2026' },
+      eraSub: { '80s': 'Un salon libanais des années 80. Tout y fonctionne.', '00s': 'Un salon libanais des années 2000. Tout y fonctionne.', '26': 'Un salon libanais d’aujourd’hui, 2026. Tout y fonctionne.' },
       introEnter: 'Entrer',
       dragHint: 'Touchez un objet, glissez pour regarder, double-touchez pour toute la pièce',
       dockLabel: 'Les objets du salon',
@@ -162,6 +162,11 @@
       credits: ''
     }
   };
+  // an era can rename its objects (a smart speaker instead of the radio, records instead of tapes)
+  try {
+    const eraNow = (window.SawtEras || {})[S.store.get('era', '90s')];
+    if (eraNow && eraNow.ready && eraNow.labels) for (const [lg, names] of Object.entries(eraNow.labels)) if (R[lg]) Object.assign(R[lg].objects, names);
+  } catch { /* fine */ }
   const r = (key, ...args) => {
     const v = (R[S.lang()] || R.ar)[key];
     return typeof v === 'function' ? v(...args) : v;
@@ -172,7 +177,7 @@
   // ================================================================== the eras
   // The same family's salon in the 1980s, 1990s (this one), 2000s and 2020s. Each other era has
   // its own photos and spots in eras.js; only eras whose photos are in are offered.
-  const ERA_LIST = ['80s', '90s', '00s', '20s'];
+  const ERA_LIST = ['80s', '90s', '00s', '26'];
   const ERA_DATA = window.SawtEras || {};
   const eraReady = id => id === '90s' || !!(ERA_DATA[id] && ERA_DATA[id].ready);
   const erasReady = () => ERA_LIST.filter(eraReady);
