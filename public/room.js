@@ -35,13 +35,13 @@
       beirut: 'بيروت',
       here: 'عندك',
       objects: {
-        radio: 'الراديو', tv: 'التلفزيون', news: 'الجريدة', phone: 'رسالة بصوتك', photos: 'صور العيلة',
+        radio: 'الراديو', tv: 'التلفزيون', atari: 'الأتاري', news: 'الجريدة', phone: 'رسالة بصوتك', photos: 'صور العيلة',
         cassettes: 'الشرايط', clock: 'الساعة', lamp: 'اللمبادير', window: 'البلكون', calendar: 'المناسبات',
         coffee: 'فنجان القهوة', books: 'سفرة تيتا', expat: 'الغربة', tawleh: 'الطاولة والشدّة', together: 'قعدة سوا',
         teta: 'كرسي تيتا', ac: 'المكيّف'
       },
       hints: {
-        radio: 'محطات لبنان مباشرة', tv: 'برامج ومسلسلات القنوات', news: 'أخبار اليوم', phone: 'لغرفة العيلة، مع أغنية', photos: 'علّق صورك',
+        atari: 'ألعاب فيديو متل زمان', radio: 'محطات لبنان مباشرة', tv: 'برامج ومسلسلات القنوات', news: 'أخبار اليوم', phone: 'لغرفة العيلة، مع أغنية', photos: 'علّق صورك',
         cassettes: 'أغاني لكل جوّ', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'ضيعتي والطقس', calendar: 'الأعياد والمناسبات',
         coffee: 'نقرا الفنجان؟', books: '٣٠ طبخة + طبخاتك', expat: 'بيروت من بعيد', tawleh: 'طاولة، طرنيب، ليخة', together: 'غرف العيلة برمز',
         teta: 'كبير وسهل', ac: 'الوقت والطقس'
@@ -82,13 +82,13 @@
       beirut: 'Beirut',
       here: 'Where you are',
       objects: {
-        radio: 'Radio', tv: 'Television', news: 'Newspaper', phone: 'Voice message', photos: 'Family photos',
+        radio: 'Radio', tv: 'Television', atari: 'Game console', news: 'Newspaper', phone: 'Voice message', photos: 'Family photos',
         cassettes: 'Tapes', clock: 'Clock', lamp: 'Lamp', window: 'Balcony', calendar: 'Occasions',
         coffee: 'Coffee cup', books: 'Teta’s table', expat: 'Far from home', tawleh: 'Tawleh & cards', together: 'Family rooms',
         teta: 'Teta’s chair', ac: 'Air conditioner'
       },
       hints: {
-        radio: 'Lebanese stations, live', tv: 'Lebanese channels’ shows', news: 'Today’s headlines', phone: 'To a family room, with a song', photos: 'Hang your photos',
+        atari: 'Old-school video games', radio: 'Lebanese stations, live', tv: 'Lebanese channels’ shows', news: 'Today’s headlines', phone: 'To a family room, with a song', photos: 'Hang your photos',
         cassettes: 'A song for every mood', clock: 'Alarm', lamp: 'Sleep timer', window: 'My village, weather', calendar: 'Feasts and holidays',
         coffee: 'Read my cup?', books: '30 recipes + yours', expat: 'Beirut from afar', tawleh: 'Tawleh, Tarneeb, Likha', together: 'Private, with a passcode',
         teta: 'Big and simple', ac: 'Time and weather'
@@ -129,13 +129,13 @@
       beirut: 'Beyrouth',
       here: 'Chez vous',
       objects: {
-        radio: 'Radio', tv: 'Télévision', news: 'Journal', phone: 'Message vocal', photos: 'Photos de famille',
+        radio: 'Radio', tv: 'Télévision', atari: 'Console de jeux', news: 'Journal', phone: 'Message vocal', photos: 'Photos de famille',
         cassettes: 'Cassettes', clock: 'Horloge', lamp: 'Lampe', window: 'Balcon', calendar: 'Fêtes',
         coffee: 'Tasse de café', books: 'La table de Teta', expat: 'Loin du pays', tawleh: 'Tawlé et cartes', together: 'Pièces de famille',
         teta: 'Le fauteuil de Teta', ac: 'Climatiseur'
       },
       hints: {
-        radio: 'Radios libanaises en direct', tv: 'Émissions des chaînes', news: 'Les titres du jour', phone: 'Pour une pièce de famille, avec une chanson', photos: 'Accrochez vos photos',
+        atari: 'Jeux vidéo d’antan', radio: 'Radios libanaises en direct', tv: 'Émissions des chaînes', news: 'Les titres du jour', phone: 'Pour une pièce de famille, avec une chanson', photos: 'Accrochez vos photos',
         cassettes: 'Une chanson pour chaque humeur', clock: 'Réveil', lamp: 'Minuterie', window: 'Mon village, la météo', calendar: 'Fêtes et jours fériés',
         coffee: 'Lire ma tasse ?', books: '30 recettes + les vôtres', expat: 'Beyrouth de loin', tawleh: 'Tawlé, Tarneeb, Likha', together: 'Privées, avec un code',
         teta: 'Grand et simple', ac: 'Heure et météo'
@@ -170,6 +170,7 @@
     radio: [[25.5, 41.5], [25.5, 41.5], [25.5, 40]],
     phone: [[20.3, 37.5], [20.5, 38], [20.5, 36.5]],
     tv: [[91.5, 44], [91.5, 44], [90, 42]],
+    atari: [[83.5, 60], [83.5, 60], [87.5, 55]],
     cassettes: [[89.5, 55.5], [77.5, 61.5], [77, 60]],
     clock: [[21, 22], null, null],
     calendar: [[27, 20], [26.8, 20], [27, 22]],
@@ -186,7 +187,7 @@
     ac: [[9, 2.5], [9, 2.5], [9, 2.5]]
   };
   // The objects in the order they sit in the room, left to right.
-  const OBJECT_IDS = ['ac', 'lamp', 'expat', 'phone', 'clock', 'radio', 'calendar', 'together', 'news', 'tawleh', 'window', 'coffee', 'teta', 'photos', 'cassettes', 'tv', 'books'];
+  const OBJECT_IDS = ['ac', 'lamp', 'expat', 'phone', 'clock', 'radio', 'calendar', 'together', 'news', 'tawleh', 'window', 'coffee', 'teta', 'photos', 'cassettes', 'tv', 'atari', 'books'];
   const OBJECTS = OBJECT_IDS.map(id => ({ id }));
   const ACTION_ONLY = { teta: true, ac: true };          // these do something instead of opening a drawer
   const PX = { day: [1264, 843], night: [1264, 843], sunset: [1536, 1024] };
@@ -1180,7 +1181,7 @@
 
   const grid = $('objects');
   function renderGrid() {
-    const order = ['radio', 'tv', 'cassettes', 'tawleh', 'together', 'phone', 'news', 'expat', 'window', 'calendar', 'clock', 'coffee', 'books', 'photos', 'lamp', 'teta', 'ac'];
+    const order = ['radio', 'tv', 'cassettes', 'tawleh', 'atari', 'together', 'phone', 'news', 'expat', 'window', 'calendar', 'clock', 'coffee', 'books', 'photos', 'lamp', 'teta', 'ac'];
     $('objects-grid').replaceChildren(...order.map(id => ({ id })).filter(o => !hidden.has(o.id)).map((o, i) => {
       const img = el('img', { className: 'tile-img', alt: '', loading: 'lazy', decoding: 'async', src: `/room/thumb-${o.id}.jpg` });
       img.addEventListener('error', () => img.remove());
@@ -1725,7 +1726,11 @@
     focusTv,
     isOpen: () => openId,
     inRoom: () => !introOn,
-    sceneLabel: sc => r('scenes')[sc || scene]
+    sceneLabel: sc => r('scenes')[sc || scene],
+    // for the settings panel
+    cuts: () => cutsOn,
+    setCuts: v => { cutsOn = !!v; S.store.set('powerCuts', cutsOn); renderPop(); },
+    openWeather: () => { setTimeout(() => togglePop(true), 60); }
   };
 
   start();

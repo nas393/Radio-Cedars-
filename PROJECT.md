@@ -51,6 +51,8 @@ The working memory for this project. Upload it as a file in the Claude Project. 
 | Clock and lamp | Alarm, sleep timer |
 | Time pill at the top | Time of day, weather (rain or snow), occasion (Christmas or Ramadan decorations), room sounds, power cuts (off by default) |
 | Teta's chair | Simple big-button mode (stays at full size) |
+| Console (الأتاري) under the TV | Four cartridges of our own (tennis, wall breaker, snake, space war), with the on-screen pad, drag or the keyboard; best scores, big screen, and sharing a score to the room (`atari.js`) |
+| 🙂 button at the top | My corner: name, picture, passcode, account, switch person, sign out, language, text size, Teta's chair, sounds, power cuts, weather, newspapers, install, my rooms, scores, events, help, and erase this phone |
 | Morning | A 7 am Beirut greeting with Fairuz and the weather |
 
 ## Design rules Nassim has asked for

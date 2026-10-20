@@ -81,7 +81,7 @@
     btn.setAttribute('aria-label', t('who') + (p ? ` · ${p.name}` : ''));
     btn.title = t('who');
   }
-  btn.addEventListener('click', () => openPanel());
+  btn.addEventListener('click', () => openPanel('me'));
 
   // ------------------------------------------------------------------ the overlay
   const panel = el('div', { className: 'who', id: 'who', hidden: true, role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': 'who-title' });
@@ -135,6 +135,8 @@
       kids.push(editor(editing ? find(editing) : null));
     } else if (view === 'login') {
       kids.push(loginForm());
+    } else if (view === 'me') {
+      kids.push(meView());
     }
     panel.replaceChildren(el('div', { className: 'who-box' }, kids));
     const f = panel.querySelector('input'); if (f) setTimeout(() => f.focus({ preventScroll: true }), 50);
@@ -237,6 +239,90 @@
     }
     if (!isNew && data.id === me) kids.push(syncBox(data));
     return el('div', {}, kids);
+  }
+
+  // ------------------------------------------------------------------ my corner: me, my account, settings
+  const M = {
+    ar: { me: 'زاويتي', local: 'محفوظ عهالتلفون بس', synced: u => `☁️ موصول باسم ${u}`, edit: '✏️ الاسم والصورة والرمز', account: '☁️ حسابي (على كل أجهزتي)', switch: '👥 بدّل الشخص أو زيد حدا', signout: '🚪 اطلع', signoutNote: 'بترجع عالباب، والباقيين بيقدروا يفوتوا بأساميهن.',
+      sAccount: 'الحساب', sSettings: 'الإعدادات', sMine: 'أغراضي', lang: 'اللغة', size: 'حجم الكتابة', small: 'صغير', normal: 'عادي', large: 'كبير', teta: '👵 كرسي تيتا (أزرار كبار)', sounds: '🔊 أصوات البيت', cuts: '💡 انقطاع الكهربا', weather: '🌦️ الطقس والمناسبة', news: '📰 الجرايد اللي بتشوفها', install: '📲 ثبّت التطبيق',
+      rooms: n => `🛋️ غرفي (${S.num(n)})`, scores: '🏆 نتايجي', cal: '🎂 الأعياد والمناسبات', help: '❓ كيف بستعمل صوت البيت؟', clear: '🧹 امحي كل شي عن هالتلفون', clearAsk: 'أكيد؟ بتنمحى الأسامي والمفضّلة والغرف والطبخات عن هالتلفون (يلّي موصول بحساب بيرجع).', close: 'سكّر', on: 'شغّال', off: 'مطفي',
+      helpText: ['🛋️ الكنباية: غرف خاصّة للعيلة. اعمل غرفة واكبس «＋ ادعي حدا».', '🎲 الطاولة: طاولة وشدّة وأسئلة، لحالك أو مع العيلة بالغرفة.', '📺 التلفزيون: اكبس عقناة واختار برنامج.', '📻 الراديو: اسحب المؤشّر لتغيّر المحطة.', '⏰ الحبّة فوق: الوقت والطقس والمناسبة.', '👵 كرسي تيتا: أزرار كبار للكبار.'] },
+    en: { me: 'My corner', local: 'Kept on this phone only', synced: u => `☁️ Connected as ${u}`, edit: '✏️ Name, picture and passcode', account: '☁️ My account (all my devices)', switch: '👥 Switch person or add someone', signout: '🚪 Sign out', signoutNote: 'Back to the door; everyone else can come in under their own name.',
+      sAccount: 'Account', sSettings: 'Settings', sMine: 'My things', lang: 'Language', size: 'Text size', small: 'Small', normal: 'Normal', large: 'Large', teta: '👵 Teta’s chair (big buttons)', sounds: '🔊 Room sounds', cuts: '💡 Power cuts', weather: '🌦️ Weather and occasion', news: '📰 My newspapers', install: '📲 Install the app',
+      rooms: n => `🛋️ My rooms (${n})`, scores: '🏆 My scores', cal: '🎂 Birthdays and events', help: '❓ How do I use Sawt el Beit?', clear: '🧹 Erase everything on this phone', clearAsk: 'Sure? Names, favourites, rooms and recipes are erased from this phone (anything on an account comes back).', close: 'Close', on: 'On', off: 'Off',
+      helpText: ['🛋️ The sofa: private family rooms. Make one and tap “＋ Invite someone”.', '🎲 The coffee table: tawleh, cards and trivia, alone or with the family in a room.', '📺 The TV: tap a channel and pick a show.', '📻 The radio: slide the dial to change station.', '⏰ The pill at the top: time, weather and occasion.', '👵 Teta’s chair: big buttons for the grown-ups.'] },
+    fr: { me: 'Mon coin', local: 'Gardé sur ce téléphone seulement', synced: u => `☁️ Connecté : ${u}`, edit: '✏️ Prénom, image et code', account: '☁️ Mon compte (tous mes appareils)', switch: '👥 Changer de personne ou en ajouter', signout: '🚪 Se déconnecter', signoutNote: 'Retour à la porte ; chacun peut entrer sous son nom.',
+      sAccount: 'Compte', sSettings: 'Réglages', sMine: 'Mes affaires', lang: 'Langue', size: 'Taille du texte', small: 'Petit', normal: 'Normal', large: 'Grand', teta: '👵 Le fauteuil de Teta (gros boutons)', sounds: '🔊 Sons de la maison', cuts: '💡 Coupures de courant', weather: '🌦️ Météo et fête', news: '📰 Mes journaux', install: '📲 Installer l’app',
+      rooms: n => `🛋️ Mes pièces (${n})`, scores: '🏆 Mes scores', cal: '🎂 Anniversaires et événements', help: '❓ Comment utiliser Sawt el Beit ?', clear: '🧹 Tout effacer sur ce téléphone', clearAsk: 'Sûr ? Prénoms, favoris, pièces et recettes sont effacés de ce téléphone (ce qui est sur un compte revient).', close: 'Fermer', on: 'Activé', off: 'Désactivé',
+      helpText: ['🛋️ Le canapé : des pièces privées pour la famille. Créez-en une et touchez « ＋ Inviter quelqu’un ».', '🎲 La table basse : tawlé, cartes et quiz, seul ou en famille.', '📺 La télé : touchez une chaîne et choisissez une émission.', '📻 La radio : glissez le cadran pour changer de station.', '⏰ La pastille en haut : moment, météo et fête.', '👵 Le fauteuil de Teta : de gros boutons.'] }
+  };
+  const m = (k, ...a) => { const v = (M[S.lang()] || M.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
+  let showHelp = false;
+  function applySize() {
+    const sz = S.store.get('textSize', 'normal');
+    document.documentElement.classList.toggle('ts-small', sz === 'small');
+    document.documentElement.classList.toggle('ts-large', sz === 'large');
+  }
+  applySize();
+  function signOut() {
+    try { sessionStorage.removeItem('sawt:chosen'); sessionStorage.removeItem('sawt:unlocked'); } catch { /* fine */ }
+    push(true).finally(() => { location.href = '/'; });
+  }
+  function clearPhone() {
+    if (!window.confirm(m('clearAsk'))) return;
+    try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.startsWith('sawt:')) localStorage.removeItem(k); } sessionStorage.clear(); } catch { /* fine */ }
+    location.href = '/';
+  }
+  function meView() {
+    const p = current() || { name: '', icon: '🙂' };
+    const row = (label, fn, cls) => { const b = el('button', { type: 'button', className: 'me-row' + (cls ? ' ' + cls : ''), text: label }); b.addEventListener('click', fn); return b; };
+    const toggle = (label, on, fn) => {
+      const b = el('button', { type: 'button', className: 'me-row me-toggle' }, [el('span', { text: label }), el('b', { className: 'me-sw' + (on ? ' is-on' : ''), text: on ? m('on') : m('off') })]);
+      b.setAttribute('aria-pressed', String(!!on));
+      b.addEventListener('click', () => { fn(); setTimeout(render, 80); });
+      return b;
+    };
+    const chips = (items, cur, fn) => el('div', { className: 'me-chips' }, items.map(([k, label]) => {
+      const b = el('button', { type: 'button', className: 'chip', text: label });
+      b.setAttribute('aria-pressed', String(k === cur));
+      b.addEventListener('click', () => { fn(k); setTimeout(render, 60); });
+      return b;
+    }));
+    const go = fn => () => { close(); setTimeout(fn, 120); };
+    const rooms = window.SawtRooms ? window.SawtRooms.list() : [];
+    const head = el('div', { className: 'me-head' }, [
+      el('span', { className: 'who-avatar big', text: p.icon || '🙂' }),
+      el('h2', { className: 'who-title', id: 'who-title', dir: 'auto', text: p.name || m('me') }),
+      el('p', { className: 'quiet small', text: p.sync && p.sync.user ? m('synced', p.sync.user) : m('local') })
+    ]);
+    const kids = [head,
+      el('h3', { className: 'me-sub', text: m('sAccount') }),
+      row(m('edit'), () => openPanel('edit', me)),
+      storeOn && !(p.sync && p.sync.user) ? row(m('account'), () => { openPanel('edit', me); setTimeout(() => { const f = panel.querySelector('.who-sync input'); if (f) f.focus(); }, 120); }) : null,
+      row(m('switch'), () => { view = 'list'; render(); }),
+      row(m('signout'), signOut, 'me-out'),
+      el('p', { className: 'quiet small me-note', text: m('signoutNote') }),
+      el('h3', { className: 'me-sub', text: m('sSettings') }),
+      el('p', { className: 'me-k', text: m('lang') }),
+      chips([['ar', 'عربي'], ['en', 'English'], ['fr', 'Français']], S.lang(), k => { const b = document.querySelector(`.lang[data-lang="${k}"]`); if (b) b.click(); }),
+      el('p', { className: 'me-k', text: m('size') }),
+      chips([['small', 'A− ' + m('small')], ['normal', 'A ' + m('normal')], ['large', 'A+ ' + m('large')]], S.store.get('textSize', 'normal'), k => { S.store.set('textSize', k); applySize(); }),
+      toggle(m('teta'), document.body.classList.contains('is-simple'), () => { const b = document.getElementById('simple-btn'); if (b) b.click(); close(); }),
+      window.SawtAmbience ? toggle(m('sounds'), window.SawtAmbience.on(), () => window.SawtAmbience.toggle()) : null,
+      window.SawtRoom && window.SawtRoom.cuts ? toggle(m('cuts'), window.SawtRoom.cuts(), () => window.SawtRoom.setCuts(!window.SawtRoom.cuts())) : null,
+      row(m('weather'), go(() => window.SawtRoom && window.SawtRoom.openWeather())),
+      row(m('news'), go(() => window.SawtRoom && window.SawtRoom.open('news'))),
+      window.SawtInstall && window.SawtInstall.can() ? row(m('install'), go(() => window.SawtInstall.install())) : null,
+      el('h3', { className: 'me-sub', text: m('sMine') }),
+      row(m('rooms', rooms.length), go(() => window.SawtRoom && window.SawtRoom.open('together'))),
+      row(m('scores'), go(() => { if (window.SawtRoom) window.SawtRoom.open('tawleh'); setTimeout(() => window.SawtCards && window.SawtCards.showTab('scores'), 80); })),
+      row(m('cal'), go(() => window.SawtRoom && window.SawtRoom.open('calendar'))),
+      row(m('help'), () => { showHelp = !showHelp; render(); }),
+      showHelp ? el('ul', { className: 'me-help' }, m('helpText').map(x => el('li', { dir: 'auto', text: x }))) : null,
+      row(m('clear'), clearPhone, 'me-danger'),
+      (() => { const c = el('button', { type: 'button', className: 'btn who-close', text: m('close') }); c.addEventListener('click', close); return c; })()
+    ].filter(Boolean);
+    return el('div', { className: 'me' }, kids);
   }
 
   // ------------------------------------------------------------------ signing in on a new device
@@ -415,6 +501,7 @@
     if (!storeOn || !p || (p.sync && p.sync.user) || document.querySelector('.acct-ask')) return;
     if ((S.store.get('visits', 0) || 0) < 2) return;
     if (Date.now() - (S.store.get('acctAskAt', 0) || 0) < 14 * 864e5) return;
+    if (window.SawtRoom && window.SawtRoom.isOpen()) { setTimeout(askAccount, 60000); return; }     // not over a drawer someone is using
     S.store.set('acctAskAt', Date.now());
     const yes = el('button', { type: 'button', className: 'btn btn-primary', text: t('acctYes') });
     const no = el('button', { type: 'button', className: 'link-btn', text: t('acctLater') });
