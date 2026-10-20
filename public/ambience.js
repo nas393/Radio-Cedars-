@@ -87,6 +87,35 @@
     o.connect(g); g.connect(master); o.start(t); o.stop(t + 0.08);
   }
 
+  // thunder: a crack for a near strike, then a long low rumble that rolls away
+  let brown = null;
+  function thunder(delay = 1, power = 1) {
+    if (!on || !ctx) return;
+    if (!brown) {
+      const len = ctx.sampleRate * 6; brown = ctx.createBuffer(1, len, ctx.sampleRate);
+      const d = brown.getChannelData(0); let last = 0;
+      for (let i = 0; i < len; i++) { last = (last + 0.02 * (Math.random() * 2 - 1)) / 1.02; d[i] = last * 3.2; }
+    }
+    const t0 = ctx.currentTime + delay;
+    const out = ctx.createGain(); out.gain.value = 0; out.connect(master);
+    if (power > 0.75) {                                    // close: the crack
+      const s = ctx.createBufferSource(); s.buffer = brown;
+      const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 300;
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t0); g.gain.linearRampToValueAtTime(0.9 * power, t0 + 0.015); g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.5);
+      s.connect(hp); hp.connect(g); g.connect(master); s.start(t0, Math.random() * 2); s.stop(t0 + 0.6);
+    }
+    const r = ctx.createBufferSource(); r.buffer = brown; r.playbackRate.value = 0.6 + Math.random() * 0.2;
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 140 + power * 160;
+    r.connect(lp); lp.connect(out);
+    const dur = 3.5 + Math.random() * 3;
+    out.gain.setValueAtTime(0.0001, t0);
+    out.gain.linearRampToValueAtTime(1.6 * power, t0 + 0.25);
+    for (let k = 1; k < 7; k++) out.gain.linearRampToValueAtTime((0.5 + Math.random() * 0.9) * power * (1 - k / 8), t0 + 0.25 + k * dur / 8);
+    out.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    r.start(t0, Math.random() * 2); r.stop(t0 + dur + 0.1);
+  }
+  document.addEventListener('sawt:thunder', e => { const d = e.detail || {}; thunder(d.delay, d.power); });
+
   function busy() {                        // something else is playing: keep the room quiet under it
     const a = document.getElementById('audio');
     const radio = a && !a.paused;
@@ -103,7 +132,7 @@
     const t = ctx.currentTime;
     const set = (g, v) => g.gain.setTargetAtTime(v, t, 0.6);
     set(master, busy() ? 0.25 : 0.9);
-    set(layers.rain, rain * 0.9);
+    set(layers.rain, rain * 1.4);
     const mood = R && R.mood ? R.mood() : 'clear';
     const cold = mood === 'winter' || mood === 'grey';
     set(layers.kettle, scene !== 'day' && cold ? 0.05 : 0);

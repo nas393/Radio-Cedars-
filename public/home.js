@@ -162,7 +162,10 @@
   function renderLayer() {
     const frames = R() ? R().photoFrames() : [];
     layer.replaceChildren(...photos.slice(0, frames.length).map((src, i) => {
-      const im = el('img', { className: 'my-photo', alt: '', src });
+      // the print sits inside the frame's own shape, lit like the room around it
+      const im = el('div', { className: 'my-photo' });
+      im.style.backgroundImage = `url("${src}")`;
+      im.appendChild(el('i', { className: 'my-photo-glass' }));
       im.dataset.i = i;
       return im;
     }));
@@ -171,6 +174,10 @@
   function placeLayer() {
     if (!photos.length || !R()) return;
     const frames = R().photoFrames();
+    const sc = R().scene(), pw = R().power ? R().power() : 1;
+    const light = (sc === 'night' ? 0.62 : sc === 'sunset' ? 0.82 : 0.96) * (0.08 + 0.92 * pw);
+    const look = `brightness(${light.toFixed(3)}) sepia(${sc === 'day' ? 0.12 : 0.3}) saturate(.82) contrast(.92)`;
+    if (layer.dataset.look !== look) { layer.dataset.look = look; layer.style.filter = look; }
     layer.querySelectorAll('.my-photo').forEach(im => {
       const f = frames[Number(im.dataset.i)];
       if (!f) return;

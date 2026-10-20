@@ -986,7 +986,8 @@ body.has-mini { padding-bottom: 0; }
 
 /* ------------------------------------------------------------ your own photos on the wall */
 .my-photos { position: absolute; inset: 0; pointer-events: none; z-index: 1; overflow: hidden; }
-.my-photo { position: absolute; left: 0; top: 0; width: 300px; height: 300px; object-fit: cover; transform-origin: 0 0; filter: saturate(.85) contrast(.95); }
+.my-photo { position: absolute; left: 0; top: 0; width: 300px; height: 300px; transform-origin: 0 0; background: #6b5a48 center / cover no-repeat; box-shadow: inset 0 0 14px rgba(0, 0, 0, .55), inset 0 0 2px rgba(0, 0, 0, .7); overflow: hidden; }
+.my-photo-glass { position: absolute; inset: 0; background: linear-gradient(125deg, rgba(255, 255, 255, .16) 0%, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 0) 70%, rgba(255, 255, 255, .07) 100%); }
 .my-photos-ctl { display: grid; gap: 8px; justify-items: start; margin-bottom: 18px; }
 
 /* ------------------------------------------------------------ simple mode */

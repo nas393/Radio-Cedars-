@@ -235,10 +235,11 @@
     night: [[1094, 321], [1204, 319.5], [1203, 416], [1092, 411]],
     sunset: [[1330, 381], [1459, 379.5], [1457.5, 490], [1330, 481]]
   };
+  // the family photos: the four corners of the print inside each frame (tl, tr, br, bl), in picture pixels
   const FRAMES = E.frames || {
-    day: [[959, 213, 991, 268], [304, 286, 332, 318], [247, 303, 268, 330], [373, 236, 400, 278], [1161, 133, 1197, 166]],
-    night: [[958, 212, 992, 270], [306, 286, 334, 318], [262, 304, 282, 330], [375, 238, 400, 275], [1158, 132, 1196, 168]],
-    sunset: [[1163, 251, 1203, 318], [371, 337, 404, 374], [285, 373, 303, 392], [455, 282, 485, 325], [1402, 153, 1468, 200]]
+    day: [[[959.0,213.0],[991.0,213.0],[991.0,268.0],[959.0,268.0]], [[302.0,285.0],[329.0,284.0],[332.0,319.0],[303.0,319.0]], [[247.0,303.0],[268.0,303.0],[268.0,330.0],[247.0,330.0]], [[375.0,236.0],[403.0,239.0],[400.0,280.0],[372.0,279.0]], [[1161.0,133.0],[1197.0,133.0],[1197.0,166.0],[1161.0,166.0]]],
+    night: [[[958.0,212.0],[992.0,212.0],[992.0,270.0],[958.0,270.0]], [[307.0,284.0],[332.0,286.0],[333.0,319.0],[308.0,321.0]], [[262.0,303.0],[283.0,302.0],[283.0,331.0],[262.0,332.0]], [[373.0,239.0],[401.0,238.0],[400.0,277.0],[372.0,278.0]], [[1158.0,132.0],[1196.0,132.0],[1196.0,168.0],[1158.0,168.0]]],
+    sunset: [[[1163.0,251.0],[1203.0,251.0],[1203.0,318.0],[1163.0,318.0]], [[370.0,337.0],[401.0,338.0],[404.0,377.0],[370.0,378.0]], [[285.0,373.0],[303.0,373.0],[303.0,392.0],[285.0,392.0]], [[452.0,279.0],[485.0,279.0],[485.0,326.0],[452.0,327.0]], [[1402.0,153.0],[1468.0,153.0],[1468.0,200.0],[1402.0,200.0]]]
   };
   const GLASS = E.glass || { day: [44.5, 21, 60.9, 55.8], night: [44.5, 21, 60.9, 55.8], sunset: [44.9, 20.7, 60.2, 54.7] };
   const STEAM = E.steam || { night: [[44.7, 55.6, 1], [48, 59.3, 0]], sunset: [[44.6, 54.2, 1], [53, 57.8, 0.7]], day: [[0, 0, 0], [0, 0, 0]] };
@@ -335,7 +336,7 @@
   const canvas = $('view');
   // cx, cy: the point of the picture in the middle of the screen (0..1); z: zoom over "just fills the screen"
   const view = { cx: 0.5, cy: 0.5, z: 1, vx: 0, vy: 0 };
-  let gl = null, prog = null, tex = [null, null, null, null], mixAmount = 0, uni = {};
+  let gl = null, prog = null, tex = [null, null, null, null, null], mixAmount = 0, uni = {};
   let needsDraw = true;
   let aspect = 1.5;                       // of the picture on show
   let maxTex = 4096;
@@ -369,6 +370,9 @@
     uniform float vign;
     uniform sampler2D tb;      // a tiny copy of the room: blurred when stretched, fills around the long shot
     uniform vec2 bgs;          // uv per device pixel for that fill
+    uniform sampler2D tm;      // the windows of this room: r = glass (what is outside), g = sky, b = glass blurred (edges)
+    uniform float hasMask;
+    uniform vec4 bolt;         // lightning bolt: u, where it ends (v), seed, strength
     float h21(vec2 q) { q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }
     float vn(vec2 q) { vec2 i = floor(q), f = fract(q); f = f * f * (3.0 - 2.0 * f);
       return mix(mix(h21(i), h21(i + vec2(1.0, 0.0)), f.x), mix(h21(i + vec2(0.0, 1.0)), h21(i + vec2(1.0, 1.0)), f.x), f.y); }
@@ -425,7 +429,7 @@
       float n = h21(id);
       vec2 o = vec2(n - 0.5, fract(n * 9.1) - 0.5) * 0.6;
       float r = 0.05 + 0.08 * fract(n * 5.3);
-      return smoothstep(r, r * 0.25, length(f - o)) * step(0.42, fract(n * 3.3));
+      return smoothstep(r, r * 0.25, length(f - o)) * step(0.28, fract(n * 3.3));
     }
     vec3 beads(vec2 g) {
       vec2 id = floor(g); vec2 gv = fract(g) - 0.5;
@@ -453,42 +457,68 @@
       if (mixv > 0.0) c = mix(c, texture2D(t1, uv), mixv);
       float m = smoothstep(glass.x, glass.x + 0.006, uv.x) * smoothstep(glass.z, glass.z - 0.006, uv.x) *
                 smoothstep(glass.y, glass.y + 0.006, uv.y) * smoothstep(glass.w, glass.w - 0.006, uv.y);
-      if (glow > 0.0 && m > 0.0) {            // the city lights across the bay shimmer a little
+      float sky = m * smoothstep(glass.y + 0.25 * (glass.w - glass.y), glass.y, uv.y);
+      float edge = 1.0;
+      if (hasMask > 0.5) { vec3 mk = texture2D(tm, uv).rgb; m = mk.r; sky = mk.g; edge = mk.b; }
+      if (glow > 0.0 && m > 0.0) {            // the city lights outside shimmer a little
         float l = dot(c.rgb, vec3(0.3, 0.55, 0.15));
         float tw = vn(uv * vec2(asp, 1.0) * 220.0 + vec2(time * 0.9, time * 0.35)) * 2.0 - 1.0;
         c.rgb *= 1.0 + glow * m * smoothstep(0.5, 0.85, l) * tw * 0.28;
       }
-      if (rain > 0.001 && m > 0.0) {
-        vec2 st = vec2(uv.x * asp, uv.y) * 6.5;
+      if (rain > 0.001 && m > 0.01) {
+        vec2 sp2 = vec2(uv.x * asp, uv.y);
+        // drops running down the glass bend what is outside
+        vec2 st = sp2 * 6.5;
         vec3 a = drops(st, time);
         vec3 b = drops(st * 1.65 + vec2(7.54, 2.1), time * 1.1);
         vec3 e = beads(st * 6.0);
         vec2 o = (a.xy + b.xy * 0.7 + e.xy) * rain;
-        float wetness = max(max(a.z, b.z), e.z);
-        vec2 u2 = uv - o * 0.07;          // each drop is a little lens
-        float bl = 0.0032 * (1.0 - wetness);
-        vec3 g = (texture2D(t0, u2 + vec2(bl, 0.0)).rgb + texture2D(t0, u2 - vec2(bl, 0.0)).rgb +
-                  texture2D(t0, u2 + vec2(0.0, bl)).rgb + texture2D(t0, u2 - vec2(0.0, bl)).rgb) * 0.25;
-        g *= mix(vec3(0.72, 0.77, 0.86), vec3(1.0), wetness);
-        g *= 1.0 - clamp(length(o) * 2.6, 0.0, 0.32);    // darker rims, like real drops
-        g += pow(wetness, 8.0) * 0.035;
-        c.rgb = mix(c.rgb, g, m * rain);
-        // grey air outside and the rain itself coming down
-        vec2 sp2 = vec2(uv.x * asp, uv.y);
-        float rs = streaks(sp2, time, 2.6, 70.0) + streaks(sp2 * 1.6 + 3.1, time, 3.4, 90.0) * 0.6;
-        c.rgb = mix(c.rgb, vec3(0.6, 0.65, 0.72), 0.14 * m * rain * (1.0 - wetness));
-        c.rgb += rs * 0.32 * m * rain * (1.0 - wetness * 0.7);
-        c.rgb += flash * m * 0.9;
+        float wet = max(max(a.z, b.z), e.z);
+        vec2 u2 = uv - o * 0.05;
+        float bl = 0.0022 * (1.0 - wet);
+        vec3 out0 = (texture2D(t0, u2 + vec2(bl, 0.0)).rgb + texture2D(t0, u2 - vec2(bl, 0.0)).rgb +
+                     texture2D(t0, u2 + vec2(0.0, bl)).rgb + texture2D(t0, u2 - vec2(0.0, bl)).rgb) * 0.25;
+        float lum = dot(out0, vec3(0.3, 0.59, 0.11));
+        // the weather outside: a heavy grey sky, cold flat light, rain hiding the far side
+        vec3 storm = mix(vec3(lum) * vec3(0.56, 0.6, 0.68), out0 * vec3(0.62, 0.66, 0.74), 0.3);
+        vec3 o2 = mix(out0, storm, rain * 0.85);
+        float cl = vn(vec2(sp2.x * 2.6 + time * 0.035, sp2.y * 5.0 - time * 0.01)) * 0.6 + vn(vec2(sp2.x * 7.0 - time * 0.06, sp2.y * 11.0)) * 0.4;
+        vec3 cloud = mix(vec3(0.22, 0.24, 0.29), vec3(0.5, 0.53, 0.58), cl) * (0.35 + 0.65 * smoothstep(0.05, 0.6, lum));
+        o2 = mix(o2, cloud, (0.6 + 0.4 * sky) * rain * 0.8 * smoothstep(0.35, 0.0, uv.y - glass.y + (1.0 - sky) * 0.2));
+        o2 = mix(o2, vec3(lum * 0.55 + 0.12) * vec3(0.9, 0.94, 1.0), rain * 0.22 * (1.0 - sky));   // mist
+        // the rain itself: three depths, slanted, in gusts
+        float gust = 0.55 + 0.45 * vn(vec2(sp2.x * 1.5 - time * 0.4, time * 0.25));
+        float rs = streaks(sp2 * 0.7 + 11.0, time, 2.0, 120.0) * 0.45
+                 + streaks(sp2, time, 2.8, 70.0) * 0.8
+                 + streaks(sp2 * 1.5 + 3.1, time, 3.6, 46.0) * 1.0;
+        float dark = 1.0 - smoothstep(0.05, 0.7, lum);
+        o2 += vec3(0.78, 0.83, 0.9) * rs * gust * rain * (0.22 + 0.4 * dark);
+        // lightning: the whole sky lights up, and a bolt now and then
+        o2 += flash * vec3(0.8, 0.86, 1.0) * (0.25 + 0.75 * sky) * (0.55 + 0.45 * dark);
+        if (bolt.w > 0.0 && uv.y < bolt.y) {
+          float yy = uv.y * 26.0;
+          float path = bolt.x + (vn(vec2(yy, bolt.z)) - 0.5) * 0.035 + (vn(vec2(yy * 4.0, bolt.z + 7.0)) - 0.5) * 0.009;
+          float d = abs(uv.x - path) * asp;
+          float br = bolt.x + 0.025 * sign(h21(vec2(bolt.z)) - 0.5) * smoothstep(bolt.y * 0.45, bolt.y, uv.y);
+          float d2 = abs(uv.x - br - (vn(vec2(yy * 3.0, bolt.z + 3.0)) - 0.5) * 0.012) * asp + step(uv.y, bolt.y * 0.45);
+          float core = smoothstep(0.0022, 0.0, d) + smoothstep(0.0016, 0.0, d2) * 0.7;
+          float halo = smoothstep(0.04, 0.0, d) * 0.35;
+          o2 += (core + halo) * bolt.w * vec3(0.92, 0.95, 1.0) * smoothstep(bolt.y, bolt.y - 0.05, uv.y);
+        }
+        // the glass: wet, a little darker at the rims of the drops
+        o2 *= 1.0 - clamp(length(o) * 2.2, 0.0, 0.25);
+        o2 += pow(wet, 8.0) * 0.03;
+        c.rgb = mix(c.rgb, o2, m * smoothstep(0.0, 0.25, rain));
       }
-      if (snow > 0.001 && m > 0.0) {
+      if (snow > 0.001 && m > 0.01) {
         vec2 sp = vec2(uv.x * asp, uv.y);
-        float fl = flakes(sp, time, 12.0) + flakes(sp + 2.3, time * 0.8, 20.0) * 0.75 + flakes(sp + 5.7, time * 0.6, 32.0) * 0.5;
-        c.rgb = mix(c.rgb, vec3(0.86, 0.9, 0.97), 0.2 * m * snow);
-        c.rgb = mix(c.rgb, vec3(1.0), clamp(fl, 0.0, 1.0) * m * snow);
-        // frost creeping in from the edges of the glass
-        float ed = min(min(uv.x - glass.x, glass.z - uv.x) * asp, min(uv.y - glass.y, glass.w - uv.y));
-        float fr = (1.0 - smoothstep(0.0, 0.045, ed)) * (0.5 + 0.5 * vn(uv * vec2(asp, 1.0) * 160.0));
-        c.rgb = mix(c.rgb, vec3(0.93, 0.96, 1.0), fr * 0.6 * m * snow);
+        float lum = dot(c.rgb, vec3(0.3, 0.59, 0.11));
+        // a soft winter sky, then flakes in three depths drifting down outside
+        vec3 o3 = mix(c.rgb, mix(c.rgb, vec3(0.62, 0.66, 0.74) * (0.35 + 0.65 * smoothstep(0.05, 0.6, lum)), 0.5), sky * snow);
+        float far = flakes(sp + 5.7, time * 0.5, 34.0), mid = flakes(sp + 2.3, time * 0.75, 20.0), near = flakes(sp, time, 11.0);
+        float dark = 1.0 - smoothstep(0.1, 0.7, lum);
+        o3 = mix(o3, vec3(0.96, 0.97, 1.0), clamp(far * 0.35 + mid * 0.65 + near * 0.9, 0.0, 1.0) * snow * (0.55 + 0.45 * dark));
+        c.rgb = mix(c.rgb, o3, m);
       }
       if (decor > 0.0) {
         vec4 dd = texture2D(td, uv);
@@ -496,7 +526,7 @@
         if (glow > 0.0) tw = 0.8 + 0.2 * sin(time * 1.7 + vn(uv * vec2(asp, 1.0) * 30.0) * 14.0);
         c.rgb = mix(c.rgb, dd.rgb * mix(1.0, tw, glow), dd.a * decor);
       }
-      c.rgb += flash * 0.06;
+      c.rgb += flash * 0.1 * vec3(0.85, 0.9, 1.0);
       float st = steam(steamA, uv, time) + steam(steamB, uv, time);
       c.rgb = mix(c.rgb, vec3(0.96, 0.94, 0.9), clamp(st * 0.5, 0.0, 0.32));
       float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
@@ -534,19 +564,20 @@
     const a = gl.getAttribLocation(prog, 'a');
     gl.enableVertexAttribArray(a);
     gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'snow', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign', 'tb', 'bgs']) uni[n] = gl.getUniformLocation(prog, n);
+    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'snow', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign', 'tb', 'bgs', 'tm', 'hasMask', 'bolt']) uni[n] = gl.getUniformLocation(prog, n);
     gl.uniform1i(uni.t0, 0);
     gl.uniform1i(uni.t1, 1);
     gl.uniform1i(uni.td, 2);
     gl.uniform1i(uni.tb, 3);
+    gl.uniform1i(uni.tm, 4);
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); }, false);
-    canvas.addEventListener('webglcontextrestored', () => { tex = [null, null, null, null]; initGL(); if (currentImg) { setTexture(0, currentImg); setBlur(currentImg); } decorFor = null; loadDecor(); needsDraw = true; });
+    canvas.addEventListener('webglcontextrestored', () => { tex = [null, null, null, null, null]; initGL(); if (currentImg) { setTexture(0, currentImg); setBlur(currentImg); } if (maskImg) setTexture(4, maskImg); decorFor = null; loadDecor(); needsDraw = true; });
     return true;
   }
 
   function setTexture(unit, img) {
     if (!tex[unit]) tex[unit] = gl.createTexture();
-    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3][unit]);
+    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4][unit]);
     const rgba = unit === 2;
     gl.bindTexture(gl.TEXTURE_2D, tex[unit]);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -638,6 +669,9 @@
       gl.uniform1f(uni.vign, 0.32);
       { const cs = Math.max(canvas.width / aspect, canvas.height); gl.uniform2f(uni.bgs, 1 / (aspect * cs), 1 / cs); }
       if (tex[3]) { gl.activeTexture(gl.TEXTURE3); gl.bindTexture(gl.TEXTURE_2D, tex[3]); }
+      gl.uniform1f(uni.hasMask, tex[4] ? 1 : 0);
+      if (tex[4]) { gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, tex[4]); }
+      gl.uniform4f(uni.bolt, boltNow.u, boltNow.v, boltNow.seed, boltNow.a);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[0]);
       if (tex[1]) { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[1]); }
       gl.uniform1f(uni.decor, tex[2] && decorFor === scene ? 1 : 0);
@@ -899,17 +933,50 @@
     if (animated && !document.hidden && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
     stepPower(now);
     if (frameHooks.size) frameHooks.forEach(f => f(now));
-    if (stormy() && rainNow > 0.5 && now > nextFlash) {
-      flashNow = 1; nextFlash = now + 9000 + Math.random() * 22000;
+    if (lightning() && rainNow > 0.5 && now > nextFlash && !lite) {
+      strike(now); nextFlash = now + 7000 + Math.random() * 16000;
     }
-    if (flashNow > 0) { flashNow = Math.max(0, flashNow - 0.06); needsDraw = true; }
+    if (flashQ.length && now >= flashQ[0][0]) { flashNow = Math.max(flashNow, flashQ.shift()[1]); }
+    if (flashNow > 0) { flashNow = Math.max(0, flashNow - 0.07); needsDraw = true; }
+    if (boltNow.a > 0) { boltNow.a = Math.max(0, boltNow.a - 0.045); needsDraw = true; }
     if (needsDraw) { needsDraw = false; draw(); }
     requestAnimationFrame(frame);
   }
 
   // ------------------------------------------------------------------ weather on the glass
   let snowNow = 0;
-  let rainNow = 0, flashNow = 0, lastRainDraw = 0, nextFlash = performance.now() + 6000;
+  let rainNow = 0, flashNow = 0, lastRainDraw = 0, nextFlash = performance.now() + 4000;
+  const flashQ = [];
+  const boltNow = { u: 0, v: 0, seed: 0, a: 0 };
+  // where a bolt can show: points of open sky seen through this room's windows
+  let maskImg = null, boltSpots = [];
+  function loadMask() {
+    loadImage(BASE + 'mask.png').then(img => {
+      maskImg = img;
+      if (gl) { setTexture(4, img); needsDraw = true; }
+      try {
+        const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight;
+        const x = c.getContext('2d'); x.drawImage(img, 0, 0);
+        const d = x.getImageData(0, 0, c.width, c.height).data, W = c.width, H = c.height, pts = [], any = [];
+        for (let y = 2; y < H; y += 3) for (let k = 2; k < W; k += 3) {
+          const i = (y * W + k) * 4;
+          if (d[i] > 200) { any.push([k / W, y / H]); if (d[i + 1] > 150) pts.push([k / W, y / H]); }
+        }
+        if (pts.length > 20) boltSpots = pts;
+        else { any.sort((a, b) => a[1] - b[1]); boltSpots = any.slice(0, Math.max(1, Math.floor(any.length * 0.3))); }
+      } catch { boltSpots = []; }
+    }).catch(() => { maskImg = null; });
+  }
+  // lightning: a bright double flicker, a bolt in one of the windows, and thunder a moment later
+  function strike(now) {
+    flashQ.push([now, 1], [now + 110, 0.55], [now + 230, 0.9]);
+    if (boltSpots.length && Math.random() < 0.75) {
+      const p = boltSpots[Math.floor(Math.random() * boltSpots.length)];
+      Object.assign(boltNow, { u: p[0], v: Math.min(0.95, p[1] + 0.08 + Math.random() * 0.25), seed: Math.random() * 100, a: 1.4 });
+    }
+    const near = Math.random();
+    document.dispatchEvent(new CustomEvent('sawt:thunder', { detail: { delay: 0.4 + near * 2.6, power: 1 - near * 0.55 } }));
+  }
   const frameHooks = new Set();
 
   // ------------------------------------------------------------------ "عالموتير": the power cut
@@ -963,6 +1030,8 @@
     return code !== null && ((code >= 51 && code <= 67) || (code >= 80 && code <= 82) || code >= 95);
   }
   function stormy() { const c = beirutCode(); return weatherMode === 'auto' && c !== null && c >= 95; }
+  // lightning with the rain you chose, with real storms, and with heavy rain in Beirut
+  function lightning() { const c = beirutCode(); return weatherMode === 'rain' || stormy() || (weatherMode === 'auto' && [65, 67, 81, 82].includes(c)); }
   function isRaining() { return weatherMode === 'rain' || (weatherMode === 'auto' && rainingInBeirut()); }
   function snowingInBeirut() { const c = beirutCode(); return c !== null && ((c >= 71 && c <= 77) || c === 85 || c === 86); }
   // snow: chosen, or Christmas chosen with the weather left to itself, or real snow
@@ -1186,7 +1255,7 @@
       el('div', { className: 'pop-row' }, [
         opt(r('autoBeirut'), weatherMode === 'auto', () => setWeather('auto'), 'is-auto'),
         opt(r('clearW'), weatherMode === 'clear', () => setWeather('clear')),
-        opt(r('rainW'), weatherMode === 'rain', () => setWeather('rain')),
+        opt(r('rainW'), weatherMode === 'rain', () => { setWeather('rain'); if (window.SawtAmbience && !window.SawtAmbience.on()) window.SawtAmbience.toggle(); nextFlash = performance.now() + 2500; }),
         opt(r('snowW'), weatherMode === 'snow', () => setWeather('snow'))
       ]),
       el('p', { className: 'pop-k', text: r('occLabel') }),
@@ -1699,6 +1768,7 @@
     document.body.classList.add('intro-on');
     document.body.classList.toggle('is-lite', lite);
     initGL();
+    loadMask();
     Object.assign(view, startView());
     resize();
     window.addEventListener('resize', resize);
@@ -1800,7 +1870,7 @@
   window.SawtRoom = {
     project, quadTransform, orderQuad,
     tvCorners: () => TV[scene].map(p => norm(scene, p)),
-    photoFrames: () => FRAMES[scene].map(([a, b, c, d]) => [[a, b], [c, b], [c, d], [a, d]].map(p => norm(scene, p))),
+    photoFrames: () => FRAMES[scene].map(f => (Array.isArray(f[0]) ? f : [[f[0], f[1]], [f[2], f[1]], [f[2], f[3]], [f[0], f[3]]]).map(p => norm(scene, p))),
     scene: () => scene,
     mood: () => mood,
     rain: () => rainNow,
@@ -1825,6 +1895,7 @@
     setLite: v => { lite = !!v; S.store.set('liteRoom', lite); breath = 0; needsDraw = true; document.body.classList.toggle('is-lite', lite); },
     openWeather: () => { setTimeout(() => togglePop(true), 60); },
     era: () => era,
+    strike: () => strike(performance.now()),
     eras: erasReady,
     decades: decadesReady,
     decade: () => decadeOf(era),
