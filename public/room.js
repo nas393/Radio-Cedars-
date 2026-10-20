@@ -1647,6 +1647,7 @@
     if (window.SawtMe && window.SawtMe.needName()) { intro.classList.remove('is-quick'); window.SawtMe.focusName(); return; }
     introOn = false;
     S.store.set('visited', true);
+    if (erasReady().length > 1) S.store.set('eraPicked', true);   // coming in keeps the room on show
     intro.classList.add('is-leaving');
     document.body.classList.remove('intro-on');
     setTimeout(() => { intro.hidden = true; }, reduceMotion ? 0 : 1300);

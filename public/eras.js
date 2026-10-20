@@ -12,7 +12,7 @@
   window.SawtEras = {
     // the 1980s, a Beirut apartment (Gemini, chosen by Nassim)
     '80s': {
-      ready: false,
+      ready: true,
       base: '/room/80s/',
       spots: S3({
         teta: [14, 85], photos: [17, 29], tv: [17.5, 53], cassettes: [18, 66], atari: [30, 57], radio: [32, 68], window: [46, 40],
@@ -32,7 +32,7 @@
     },
     // the 2000s, a Beirut apartment
     '00s': {
-      ready: false,
+      ready: true,
       base: '/room/00s/',
       spots: S3({
         phone: [9.5, 61], books: [16, 62], news: [17, 78], together: [17, 84], window: [22, 30], coffee: [49, 74], calendar: [55, 30],
@@ -54,7 +54,7 @@
     },
     // 2026, a Beirut apartment (pictures made with Gemini, chosen by Nassim)
     '26': {
-      ready: false,
+      ready: true,
       base: '/room/26/',
       spots: S3({
         lamp: [3, 42], expat: [4.5, 29], together: [12, 70], news: [17.5, 73], window: [30, 34],
@@ -78,7 +78,7 @@
   };
   // the 1990s, a village house (today's 1990s room is the apartment, in room.js)
   window.SawtEras['90sh'] = {
-    ready: false,
+    ready: true,
     base: '/room/90sh/',
     spots: S3({
       expat: [11, 31], atari: [17.5, 72], tv: [21, 56], cassettes: [29.5, 59], window: [36, 28], tawleh: [55, 79], coffee: [58, 72],
@@ -95,7 +95,7 @@
   };
   // the 2000s, a village house
   window.SawtEras['00sh'] = {
-    ready: false,
+    ready: true,
     base: '/room/00sh/',
     spots: S3({
       cassettes: [6.5, 68], clock: [8.5, 24], tv: [22, 66], atari: [35.5, 91], radio: [36.5, 67], phone: [42, 68], window: [44, 30],
@@ -113,7 +113,7 @@
   };
   // the 1980s, a village house
   window.SawtEras['80sh'] = {
-    ready: false,
+    ready: true,
     base: '/room/80sh/',
     spots: S3({
       radio: [8, 68], cassettes: [12, 80], photos: [13, 35], tv: [27, 62], clock: [27.5, 29], atari: [33, 87], calendar: [34.5, 42],
@@ -131,7 +131,7 @@
   };
   // 2026, a village house (the same objects, in a stone house with three arches)
   window.SawtEras['26h'] = {
-    ready: false,
+    ready: true,
     base: '/room/26h/',
     spots: S3({
       photos: [6, 42], radio: [12.5, 67], phone: [17, 67], atari: [22.5, 66], tv: [21, 45], coffee: [19.5, 77], ac: [22.5, 10],
