@@ -483,6 +483,18 @@ app.get('/v/:id', async (req, res) => {
   sendPreview(req, res, meta, `v=${encodeURIComponent(req.params.id)}`);
 });
 
+// Teta's radio: the same page opening on a big play button, installable as its own icon
+app.get(['/radio', '/radio/'], (req, res) => {
+  let html;
+  try { html = readPage(); } catch { return res.redirect(302, '/'); }
+  html = html
+    .replace('<link rel="manifest" href="/manifest.webmanifest">', '<link rel="manifest" href="/radio.webmanifest">')
+    .replace('<link rel="apple-touch-icon" href="/icon-180.png">', '<link rel="apple-touch-icon" href="/radio-180.png">')
+    .replace(/<title>[^<]*<\/title>/, '<title>📻 راديو البيت · Sawt el Beit</title>')
+    .replace(/<meta name="apple-mobile-web-app-title" content="[^"]*">/, '<meta name="apple-mobile-web-app-title" content="راديو البيت">');
+  res.set('Cache-Control', 'public, max-age=300, s-maxage=3600');
+  res.type('html').send(html);
+});
 app.get('/q/:id', async (req, res) => {
   let title = null;
   try { if (store.enabled) title = (await together.peek(req.params.id)).title; } catch { /* generic */ }
@@ -589,6 +601,7 @@ app.post('/api/q/:id/move', noStore, needStore, qRoute(req => together.gameMove(
 app.post('/api/q/:id/game/end', noStore, needStore, qRoute(req => together.gameEnd(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/photo', noStore, needStore, qRoute(req => together.photo(req.params.id, { ...req.body, token: qTok(req) }, clientIp(req))));
 app.post('/api/q/:id/push', noStore, needStore, qRoute(req => together.pushOn(req.params.id, { ...req.body, token: qTok(req) })));
+app.post('/api/q/:id/push/prefs', noStore, needStore, qRoute(req => together.pushPrefs(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/push/off', noStore, needStore, qRoute(req => together.pushOff(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/del', noStore, needStore, qRoute(req => together.del(req.params.id, { ...req.body, token: qTok(req) })));
 app.post('/api/q/:id/event', noStore, needStore, qRoute(req => together.event(req.params.id, { ...req.body, token: qTok(req) })));

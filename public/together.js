@@ -58,21 +58,21 @@
     }
   };
   Object.assign(T.ar, {
-    inviteBtn: '＋ ادعي حدا', eventToday: w => `🎉 اليوم: ${w}!`, plTitle: 'أغاني الغرفة', plPaste: 'حطّ رابط أغنية من يوتيوب', plPlayAll: '▶ شغّلها كلّها عالتلفزيون', plEmpty: 'بعد ما حدا زاد أغنية. زيد أوّل وحدة!', plBy: n => `زادها ${n}`, reply: 'ردّ', del: 'امحي', delAsk: 'تمحي هالرسالة عند الكل؟', deleted: '🚫 انمحت هالرسالة', replyingTo: n => `↩ عم تردّ على ${n}`, seenBy: l => `✓✓ شافها ${l}`, seenAll: '✓✓ شافوها الكل', inviteGame: (r, g, p) => `تعا نلعب ${g} بغرفة "${r}" بصوت البيت 🎲${p ? `\nالرمز: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} فتح ${g}، تعا العب!`, joinGame: 'العب معهن', gname: { tawleh: 'طاولة', tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'سهرة أسئلة' }, notify: '📲 نبّهني بالرسايل', notifyOn: '📲 بتوصلك الرسايل ✓', blocked: 'التنبيهات مسكّرة لهالموقع بالمتصفّح.', ios: 'على الآيفون، ثبّت التطبيق عالشاشة أوّل (مشاركة ← زيد عالشاشة الرئيسية).', chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
+    inviteBtn: '＋ ادعي حدا', eventToday: w => `🎉 اليوم: ${w}!`, plTitle: 'أغاني الغرفة', plPaste: 'حطّ رابط أغنية من يوتيوب', plPlayAll: '▶ شغّلها كلّها عالتلفزيون', plEmpty: 'بعد ما حدا زاد أغنية. زيد أوّل وحدة!', plBy: n => `زادها ${n}`, reply: 'ردّ', del: 'امحي', delAsk: 'تمحي هالرسالة عند الكل؟', deleted: '🚫 انمحت هالرسالة', replyingTo: n => `↩ عم تردّ على ${n}`, seenBy: l => `✓✓ شافها ${l}`, seenAll: '✓✓ شافوها الكل', inviteGame: (r, g, p) => `تعا نلعب ${g} بغرفة "${r}" بصوت البيت 🎲${p ? `\nالرمز: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} فتح ${g}، تعا العب!`, joinGame: 'العب معهن', gname: { tawleh: 'طاولة', tarneeb: 'طرنيب', likha: 'ليخة', trivia: 'سهرة أسئلة' }, holdTalk: 'دوس وكفّي ضاغط لتسجّل، وشيل إصبعك لتبعت', slideCancel: '← اسحب لتلغي', mute: '🔕 اسكت هالغرفة', muted: '🔕 الغرفة ساكتة ✓', more: '⋯ أكتر', less: 'سكّر ⋯', notify: '📲 نبّهني بالرسايل', notifyOn: '📲 بتوصلك الرسايل ✓', blocked: 'التنبيهات مسكّرة لهالموقع بالمتصفّح.', ios: 'على الآيفون، ثبّت التطبيق عالشاشة أوّل (مشاركة ← زيد عالشاشة الرئيسية).', chat: 'الدردشة', playTawleh: 'طاولة بالغرفة', playTrivia: 'سهرة أسئلة', photo: 'ابعت صورة', sending: 'عم يبعت…', typing1: n => `${n} عم يكتب…`, typingN: n => `${S.num(n)} عم يكتبوا…`,
     knock: 'دقّ الجرس', knocked: n => `🔔 ${n} دقّ الجرس!`, react: 'تفاعل', quick: 'كلمات سريعة', bigPhoto: 'كبّر الصورة',
     phrases: ['وصلت بالسلامة 🏠', 'اشتقنالكن ❤️', 'صباح الخير ☕', 'تصبحوا على خير 🌙', 'كيفكن؟', 'الله يخلّيكن 🙏', 'هههههه 😂', 'يلّا نلعب طاولة؟ 🎲'],
     bday: w => `🎂 اليوم عيد ميلاد ${w}! كل سنة وإنت سالم/ة 🎉`, nameday: w => `🕯️ اليوم عيد شفيع ${w}. كل عيد وإنت بخير`,
     errs2: { type: 'هالنوع من الصور ما بيمشي.', big: 'الصورة كبيرة كتير.', yt: 'هيدا مش رابط يوتيوب.' }, today: 'اليوم', yesterday: 'مبارح'
   });
   Object.assign(T.en, {
-    inviteBtn: '＋ Invite someone', eventToday: w => `🎉 Today: ${w}!`, plTitle: 'The room’s songs', plPaste: 'Paste a YouTube song link', plPlayAll: '▶ Play them all on the TV', plEmpty: 'No songs yet. Add the first one!', plBy: n => `added by ${n}`, reply: 'Reply', del: 'Delete', delAsk: 'Delete this message for everyone?', deleted: '🚫 This message was deleted', replyingTo: n => `↩ Replying to ${n}`, seenBy: l => `✓✓ Seen by ${l}`, seenAll: '✓✓ Seen by everyone', inviteGame: (r, g, p) => `Come and play ${g} in "${r}" on Sawt el Beit 🎲${p ? `\nPasscode: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} opened ${g}. Come and play!`, joinGame: 'Join the game', gname: { tawleh: 'tawleh', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'trivia night' }, notify: '📲 Notify me of messages', notifyOn: '📲 Message alerts on ✓', blocked: 'Notifications are blocked for this site in your browser.', ios: 'On iPhone, add the app to your home screen first (Share → Add to Home Screen).', chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
+    inviteBtn: '＋ Invite someone', eventToday: w => `🎉 Today: ${w}!`, plTitle: 'The room’s songs', plPaste: 'Paste a YouTube song link', plPlayAll: '▶ Play them all on the TV', plEmpty: 'No songs yet. Add the first one!', plBy: n => `added by ${n}`, reply: 'Reply', del: 'Delete', delAsk: 'Delete this message for everyone?', deleted: '🚫 This message was deleted', replyingTo: n => `↩ Replying to ${n}`, seenBy: l => `✓✓ Seen by ${l}`, seenAll: '✓✓ Seen by everyone', inviteGame: (r, g, p) => `Come and play ${g} in "${r}" on Sawt el Beit 🎲${p ? `\nPasscode: ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} opened ${g}. Come and play!`, joinGame: 'Join the game', gname: { tawleh: 'tawleh', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'trivia night' }, holdTalk: 'Hold to record, let go to send', slideCancel: '← slide to cancel', mute: '🔕 Mute this room', muted: '🔕 Room muted ✓', more: '⋯ More', less: 'Close ⋯', notify: '📲 Notify me of messages', notifyOn: '📲 Message alerts on ✓', blocked: 'Notifications are blocked for this site in your browser.', ios: 'On iPhone, add the app to your home screen first (Share → Add to Home Screen).', chat: 'Chat', playTawleh: 'Tawleh in the room', playTrivia: 'Trivia night', photo: 'Send a photo', sending: 'Sending…', typing1: n => `${n} is typing…`, typingN: n => `${n} people are typing…`,
     knock: 'Ring the bell', knocked: n => `🔔 ${n} rang the bell!`, react: 'React', quick: 'Quick words', bigPhoto: 'Open the photo',
     phrases: ['Got home safe 🏠', 'Miss you all ❤️', 'Good morning ☕', 'Good night 🌙', 'How are you all?', 'Love you all 🙏', 'Hahaha 😂', 'Tawleh, anyone? 🎲'],
     bday: w => `🎂 It’s ${w}’s birthday today! Many happy returns 🎉`, nameday: w => `🕯️ Today is ${w}’s name day. Eid mubarak`,
     errs2: { type: 'That kind of picture can’t be sent.', big: 'That picture is too big.', yt: 'That isn’t a YouTube link.' }, today: 'Today', yesterday: 'Yesterday'
   });
   Object.assign(T.fr, {
-    inviteBtn: '＋ Inviter quelqu’un', eventToday: w => `🎉 Aujourd’hui : ${w} !`, plTitle: 'Les chansons de la pièce', plPaste: 'Collez un lien YouTube', plPlayAll: '▶ Tout jouer sur la télé', plEmpty: 'Pas encore de chanson. Ajoutez la première !', plBy: n => `ajoutée par ${n}`, reply: 'Répondre', del: 'Supprimer', delAsk: 'Supprimer ce message pour tout le monde ?', deleted: '🚫 Message supprimé', replyingTo: n => `↩ Réponse à ${n}`, seenBy: l => `✓✓ Vu par ${l}`, seenAll: '✓✓ Vu par tout le monde', inviteGame: (r, g, p) => `Viens jouer au ${g} dans « ${r} » sur Sawt el Beit 🎲${p ? `\nCode : ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} a ouvert ${g}. Viens jouer !`, joinGame: 'Rejoindre', gname: { tawleh: 'tawlé', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'la soirée quiz' }, notify: '📲 M’avertir des messages', notifyOn: '📲 Alertes activées ✓', blocked: 'Les notifications sont bloquées pour ce site.', ios: 'Sur iPhone, ajoutez d’abord l’app à l’écran d’accueil (Partager → Sur l’écran d’accueil).', chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
+    inviteBtn: '＋ Inviter quelqu’un', eventToday: w => `🎉 Aujourd’hui : ${w} !`, plTitle: 'Les chansons de la pièce', plPaste: 'Collez un lien YouTube', plPlayAll: '▶ Tout jouer sur la télé', plEmpty: 'Pas encore de chanson. Ajoutez la première !', plBy: n => `ajoutée par ${n}`, reply: 'Répondre', del: 'Supprimer', delAsk: 'Supprimer ce message pour tout le monde ?', deleted: '🚫 Message supprimé', replyingTo: n => `↩ Réponse à ${n}`, seenBy: l => `✓✓ Vu par ${l}`, seenAll: '✓✓ Vu par tout le monde', inviteGame: (r, g, p) => `Viens jouer au ${g} dans « ${r} » sur Sawt el Beit 🎲${p ? `\nCode : ${p}` : ''}`, gameStarted: (n, g) => `🎲 ${n} a ouvert ${g}. Viens jouer !`, joinGame: 'Rejoindre', gname: { tawleh: 'tawlé', tarneeb: 'Tarneeb', likha: 'Likha', trivia: 'la soirée quiz' }, holdTalk: 'Maintenez pour enregistrer, relâchez pour envoyer', slideCancel: '← glissez pour annuler', mute: '🔕 Couper cette pièce', muted: '🔕 Pièce en silence ✓', more: '⋯ Plus', less: 'Fermer ⋯', notify: '📲 M’avertir des messages', notifyOn: '📲 Alertes activées ✓', blocked: 'Les notifications sont bloquées pour ce site.', ios: 'Sur iPhone, ajoutez d’abord l’app à l’écran d’accueil (Partager → Sur l’écran d’accueil).', chat: 'Discussion', playTawleh: 'Tawlé dans la pièce', playTrivia: 'Soirée quiz', photo: 'Envoyer une photo', sending: 'Envoi…', typing1: n => `${n} écrit…`, typingN: n => `${n} personnes écrivent…`,
     knock: 'Sonner', knocked: n => `🔔 ${n} a sonné !`, react: 'Réagir', quick: 'Mots rapides', bigPhoto: 'Ouvrir la photo',
     phrases: ['Bien arrivé·e 🏠', 'Vous me manquez ❤️', 'Bonjour ☕', 'Bonne nuit 🌙', 'Comment ça va ?', 'Je vous aime 🙏', 'Hahaha 😂', 'Un tawlé ? 🎲'],
     bday: w => `🎂 C’est l’anniversaire de ${w} aujourd’hui ! 🎉`, nameday: w => `🕯️ C’est la fête de ${w} aujourd’hui`,
@@ -551,11 +551,15 @@
   let replyTo = null;
   function roomView() {
     const r = openRoom;
+    if (showExtras === null) showExtras = !window.matchMedia('(max-width: 700px)').matches;
     const head = el('div', { className: 'q-head' }, [
       btn('‹', 'q-back', () => { openRoom = null; screen = 'home'; clearTimeout(timer); render(); }),
       el('h3', { className: 'q-title', dir: 'auto', text: r.title }),
-      btn(t('inviteBtn'), 'chip q-inv', () => invite(r, true))
+      btn(t('inviteBtn'), 'chip q-inv', () => invite(r, true)),
+      btn(showExtras ? t('less') : t('more'), 'chip q-more', () => { showExtras = !showExtras; render(); }),
+      btn('×', 'q-x', () => window.SawtRoom && window.SawtRoom.close())
     ]);
+    head.querySelector('.q-x').setAttribute('aria-label', t('back'));
     head.querySelector('.q-back').setAttribute('aria-label', t('back'));
     head.querySelector('.q-inv').setAttribute('aria-label', t('invite'));
     head.querySelector('.q-inv').title = t('invite');
@@ -578,7 +582,8 @@
       const input = el('input', { maxLength: 240, placeholder: sendingPhoto ? t('sending') : t('say'), 'aria-label': t('say'), enterKeyHint: 'send' });
       input.value = draft;
       input.addEventListener('input', () => { draft = input.value; if (input.value) typingPing(); });
-      const mic = btn('🎙️', 'q-mic', recToggle); mic.setAttribute('aria-label', t('rec')); mic.title = t('rec');
+      const mic = el('button', { type: 'button', className: 'q-mic', text: '🎙️', 'aria-label': t('rec') + ' · ' + t('holdTalk'), title: t('holdTalk') });
+      holdToTalk(mic);
       const file = el('input', { type: 'file', accept: 'image/*', hidden: true });
       file.addEventListener('change', () => { const fl = file.files && file.files[0]; file.value = ''; if (fl) sendPhoto(fl); });
       const cam = btn('📷', 'q-mic q-cam', () => file.click()); cam.setAttribute('aria-label', t('photo')); cam.title = t('photo'); cam.disabled = sendingPhoto;
@@ -594,15 +599,37 @@
     const quick = showQuick ? el('div', { className: 'q-quick' }, t('phrases').map(ph => btn(ph, 'chip', () => { showQuick = false; render(); say(ph); }))) : null;
     const foot = el('div', { className: 'q-row' }, [
       pushCfg && pushCfg.alerts ? btn(S.store.get('qPush:' + r.id, false) ? t('notifyOn') : t('notify'), S.store.get('qPush:' + r.id, false) ? 'btn' : 'btn btn-primary', () => pushToggle(r)) : null,
+      pushCfg && pushCfg.alerts && S.store.get('qPush:' + r.id, false) ? btn(S.store.get('qMute:' + r.id, false) ? t('muted') : t('mute'), 'btn', () => { S.store.set('qMute:' + r.id, !S.store.get('qMute:' + r.id, false)); syncPrefs(r.id); render(); }) : null,
       btn('🔔 ' + t('knock'), 'btn', knock),
       btn('🎲 ' + t('playTawleh'), 'btn', () => { openGames('tawleh'); document.dispatchEvent(new CustomEvent('sawt:tawleh-room')); }),
       btn('🃏 ' + t('cards'), 'btn', () => { openGames('cards'); document.dispatchEvent(new CustomEvent('sawt:cards-room', { detail: r.id })); }),
       btn('🧠 ' + t('playTrivia'), 'btn', () => { openGames('trivia'); document.dispatchEvent(new CustomEvent('sawt:trivia-room')); }),
       btn(t('leave'), 'link-btn', () => { rooms = rooms.filter(x => x.id !== r.id); saveRooms(); openRoom = null; screen = 'home'; render(); })
     ]);
-    return el('div', { className: 'q-room' }, [head, here, log, typingLine(r), quick, composer, err ? el('p', { className: 'form-error', role: 'alert', text: err }) : null, playlistView(r), nowCard, foot].filter(Boolean));
+    const extras = showExtras ? el('div', { className: 'q-extras' }, [foot, playlistView(r), nowCard]) : null;
+    return el('div', { className: 'q-room' }, [head, here, extras, log, typingLine(r), quick, composer, err ? el('p', { className: 'form-error', role: 'alert', text: err }) : null].filter(Boolean));
   }
-  let draft = '', showQuick = false;
+  let draft = '', showQuick = false, showExtras = null;
+  // the mic: a quick tap starts and stops; press and hold records, let go sends, slide away cancels
+  let holding = false;
+  function holdToTalk(mic) {
+    mic.addEventListener('contextmenu', e => e.preventDefault());
+    mic.addEventListener('pointerdown', e => {
+      e.preventDefault();
+      const x0 = e.clientX;
+      let cancelled = false;
+      const timer = setTimeout(async () => { holding = true; await recToggle(); const n = box.querySelector('.q-rec-time'); if (n) n.after(el('span', { className: 'q-slide', text: t('slideCancel') })); }, 250);
+      const move = ev => { if (holding && Math.abs(ev.clientX - x0) > 90 && !cancelled) { cancelled = true; holding = false; cancelRec(); } };
+      const done = async ev => {
+        document.removeEventListener('pointerup', done); document.removeEventListener('pointercancel', done); document.removeEventListener('pointermove', move);
+        clearTimeout(timer);
+        if (cancelled) return;
+        if (holding) { holding = false; if (ev.type === 'pointercancel') { cancelRec(); return; } if (recording) await recToggle(); }
+        else if (ev.type === 'pointerup') recToggle();
+      };
+      document.addEventListener('pointerup', done); document.addEventListener('pointercancel', done); document.addEventListener('pointermove', move);
+    });
+  }
   // ------------------------------------------------------------------ the room's songs
   let plOpen = false, plBusy = false;
   function playlistView(r) {
@@ -639,6 +666,17 @@
   }
   // ------------------------------------------------------------------ alerts when the app is closed
   let pushCfg = null;
+  // quiet hours (set in My corner) travel with each room's alerts, in this phone's time zone
+  function quietPrefs() { const q = S.store.get('quiet', null) || {}; return { on: !!q.on, from: q.from ?? 23, to: q.to ?? 7, tz: -new Date().getTimezoneOffset() }; }
+  async function mySub() {
+    try { if (!('serviceWorker' in navigator)) return null; const reg = await navigator.serviceWorker.getRegistration(); return reg ? await reg.pushManager.getSubscription() : null; } catch { return null; }
+  }
+  async function syncPrefs(only) {
+    const sub = await mySub(); if (!sub) return;
+    for (const r of rooms.filter(x => x.token && S.store.get('qPush:' + x.id, false) && (!only || x.id === only))) {
+      api(`/api/q/${r.id}/push/prefs`, { endpoint: sub.endpoint, quiet: quietPrefs(), muted: S.store.get('qMute:' + r.id, false) }, r.token).catch(() => {});
+    }
+  }
   async function pushToggle(r) {
     const on = S.store.get('qPush:' + r.id, false);
     try {
@@ -654,7 +692,7 @@
       const k = pushCfg.publicKey;
       const raw = atob((k + '='.repeat((4 - k.length % 4) % 4)).replace(/-/g, '+').replace(/_/g, '/'));
       const sub = existing || await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: Uint8Array.from(raw, c => c.charCodeAt(0)) });
-      await api(`/api/q/${r.id}/push`, { subscription: sub.toJSON(), lang: S.lang() }, r.token);
+      await api(`/api/q/${r.id}/push`, { subscription: sub.toJSON(), lang: S.lang(), quiet: quietPrefs(), muted: S.store.get('qMute:' + r.id, false) }, r.token);
       S.store.set('qPush:' + r.id, true); render();
     } catch (e) { S.toast(e.message === 'ios' ? t('ios') : t('errs').server); }
   }
@@ -746,6 +784,7 @@
     sendVoice,
     invite,
     announce,
+    syncPrefs,
     event: (r, body) => api(`/api/q/${r.id}/event`, body, r.token).then(d => { r.bdAt = 0; poll(true); return d; }),
     greet: (r, who, kind, day) => api(`/api/q/${r.id}/greet`, { who, kind, day }, r.token),
     bday: (r, who, md, remove) => api(`/api/q/${r.id}/bday`, { who, md, remove }, r.token),

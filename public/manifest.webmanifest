@@ -40,47 +40,30 @@
   ],
   "shortcuts": [
     {
-      "name": "الراديو · Radio",
+      "name": "📻 الراديو",
       "short_name": "الراديو",
-      "url": "/#radio",
+      "url": "/radio",
       "icons": [
         {
-          "src": "/icon-192.png",
+          "src": "/radio-192.png",
           "sizes": "192x192"
         }
       ]
     },
     {
-      "name": "فيروز · Fairuz",
-      "url": "/?station=fairuz",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "name": "💬 الدردشة",
+      "short_name": "الدردشة",
+      "url": "/#together"
     },
     {
-      "name": "الطاولة · Tawleh",
+      "name": "🎲 الطاولة",
       "short_name": "الطاولة",
-      "url": "/#tawleh",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "url": "/#tawleh"
     },
     {
-      "name": "إهداء بصوتك · Voice dedication",
-      "short_name": "إهداء",
-      "url": "/#phone",
-      "icons": [
-        {
-          "src": "/icon-192.png",
-          "sizes": "192x192"
-        }
-      ]
+      "name": "👾 الأتاري",
+      "short_name": "الأتاري",
+      "url": "/#atari"
     }
   ],
   "display_override": [

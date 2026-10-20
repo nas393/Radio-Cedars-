@@ -833,7 +833,7 @@
       clampView();
       needsDraw = true;
     }
-    if (!reduceMotion && !introOn && !dragging && !glide && now - idleSince > 7000 && !document.hidden) {
+    if (!reduceMotion && !lite && !introOn && !dragging && !glide && now - idleSince > 7000 && !document.hidden) {
       const target = 0.012 * (0.5 - 0.5 * Math.cos((now - idleSince - 7000) / 9000));
       const prev = breath;
       breath = target;
@@ -856,7 +856,7 @@
     if (Math.abs(rainNow - target) > 0.002) { rainNow += (target - rainNow) * 0.03; needsDraw = true; }
     const st = snowTarget();
     if (Math.abs(snowNow - st) > 0.002) { snowNow += (st - snowNow) * 0.03; needsDraw = true; }
-    const animated = rainNow > 0.01 || snowNow > 0.01 || scene !== 'day' || (decorFor === scene);
+    const animated = !lite && (rainNow > 0.01 || snowNow > 0.01 || scene !== 'day' || (decorFor === scene));
     if (animated && !document.hidden && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
     stepPower(now);
     if (frameHooks.size) frameHooks.forEach(f => f(now));
@@ -1065,8 +1065,18 @@
 
   // ================================================================== scenes
 
-  let scene = sceneFor();
-  let manualScene = false;
+  // the time of day: like Beirut now, or the one you chose (remembered)
+  const savedScene = S.store.get('sceneChoice', 'auto');
+  let scene = SCENES.includes(savedScene) ? savedScene : sceneFor();
+  let manualScene = SCENES.includes(savedScene);
+  function setSceneChoice(c) {
+    S.store.set('sceneChoice', SCENES.includes(c) ? c : 'auto');
+    manualScene = SCENES.includes(c);
+    const s = manualScene ? c : sceneFor();
+    if (s !== scene) showScene(s, true); else renderSceneChip();
+  }
+  // light mode: a still room (no rain running, no breathing, no twinkling) and the lighter picture
+  let lite = S.store.get('liteRoom', false);
   let currentImg = null;
   let fade = null;
 
@@ -1090,7 +1100,7 @@
     };
     apply(img, animate);
     loadDecor();
-    if (sharp && (!gl || maxTex >= 3072)) {
+    if (sharp && !lite && (!gl || maxTex >= 3072)) {
       loadImage(picUrl(name, false)).then(big => {
         const go = () => { if (name !== scene) return; if (fade) { setTimeout(go, 200); return; } apply(big, false); };
         go();
@@ -1130,8 +1140,8 @@
     pop.replaceChildren(
       el('p', { className: 'pop-k', text: r('timeLabel') }),
       el('div', { className: 'pop-row' }, [
-        opt(r('autoBeirut'), !manualScene, () => { manualScene = false; const s = sceneFor(); if (s !== scene) showScene(s, true); }, 'is-auto'),
-        ...SCENES.map(sc => opt(r('scenes')[sc], manualScene && scene === sc, () => { manualScene = true; if (sc !== scene) showScene(sc, true); }, 'scene-opt-' + sc))
+        opt(r('autoBeirut'), !manualScene, () => setSceneChoice('auto'), 'is-auto'),
+        ...SCENES.map(sc => opt(r('scenes')[sc], manualScene && scene === sc, () => setSceneChoice(sc), 'scene-opt-' + sc))
       ]),
       el('p', { className: 'pop-k', text: r('weatherLabel') }),
       el('div', { className: 'pop-row' }, [
@@ -1645,6 +1655,7 @@
 
   function start() {
     document.body.classList.add('intro-on');
+    document.body.classList.toggle('is-lite', lite);
     initGL();
     Object.assign(view, startView());
     resize();
@@ -1656,6 +1667,8 @@
     img.src = picUrl(scene, true);
 
     const ready = showScene(scene, false).then(() => { Object.assign(view, startView()); needsDraw = true; });
+    // Teta's radio icon (/radio): no door, no names, just the radio
+    if (location.pathname.replace(/\/+$/, '') === '/radio') { introOn = false; intro.hidden = true; document.body.classList.remove('intro-on'); return; }
     let picked = false; try { picked = !!sessionStorage.getItem('sawt:chosen'); } catch { /* fine */ }
     const fast = S.store.get('visited', false) || deepLink() || picked;
     if (fast) {
@@ -1730,6 +1743,10 @@
     // for the settings panel
     cuts: () => cutsOn,
     setCuts: v => { cutsOn = !!v; S.store.set('powerCuts', cutsOn); renderPop(); },
+    sceneChoice: () => (manualScene ? scene : 'auto'),
+    setSceneChoice,
+    lite: () => lite,
+    setLite: v => { lite = !!v; S.store.set('liteRoom', lite); breath = 0; needsDraw = true; document.body.classList.toggle('is-lite', lite); },
     openWeather: () => { setTimeout(() => togglePop(true), 60); }
   };
 

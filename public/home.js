@@ -11,13 +11,13 @@
 
   const T = {
     ar: { simple: 'كبّر', title: 'أهلا وسهلا', back: 'رجوع عالصالون', on: 'شغّل الراديو', off: 'طفّي الراديو', next: 'المحطة الجاية',
-      news: 'الأخبار', tv: 'التلفزيون', tapes: 'أغاني', phone: 'إهداء', tawleh: 'طاولة', together: 'قعدة سوا', myPhotos: 'حطّ صور العيلة عالحيط', remove: 'شيل صوري',
+      tetaSt: 'محطة تيتا', rTitle: '📻 راديو البيت', rHouse: '🏠 فوت عالبيت', rInstall: 'لتحطّ هالراديو عشاشة التلفون: بالآيفون كبّس زرّ المشاركة ← «إضافة إلى الشاشة الرئيسية». بالأندرويد كبّس ⋮ ← «تثبيت» أو «إضافة إلى الشاشة».', rPick: 'غيّر المحطة', news: 'الأخبار', tv: 'التلفزيون', tapes: 'أغاني', phone: 'رسالة بصوتك', tawleh: 'طاولة', together: 'قعدة سوا', myPhotos: 'حطّ صور العيلة عالحيط', remove: 'شيل صوري',
       note: 'الصور بتضل على جهازك بس، ما منرفعها لحدا.', added: n => `تعلّقت ${S.num(n)} صور عالحيط` },
     en: { simple: 'Simple', title: 'Welcome home', back: 'Back to the room', on: 'Radio on', off: 'Radio off', next: 'Next station',
-      news: 'News', tv: 'TV', tapes: 'Songs', phone: 'Dedication', tawleh: 'Tawleh', together: 'Listen together', myPhotos: 'Hang your family photos', remove: 'Remove my photos',
+      tetaSt: 'Teta’s station', rTitle: '📻 Home radio', rHouse: '🏠 Go into the house', rInstall: 'To put this radio on the phone’s home screen: on iPhone tap Share → “Add to Home Screen”; on Android tap ⋮ → “Install” or “Add to Home screen”.', rPick: 'Change station', news: 'News', tv: 'TV', tapes: 'Songs', phone: 'Voice message', tawleh: 'Tawleh', together: 'Listen together', myPhotos: 'Hang your family photos', remove: 'Remove my photos',
       note: 'Your photos stay on this device only. Nothing is uploaded.', added: n => `${n} photos hung on the wall` },
     fr: { simple: 'Simple', title: 'Bienvenue à la maison', back: 'Retour au salon', on: 'Allumer la radio', off: 'Éteindre la radio', next: 'Station suivante',
-      news: 'Infos', tv: 'Télé', tapes: 'Chansons', phone: 'Dédicace', tawleh: 'Tawlé', together: 'Ensemble', myPhotos: 'Accrocher vos photos de famille', remove: 'Retirer mes photos',
+      tetaSt: 'La station de Teta', rTitle: '📻 La radio de la maison', rHouse: '🏠 Entrer dans la maison', rInstall: 'Pour mettre cette radio sur l’écran d’accueil : sur iPhone, Partager → « Sur l’écran d’accueil » ; sur Android, ⋮ → « Installer » ou « Ajouter à l’écran d’accueil ».', rPick: 'Changer de station', news: 'Infos', tv: 'Télé', tapes: 'Chansons', phone: 'Message vocal', tawleh: 'Tawlé', together: 'Ensemble', myPhotos: 'Accrocher vos photos de famille', remove: 'Retirer mes photos',
       note: 'Vos photos restent sur cet appareil. Rien n’est envoyé.', added: n => `${n} photos accrochées au mur` }
   };
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
@@ -44,6 +44,7 @@
     panel.replaceChildren(
       el('div', { className: 'simple-inner' }, [
         el('h2', { className: 'simple-title', id: 'simple-title', text: t('title') }),
+        tetaTile(),
         el('div', { className: 'big-radio' + (playing ? ' is-on' : '') }, [
           el('p', { className: 'big-station', dir: 'auto', text: st ? st.name : '…' }),
           el('div', { className: 'big-row' }, [
@@ -63,6 +64,61 @@
       ])
     );
   }
+  // Teta's station (chosen in My corner): first, and huge
+  function tetaStation() { const id = S.store.get('tetaStation', ''); return id && S.stations ? S.stations().find(x => x.id === id) : null; }
+  function tetaTile() {
+    const ts = tetaStation();
+    if (!ts) return null;
+    const cur = S.current && S.current();
+    const on = S.isOn && S.isOn() && cur && cur.id === ts.id;
+    const b = el('button', { type: 'button', className: 'big-teta' + (on ? ' is-on' : '') }, [
+      el('span', { className: 'big-icon', text: on ? '⏸' : '▶' }),
+      el('span', { className: 'big-teta-t' }, [el('small', { text: '👵 ' + t('tetaSt') }), el('b', { dir: 'auto', text: ts.name })])
+    ]);
+    b.addEventListener('click', () => { if (on) S.setPower(false); else { S.showStation(ts.id); S.setPower(true); } setTimeout(() => { renderSimple(); renderRadioOnly(); }, 250); });
+    return b;
+  }
+
+  // ================================================================== the radio on its own (/radio): its own icon on the home screen
+  const radioOnly = location.pathname.replace(/\/+$/, '') === '/radio';
+  const rpanel = radioOnly ? el('div', { className: 'simple radio-only', role: 'dialog', 'aria-modal': 'true' }) : null;
+  if (rpanel) { document.body.appendChild(rpanel); document.body.classList.add('is-radio-only'); }
+  function renderRadioOnly() {
+    if (!rpanel) return;
+    const st = S.current && S.current();
+    const playing = S.isOn && S.isOn();
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    const list = (S.stations && S.stations()) || [];
+    const pick = el('select', { className: 'me-sel radio-pick', 'aria-label': t('rPick') }, list.map(x => el('option', { value: x.id, text: x.name })));
+    if (st) pick.value = st.id;
+    pick.addEventListener('change', () => { S.showStation(pick.value); S.setPower(true); setTimeout(renderRadioOnly, 300); });
+    rpanel.replaceChildren(el('div', { className: 'simple-inner' }, [
+      el('h2', { className: 'simple-title', text: t('rTitle') }),
+      tetaTile(),
+      el('div', { className: 'big-radio' + (playing ? ' is-on' : '') }, [
+        el('p', { className: 'big-station', dir: 'auto', text: st ? st.name : '…' }),
+        el('div', { className: 'big-row' }, [
+          bigTile(playing ? '⏸' : '▶', playing ? t('off') : t('on'), () => { S.setPower(!S.isOn()); setTimeout(renderRadioOnly, 250); }, 'is-primary'),
+          bigTile('⏭', t('next'), () => { $('mini-next').click(); setTimeout(renderRadioOnly, 300); })
+        ])
+      ]),
+      list.length ? pick : null,
+      standalone ? null : el('p', { className: 'quiet small radio-install', text: t('rInstall') }),
+      (() => { const a = el('a', { className: 'btn simple-back', href: '/', text: t('rHouse') }); return a; })()
+    ].filter(Boolean)));
+  }
+  if (radioOnly) {
+    document.addEventListener('sawt:stations', () => {
+      const ts = tetaStation();
+      if (ts && !(S.current && S.current() && S.current().id === ts.id)) S.showStation(ts.id);
+      renderRadioOnly();
+    });
+    ['play', 'pause'].forEach(ev => $('audio').addEventListener(ev, renderRadioOnly));
+    document.addEventListener('sawt:lang', renderRadioOnly);
+    renderRadioOnly();
+  }
+  document.addEventListener('sawt:teta-station', () => { renderSimple(); renderRadioOnly(); });
+
   function setSimple(v) {
     panel.hidden = !v;
     document.body.classList.toggle('is-simple', v);

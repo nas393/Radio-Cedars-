@@ -243,15 +243,15 @@
 
   // ------------------------------------------------------------------ my corner: me, my account, settings
   const M = {
-    ar: { me: 'زاويتي', local: 'محفوظ عهالتلفون بس', synced: u => `☁️ موصول باسم ${u}`, edit: '✏️ الاسم والصورة والرمز', account: '☁️ حسابي (على كل أجهزتي)', switch: '👥 بدّل الشخص أو زيد حدا', signout: '🚪 اطلع', signoutNote: 'بترجع عالباب، والباقيين بيقدروا يفوتوا بأساميهن.',
+    ar: { me: 'زاويتي', light: '🪶 الغرفة الخفيفة (بتوفّر بطارية وإنترنت)', bar: '📱 الشريط تحت (راديو، تلفزيون، دردشة…)', time: 'وقت الغرفة', tAuto: 'متل بيروت', quiet: '🌙 ساعات الهدوء (بلا تنبيهات)', qFrom: 'من', qTo: 'لـ', tetaSt: 'محطة تيتا', tetaNone: 'اختار محطة', radioIcon: '📻 أيقونة راديو عالشاشة', local: 'محفوظ عهالتلفون بس', synced: u => `☁️ موصول باسم ${u}`, edit: '✏️ الاسم والصورة والرمز', account: '☁️ حسابي (على كل أجهزتي)', switch: '👥 بدّل الشخص أو زيد حدا', signout: '🚪 اطلع', signoutNote: 'بترجع عالباب، والباقيين بيقدروا يفوتوا بأساميهن.',
       sAccount: 'الحساب', sSettings: 'الإعدادات', sMine: 'أغراضي', lang: 'اللغة', size: 'حجم الكتابة', small: 'صغير', normal: 'عادي', large: 'كبير', teta: '👵 كرسي تيتا (أزرار كبار)', sounds: '🔊 أصوات البيت', cuts: '💡 انقطاع الكهربا', weather: '🌦️ الطقس والمناسبة', news: '📰 الجرايد اللي بتشوفها', install: '📲 ثبّت التطبيق',
       rooms: n => `🛋️ غرفي (${S.num(n)})`, scores: '🏆 نتايجي', cal: '🎂 الأعياد والمناسبات', help: '❓ كيف بستعمل صوت البيت؟', clear: '🧹 امحي كل شي عن هالتلفون', clearAsk: 'أكيد؟ بتنمحى الأسامي والمفضّلة والغرف والطبخات عن هالتلفون (يلّي موصول بحساب بيرجع).', close: 'سكّر', on: 'شغّال', off: 'مطفي',
       helpText: ['🛋️ الكنباية: غرف خاصّة للعيلة. اعمل غرفة واكبس «＋ ادعي حدا».', '🎲 الطاولة: طاولة وشدّة وأسئلة، لحالك أو مع العيلة بالغرفة.', '📺 التلفزيون: اكبس عقناة واختار برنامج.', '📻 الراديو: اسحب المؤشّر لتغيّر المحطة.', '⏰ الحبّة فوق: الوقت والطقس والمناسبة.', '👵 كرسي تيتا: أزرار كبار للكبار.'] },
-    en: { me: 'My corner', local: 'Kept on this phone only', synced: u => `☁️ Connected as ${u}`, edit: '✏️ Name, picture and passcode', account: '☁️ My account (all my devices)', switch: '👥 Switch person or add someone', signout: '🚪 Sign out', signoutNote: 'Back to the door; everyone else can come in under their own name.',
+    en: { me: 'My corner', light: '🪶 Light room (saves battery and data)', bar: '📱 Bottom bar (radio, TV, chat…)', time: 'Room time', tAuto: 'Like Beirut', quiet: '🌙 Quiet hours (no alerts)', qFrom: 'From', qTo: 'to', tetaSt: 'Teta’s station', tetaNone: 'Pick a station', radioIcon: '📻 Radio icon on the home screen', local: 'Kept on this phone only', synced: u => `☁️ Connected as ${u}`, edit: '✏️ Name, picture and passcode', account: '☁️ My account (all my devices)', switch: '👥 Switch person or add someone', signout: '🚪 Sign out', signoutNote: 'Back to the door; everyone else can come in under their own name.',
       sAccount: 'Account', sSettings: 'Settings', sMine: 'My things', lang: 'Language', size: 'Text size', small: 'Small', normal: 'Normal', large: 'Large', teta: '👵 Teta’s chair (big buttons)', sounds: '🔊 Room sounds', cuts: '💡 Power cuts', weather: '🌦️ Weather and occasion', news: '📰 My newspapers', install: '📲 Install the app',
       rooms: n => `🛋️ My rooms (${n})`, scores: '🏆 My scores', cal: '🎂 Birthdays and events', help: '❓ How do I use Sawt el Beit?', clear: '🧹 Erase everything on this phone', clearAsk: 'Sure? Names, favourites, rooms and recipes are erased from this phone (anything on an account comes back).', close: 'Close', on: 'On', off: 'Off',
       helpText: ['🛋️ The sofa: private family rooms. Make one and tap “＋ Invite someone”.', '🎲 The coffee table: tawleh, cards and trivia, alone or with the family in a room.', '📺 The TV: tap a channel and pick a show.', '📻 The radio: slide the dial to change station.', '⏰ The pill at the top: time, weather and occasion.', '👵 Teta’s chair: big buttons for the grown-ups.'] },
-    fr: { me: 'Mon coin', local: 'Gardé sur ce téléphone seulement', synced: u => `☁️ Connecté : ${u}`, edit: '✏️ Prénom, image et code', account: '☁️ Mon compte (tous mes appareils)', switch: '👥 Changer de personne ou en ajouter', signout: '🚪 Se déconnecter', signoutNote: 'Retour à la porte ; chacun peut entrer sous son nom.',
+    fr: { me: 'Mon coin', light: '🪶 Salon léger (moins de batterie et de données)', bar: '📱 Barre du bas (radio, télé, discussion…)', time: 'Moment du salon', tAuto: 'Comme à Beyrouth', quiet: '🌙 Heures calmes (sans alertes)', qFrom: 'De', qTo: 'à', tetaSt: 'La station de Teta', tetaNone: 'Choisir une station', radioIcon: '📻 Icône radio sur l’écran d’accueil', local: 'Gardé sur ce téléphone seulement', synced: u => `☁️ Connecté : ${u}`, edit: '✏️ Prénom, image et code', account: '☁️ Mon compte (tous mes appareils)', switch: '👥 Changer de personne ou en ajouter', signout: '🚪 Se déconnecter', signoutNote: 'Retour à la porte ; chacun peut entrer sous son nom.',
       sAccount: 'Compte', sSettings: 'Réglages', sMine: 'Mes affaires', lang: 'Langue', size: 'Taille du texte', small: 'Petit', normal: 'Normal', large: 'Grand', teta: '👵 Le fauteuil de Teta (gros boutons)', sounds: '🔊 Sons de la maison', cuts: '💡 Coupures de courant', weather: '🌦️ Météo et fête', news: '📰 Mes journaux', install: '📲 Installer l’app',
       rooms: n => `🛋️ Mes pièces (${n})`, scores: '🏆 Mes scores', cal: '🎂 Anniversaires et événements', help: '❓ Comment utiliser Sawt el Beit ?', clear: '🧹 Tout effacer sur ce téléphone', clearAsk: 'Sûr ? Prénoms, favoris, pièces et recettes sont effacés de ce téléphone (ce qui est sur un compte revient).', close: 'Fermer', on: 'Activé', off: 'Désactivé',
       helpText: ['🛋️ Le canapé : des pièces privées pour la famille. Créez-en une et touchez « ＋ Inviter quelqu’un ».', '🎲 La table basse : tawlé, cartes et quiz, seul ou en famille.', '📺 La télé : touchez une chaîne et choisissez une émission.', '📻 La radio : glissez le cadran pour changer de station.', '⏰ La pastille en haut : moment, météo et fête.', '👵 Le fauteuil de Teta : de gros boutons.'] }
@@ -272,6 +272,24 @@
     if (!window.confirm(m('clearAsk'))) return;
     try { for (let i = localStorage.length - 1; i >= 0; i--) { const k = localStorage.key(i); if (k && k.startsWith('sawt:')) localStorage.removeItem(k); } sessionStorage.clear(); } catch { /* fine */ }
     location.href = '/';
+  }
+  function quietRow() {
+    const q = S.store.get('quiet', null) || { on: false, from: 23, to: 7 };
+    const save = () => { S.store.set('quiet', q); if (window.SawtRooms && window.SawtRooms.syncPrefs) window.SawtRooms.syncPrefs(); };
+    const sw = el('button', { type: 'button', className: 'me-row me-toggle' }, [el('span', { text: m('quiet') }), el('b', { className: 'me-sw' + (q.on ? ' is-on' : ''), text: q.on ? m('on') : m('off') })]);
+    sw.addEventListener('click', () => { q.on = !q.on; save(); render(); });
+    if (!q.on) return sw;
+    const hours = (v, fn) => { const sel = el('select', { className: 'me-sel' }, Array.from({ length: 24 }, (_, h) => el('option', { value: h, text: `${S.num(h)}:00` }))); sel.value = v; sel.addEventListener('change', () => fn(Number(sel.value))); return sel; };
+    return el('div', { className: 'me-quiet' }, [sw, el('div', { className: 'me-hours' }, [el('span', { text: m('qFrom') }), hours(q.from, v => { q.from = v; save(); }), el('span', { text: m('qTo') }), hours(q.to, v => { q.to = v; save(); })])]);
+  }
+  function tetaRow() {
+    const st = (S.stations && S.stations()) || [];
+    if (!st.length) return null;
+    const cur = S.store.get('tetaStation', '');
+    const sel = el('select', { className: 'me-sel', 'aria-label': m('tetaSt') }, [el('option', { value: '', text: m('tetaNone') }), ...st.map(x => el('option', { value: x.id, text: x.name }))]);
+    sel.value = cur;
+    sel.addEventListener('change', () => { S.store.set('tetaStation', sel.value); document.dispatchEvent(new CustomEvent('sawt:teta-station')); });
+    return el('label', { className: 'me-teta' }, [el('span', { className: 'me-k', text: '👵📻 ' + m('tetaSt') }), sel]);
   }
   function meView() {
     const p = current() || { name: '', icon: '🙂' };
@@ -307,6 +325,13 @@
       chips([['ar', 'عربي'], ['en', 'English'], ['fr', 'Français']], S.lang(), k => { const b = document.querySelector(`.lang[data-lang="${k}"]`); if (b) b.click(); }),
       el('p', { className: 'me-k', text: m('size') }),
       chips([['small', 'A− ' + m('small')], ['normal', 'A ' + m('normal')], ['large', 'A+ ' + m('large')]], S.store.get('textSize', 'normal'), k => { S.store.set('textSize', k); applySize(); }),
+      window.SawtRoom && window.SawtRoom.setSceneChoice ? el('p', { className: 'me-k', text: m('time') }) : null,
+      window.SawtRoom && window.SawtRoom.setSceneChoice ? chips([['auto', m('tAuto')], ['day', window.SawtRoom.sceneLabel('day')], ['sunset', window.SawtRoom.sceneLabel('sunset')], ['night', window.SawtRoom.sceneLabel('night')]], window.SawtRoom.sceneChoice(), k => window.SawtRoom.setSceneChoice(k)) : null,
+      window.SawtRoom && window.SawtRoom.setLite ? toggle(m('light'), window.SawtRoom.lite(), () => window.SawtRoom.setLite(!window.SawtRoom.lite())) : null,
+      window.SawtBar ? toggle(m('bar'), window.SawtBar.on(), () => window.SawtBar.set(!window.SawtBar.on())) : null,
+      quietRow(),
+      tetaRow(),
+      row(m('radioIcon'), () => { location.href = '/radio'; }),
       toggle(m('teta'), document.body.classList.contains('is-simple'), () => { const b = document.getElementById('simple-btn'); if (b) b.click(); close(); }),
       window.SawtAmbience ? toggle(m('sounds'), window.SawtAmbience.on(), () => window.SawtAmbience.toggle()) : null,
       window.SawtRoom && window.SawtRoom.cuts ? toggle(m('cuts'), window.SawtRoom.cuts(), () => window.SawtRoom.setCuts(!window.SawtRoom.cuts())) : null,

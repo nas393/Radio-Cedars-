@@ -1736,3 +1736,52 @@ html.ts-large { font-size: 106.25%; }
 .at-fire { width: 76px; height: 76px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff8a6a, #E2573C 60%, #9c2f1c); color: #fff; font-size: 1.6rem; }
 .at-ctl { justify-content: center; }
 .at-over { font-weight: 700; color: var(--brass-hi); margin: 6px 0; }
+.me-quiet { display: grid; gap: 6px; }
+.me-hours { display: flex; align-items: center; gap: 8px; padding: 0 6px; font-size: .875rem; }
+.me-sel { min-height: 40px; border-radius: 10px; padding: 6px 10px; background: #2B211A; color: var(--cream); border: 1px solid var(--glass-line); font: inherit; }
+.me-teta { display: grid; gap: 4px; }
+.me-teta .me-sel { width: 100%; }
+body.is-lite .hot.is-focus .hot-dot::before { animation: none; }
+
+/* the bottom bar on phones */
+.bbar { position: fixed; z-index: 28; left: 0; right: 0; bottom: 0; display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px 6px calc(6px + env(safe-area-inset-bottom)); background: rgba(23, 18, 14, .88); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--glass-line); }
+.bbar[hidden] { display: none; }
+.bbar-b { position: relative; display: grid; justify-items: center; gap: 2px; min-height: 52px; padding: 4px 2px; border: 0; border-radius: 12px; background: transparent; color: rgba(242, 232, 213, .82); font: inherit; cursor: pointer; }
+.bbar-b.is-on, .bbar-b:active { background: rgba(201, 164, 92, .18); color: var(--brass-hi); }
+.bbar-ic { font-size: 1.35rem; line-height: 1.2; }
+.bbar-t { font-size: .6875rem; font-weight: 500; white-space: nowrap; }
+.bbar-n { position: absolute; top: 2px; inset-inline-end: 22%; min-width: 17px; height: 17px; padding: 0 4px; border-radius: 999px; background: #E2573C; color: #fff; font-size: .625rem; line-height: 17px; text-align: center; }
+.bbar-n[hidden] { display: none; }
+body.has-bar.sheet-on .bbar { display: none; }
+body.has-bar .focus { display: none; }
+body.has-bar.in-room .mini { bottom: calc(72px + env(safe-area-inset-bottom)); }
+body.has-bar.in-room .toast { bottom: calc(150px + env(safe-area-inset-bottom)); }
+body.has-bar .drag-hint { bottom: calc(150px + env(safe-area-inset-bottom)); }
+body.is-simple .bbar, body.is-radio-only .bbar { display: none; }
+
+/* the chat, full screen on phones (like WhatsApp): the box to type stays at the bottom */
+.q-head { grid-template-columns: auto 1fr auto auto auto; }
+.q-more { white-space: nowrap; font-size: .8125rem; padding: 6px 10px; min-height: 36px; }
+.q-x { width: 36px; height: 36px; border-radius: 50%; border: 0; background: var(--wall-2); color: inherit; font-size: 1.3rem; cursor: pointer; display: none; }
+.q-extras { display: grid; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.q-slide { font-size: .75rem; color: var(--stone-dim); }
+@media (max-width: 700px) {
+  #sheet:has(.pv[data-panel="together"]:not([hidden]) .q-room) { max-height: 100dvh; height: 100dvh; border-radius: 0; }
+  #sheet:has(.pv[data-panel="together"]:not([hidden]) .q-room) .sheet-head { display: none; }
+  #sheet:has(.pv[data-panel="together"]:not([hidden]) .q-room) .sheet-body { display: flex; flex-direction: column; overflow: hidden; padding: calc(8px + env(safe-area-inset-top)) 10px calc(6px + env(safe-area-inset-bottom)); }
+  .pv[data-panel="together"]:not([hidden]):has(.q-room), #together:has(.q-room) { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .q-room { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .q-x { display: grid; place-items: center; }
+  .q-head { gap: 6px; margin-bottom: 4px; }
+  .q-head .q-inv { padding: 6px 10px; }
+  .q-title { font-size: 1.125rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .q-here { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; margin-bottom: 4px; }
+  .q-extras { max-height: 46dvh; overflow-y: auto; }
+  #together .q-room .q-log { flex: 1; max-height: none; min-height: 0; overflow-y: auto; align-content: start; }
+  #sheet:has(.pv[data-panel="together"]:not([hidden]) .q-room)::before { display: none; }
+  .q-compose { margin: 4px 0 0; }
+  #sheet:has(.pv[data-panel="together"]:not([hidden]) .q-room) .credits { display: none; }
+  body:has(#sheet:not([hidden]) .pv[data-panel="together"]:not([hidden]) .q-room) .bbar { display: none; }
+}
+.q-mic { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.q-mic.is-holding { background: #E2573C; transform: scale(1.15); }
