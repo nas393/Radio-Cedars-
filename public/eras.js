@@ -147,10 +147,36 @@
     pelmet: all([43, 97, 16, 9]),
     labels: window.SawtEras['26'].labels
   };
+  // Winter: every room has its heater, lit by itself on rain, snow and cold days (tap it to light it or put it out).
+  // box: the part of the picture the fire lights (heat.png), in px; spot: where its dot sits, % of the picture.
+  const E = window.SawtEras;
+  E['80s'].heat = { kind: 'kerosene', box: [640, 376, 985, 813], spot: [62.5, 63], steam: [62.3, 56] };
+  E['80sh'].heat = { kind: 'fire', box: [21, 279, 1019, 848], spot: [42, 62] };
+  E['90sh'].heat = { kind: 'fire', box: [753, 338, 1150, 567], spot: [75.5, 52] };
+  E['00s'].heat = { kind: 'radiator', box: [592, 374, 897, 755], spot: [59, 61] };
+  E['00sh'].heat = { kind: 'fire', box: [688, 297, 1376, 768], spot: [80.5, 70], px: [1376, 768] };
+  E['26'].heat = { kind: 'electric', box: [279, 385, 1045, 848], spot: [42.5, 68] };
+  E['26h'].heat = { kind: 'fire', box: [260, 363, 657, 736], spot: [37.5, 60] };
+  // the 1990s apartment lives in room.js; here only its heater (its sunset photo is framed a little closer)
+  E['90s'] = {
+    heat: {
+      kind: 'gas', box: [582, 322, 1254, 790], px: [1264, 843], spot: [76, 63],
+      scenes: { sunset: { box: [705.5, 381.4, 1525, 944.6], px: [1536, 1024], glow: [74, 66] } }
+    }
+  };
+  // the fireplace took the armchair by the window: Teta sits in the one in front
+  E['80sh'].spots.teta = [[52, 64], [52, 64], [52, 64]];
+  E['00sh'].spots.teta = [[7, 88], [7, 88], [7, 88]];
+  // summer: the ceiling fans turn (hub u, v and the blades' reach, % of the picture)
+  E['80s'].fan = [63.5, 4.5, 15, 4.5];
+  E['80sh'].fan = [50, 10.5, 11.5, 5.5];
+  // one more print on the wall above the TV
+  for (const sc of ['day', 'night', 'sunset']) E['00s'].frames[sc] = E['00s'].frames[sc].concat([[[1227, 410], [1264, 409], [1264, 473], [1227, 471]]]);
+  for (const sc of ['day', 'night', 'sunset']) E['26h'].frames[sc] = E['26h'].frames[sc].concat([[[260, 205], [299, 210], [297.5, 250.5], [260, 241]]]);
   // local or preview look at the era switch: add ?eras=test (all eras) or ?eras=preview (unfinished eras that have photos)
   const q = location.search;
   if (/[?&]eras=preview/.test(q) || /-git-eras-/.test(location.hostname)) for (const e of Object.values(window.SawtEras)) if (e.spots) e.ready = true;
   if (location.hostname === '127.0.0.1' && /[?&]eras=test/.test(q)) {
-    for (const k of Object.keys(window.SawtEras)) if (!window.SawtEras[k].spots) window.SawtEras[k] = { ready: true, base: '/room/' };
+    for (const k of Object.keys(window.SawtEras)) if (k !== '90s' && !window.SawtEras[k].spots) window.SawtEras[k] = { ready: true, base: '/room/' };
   }
 })();

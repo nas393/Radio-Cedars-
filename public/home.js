@@ -12,13 +12,13 @@
   const T = {
     ar: { simple: 'كبّر', title: 'أهلا وسهلا', back: 'رجوع عالصالون', on: 'شغّل الراديو', off: 'طفّي الراديو', next: 'المحطة الجاية',
       tetaSt: 'محطة تيتا', rTitle: '📻 راديو البيت', rHouse: '🏠 فوت عالبيت', rInstall: 'لتحطّ هالراديو عشاشة التلفون: بالآيفون كبّس زرّ المشاركة ← «إضافة إلى الشاشة الرئيسية». بالأندرويد كبّس ⋮ ← «تثبيت» أو «إضافة إلى الشاشة».', rPick: 'غيّر المحطة', news: 'الأخبار', tv: 'التلفزيون', tapes: 'أغاني', phone: 'رسالة بصوتك', tawleh: 'طاولة', together: 'قعدة سوا', myPhotos: 'حطّ صور العيلة عالحيط', remove: 'شيل صوري',
-      note: 'الصور بتضل على جهازك بس، ما منرفعها لحدا.', added: n => `تعلّقت ${S.num(n)} صور عالحيط` },
+      note: 'الصور بتضل على جهازك بس، ما منرفعها لحدا.', putHere: '🖼️ حطّ صورتك هون', change: 'غيّر الصورة', backPlace: 'رجّع الصورة القديمة', yours: 'صورة من العيلة', yoursLine: 'معلّقة عالحيط، عجهازك بس.', added: n => `تعلّقت ${S.num(n)} صور عالحيط` },
     en: { simple: 'Simple', title: 'Welcome home', back: 'Back to the room', on: 'Radio on', off: 'Radio off', next: 'Next station',
       tetaSt: 'Teta’s station', rTitle: '📻 Home radio', rHouse: '🏠 Go into the house', rInstall: 'To put this radio on the phone’s home screen: on iPhone tap Share → “Add to Home Screen”; on Android tap ⋮ → “Install” or “Add to Home screen”.', rPick: 'Change station', news: 'News', tv: 'TV', tapes: 'Songs', phone: 'Voice message', tawleh: 'Tawleh', together: 'Listen together', myPhotos: 'Hang your family photos', remove: 'Remove my photos',
-      note: 'Your photos stay on this device only. Nothing is uploaded.', added: n => `${n} photos hung on the wall` },
+      note: 'Your photos stay on this device only. Nothing is uploaded.', putHere: '🖼️ Put your photo here', change: 'Change the photo', backPlace: 'Put the old picture back', yours: 'A family photo', yoursLine: 'Hanging on the wall, on this device only.', added: n => `${n} photos hung on the wall` },
     fr: { simple: 'Simple', title: 'Bienvenue à la maison', back: 'Retour au salon', on: 'Allumer la radio', off: 'Éteindre la radio', next: 'Station suivante',
       tetaSt: 'La station de Teta', rTitle: '📻 La radio de la maison', rHouse: '🏠 Entrer dans la maison', rInstall: 'Pour mettre cette radio sur l’écran d’accueil : sur iPhone, Partager → « Sur l’écran d’accueil » ; sur Android, ⋮ → « Installer » ou « Ajouter à l’écran d’accueil ».', rPick: 'Changer de station', news: 'Infos', tv: 'Télé', tapes: 'Chansons', phone: 'Message vocal', tawleh: 'Tawlé', together: 'Ensemble', myPhotos: 'Accrocher vos photos de famille', remove: 'Retirer mes photos',
-      note: 'Vos photos restent sur cet appareil. Rien n’est envoyé.', added: n => `${n} photos accrochées au mur` }
+      note: 'Vos photos restent sur cet appareil. Rien n’est envoyé.', putHere: '🖼️ Mettre votre photo ici', change: 'Changer la photo', backPlace: 'Remettre l’ancienne image', yours: 'Une photo de famille', yoursLine: 'Accrochée au mur, sur cet appareil seulement.', added: n => `${n} photos accrochées au mur` }
   };
   const t = (k, ...a) => { const v = (T[S.lang()] || T.ar)[k]; return typeof v === 'function' ? v(...a) : v; };
 
@@ -159,11 +159,34 @@
       img.src = URL.createObjectURL(file);
     });
   }
+  // Frames nobody has filled yet show Lebanese places, never strangers: old prints in the 80s and 90s, colour after.
+  const PLACES = {
+    raouche: { ar: ['صخرة الروشة، بيروت', 'صخرتين بنص البحر، وكل عيلة إلها صورة قدّامن.'], en: ['Pigeon Rocks, Beirut', 'Two rocks in the sea where every family took its photo.'], fr: ['La Grotte aux Pigeons, Beyrouth', 'Deux rochers dans la mer, la photo de toutes les familles.'] },
+    cedars: { ar: ['أرز الرب، بشرّي', 'شجر عمرو آلاف السنين، وهوّي اللي عالعلم.'], en: ['The Cedars of God, Bsharri', 'Trees thousands of years old, the one on the flag.'], fr: ['Les Cèdres de Dieu, Bcharré', 'Des arbres millénaires, celui du drapeau.'] },
+    baalbek: { ar: ['قلعة بعلبك', 'أعمدة معبد جوبيتر، من أعلى الأعمدة الرومانية بالعالم.'], en: ['Baalbek', 'The columns of the Temple of Jupiter, among the tallest Roman columns.'], fr: ['Baalbek', 'Les colonnes du temple de Jupiter, parmi les plus hautes du monde romain.'] },
+    harbour: { ar: ['مرفأ صيدا', 'فلايك الصيادين والقلعة البحرية.'], en: ['The old port of Sidon', 'Fishing boats and the Sea Castle.'], fr: ['Le vieux port de Saïda', 'Les barques de pêcheurs et le château de la mer.'] },
+    jeita: { ar: ['مغارة جعيتا', 'مغارة كلس تحت الأرض، بتقطعها بالفلوكة.'], en: ['Jeita Grotto', 'Limestone caves you cross by boat.'], fr: ['La grotte de Jeita', 'Des grottes calcaires qu’on traverse en barque.'] },
+    beiteddine: { ar: ['قصر بيت الدين، الشوف', 'قصر الأمير بشير بقناطرو وفسيفساؤو.'], en: ['Beiteddine Palace, Chouf', 'Emir Bashir’s palace, its arches and mosaics.'], fr: ['Le palais de Beiteddine, Chouf', 'Le palais de l’émir Bachir, ses arcades et ses mosaïques.'] },
+    harissa: { ar: ['حريصا وخليج جونيه', 'سيدة لبنان فوق البحر ساعة المغيب.'], en: ['Harissa and the bay of Jounieh', 'Our Lady of Lebanon above the sea at sunset.'], fr: ['Harissa et la baie de Jounieh', 'Notre-Dame du Liban au-dessus de la mer au coucher du soleil.'] },
+    qadisha: { ar: ['وادي قاديشا', 'الوادي المقدّس وأديرتو المعلّقة بالصخر.'], en: ['The Qadisha Valley', 'The holy valley and its monasteries in the cliffs.'], fr: ['La vallée de la Qadisha', 'La vallée sainte et ses monastères accrochés à la falaise.'] },
+    byblos: { ar: ['جبيل', 'من أقدم المدن المسكونة، وآثارها عالبحر.'], en: ['Byblos', 'One of the oldest lived-in towns, its ruins by the sea.'], fr: ['Byblos', 'L’une des plus vieilles villes habitées, ses ruines face à la mer.'] },
+    corniche: { ar: ['كورنيش بيروت', 'مشوار المغيب تحت النخل.'], en: ['The Beirut Corniche', 'The sunset walk under the palm trees.'], fr: ['La Corniche de Beyrouth', 'La promenade du soir sous les palmiers.'] },
+    anjar: { ar: ['عنجر، البقاع', 'مدينة أموية بقناطر حجر.'], en: ['Anjar, Bekaa', 'An Umayyad town of stone arches.'], fr: ['Anjar, Békaa', 'Une ville omeyyade aux arcades de pierre.'] },
+    bridge: { ar: ['جسر الحجر، فقرا', 'قنطرة صخر طبيعية فوق النبع.'], en: ['The stone bridge, Faqra', 'A natural rock arch over the spring.'], fr: ['Le pont de pierre, Faqra', 'Une arche de roche naturelle au-dessus de la source.'] }
+  };
+  const OLD_PRINTS = ['raouche', 'cedars', 'baalbek', 'harbour', 'jeita', 'beiteddine'];
+  const COLOUR_PRINTS = ['harissa', 'qadisha', 'byblos', 'corniche', 'anjar', 'bridge'];
+  function placeAt(i) {
+    const era = R() && R().era ? R().era() : '90s';
+    const list = /^(80s|90s)/.test(era) ? OLD_PRINTS : COLOUR_PRINTS;
+    return list[i % list.length];
+  }
   function renderLayer() {
     const frames = R() ? R().photoFrames() : [];
-    layer.replaceChildren(...photos.slice(0, frames.length).map((src, i) => {
+    layer.replaceChildren(...frames.map((f, i) => {
       // the print sits inside the frame's own shape, lit like the room around it
-      const im = el('div', { className: 'my-photo' });
+      const src = photos[i] || `/room/places/${placeAt(i)}.jpg`;
+      const im = el('div', { className: 'my-photo' + (photos[i] ? '' : ' is-place') });
       im.style.backgroundImage = `url("${src}")`;
       im.appendChild(el('i', { className: 'my-photo-glass' }));
       im.dataset.i = i;
@@ -172,8 +195,9 @@
     if (R()) R().redraw();
   }
   function placeLayer() {
-    if (!photos.length || !R()) return;
+    if (!R()) return;
     const frames = R().photoFrames();
+    if (layer.childElementCount !== frames.length) { renderLayer(); return; }
     const sc = R().scene(), pw = R().power ? R().power() : 1;
     const light = (sc === 'night' ? 0.62 : sc === 'sunset' ? 0.82 : 0.96) * (0.08 + 0.92 * pw);
     const look = `brightness(${light.toFixed(3)}) sepia(${sc === 'day' ? 0.12 : 0.3}) saturate(.82) contrast(.92)`;
@@ -187,6 +211,57 @@
       im.style.transform = R().quadTransform(300, 300, R().orderQuad(pts));
     });
   }
+  function savePhotos() {
+    while (photos.length && !photos[photos.length - 1]) photos.pop();
+    try { S.store.set(KEY, photos); } catch { S.toast('…'); }
+  }
+
+  // ---- tap a frame: what is in it, and a way to hang your own photo there
+  const card = el('div', { className: 'frame-card', id: 'frame-card', hidden: true, role: 'dialog', 'aria-live': 'polite' });
+  document.body.appendChild(card);
+  const oneInput = el('input', { type: 'file', accept: 'image/*', hidden: true });
+  document.body.appendChild(oneInput);
+  let cardFor = -1;
+  oneInput.addEventListener('change', async () => {
+    const f = oneInput.files && oneInput.files[0];
+    oneInput.value = '';
+    if (!f || cardFor < 0) return;
+    try {
+      const src = await resize(f);
+      while (photos.length < cardFor) photos.push(null);
+      photos[cardFor] = src;
+      savePhotos(); renderLayer(); photoControls(); closeCard();
+      S.toast(t('added', 1));
+    } catch { /* skip */ }
+  });
+  function closeCard() { card.hidden = true; cardFor = -1; }
+  function openCard(i) {
+    cardFor = i;
+    const lg = S.lang(), mine = !!photos[i];
+    const key = placeAt(i), P = PLACES[key][lg] || PLACES[key].ar;
+    const put = el('button', { type: 'button', className: 'btn btn-primary', text: mine ? t('change') : t('putHere') });
+    put.addEventListener('click', () => oneInput.click());
+    const kids = [
+      el('div', { className: 'frame-card-pic', style: `background-image:url("${mine ? photos[i] : `/room/places/${key}.jpg`}")` }),
+      el('div', { className: 'frame-card-text' }, [
+        el('strong', { text: mine ? t('yours') : P[0] }),
+        el('span', { text: mine ? t('yoursLine') : P[1] })
+      ]),
+      el('div', { className: 'frame-card-actions' }, [put])
+    ];
+    if (mine) {
+      const back = el('button', { type: 'button', className: 'link-btn', text: t('backPlace') });
+      back.addEventListener('click', () => { photos[i] = null; savePhotos(); renderLayer(); photoControls(); closeCard(); });
+      kids[2].appendChild(back);
+    }
+    const x = el('button', { type: 'button', className: 'frame-card-x', 'aria-label': '×', text: '×' });
+    x.addEventListener('click', closeCard);
+    card.replaceChildren(x, ...kids);
+    card.hidden = false;
+  }
+  document.addEventListener('sawt:frame-tap', e => openCard(e.detail.i));
+  document.addEventListener('pointerdown', e => { if (!card.hidden && !card.contains(e.target)) closeCard(); }, true);
+  document.addEventListener('sawt:lang', () => { if (!card.hidden && cardFor >= 0) openCard(cardFor); });
   if (window.SawtRoom) window.SawtRoom.onFrame(placeLayer);
 
   function photoControls() {
@@ -201,16 +276,18 @@
     const add = el('button', { type: 'button', className: 'btn btn-primary', text: '🖼️ ' + t('myPhotos') });
     add.addEventListener('click', () => input.click());
     input.addEventListener('change', async () => {
-      const files = [...input.files].slice(0, 5);
+      const files = [...input.files].slice(0, 6);
       const out = [];
       for (const f of files) { try { out.push(await resize(f)); } catch { /* skip */ } }
-      photos = out.concat(photos).slice(0, 5);
-      try { S.store.set(KEY, photos); } catch { S.toast('…'); }
+      // family photos fill the frames in order, before the places
+      const rest = photos.filter(Boolean);
+      photos = out.concat(rest).slice(0, 6);
+      savePhotos();
       renderLayer(); photoControls();
       S.toast(t('added', out.length));
     });
     const kids = [add, input];
-    if (photos.length) {
+    if (photos.some(Boolean)) {
       const rm = el('button', { type: 'button', className: 'link-btn', text: t('remove') });
       rm.addEventListener('click', () => { photos = []; S.store.set(KEY, []); renderLayer(); photoControls(); });
       kids.push(rm);

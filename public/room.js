@@ -40,13 +40,13 @@
         radio: 'الراديو', tv: 'التلفزيون', atari: 'الأتاري', news: 'الجريدة', phone: 'رسالة بصوتك', photos: 'صور العيلة',
         cassettes: 'الشرايط', clock: 'الساعة', lamp: 'اللمبادير', window: 'البلكون', calendar: 'المناسبات',
         coffee: 'فنجان القهوة', books: 'سفرة تيتا', expat: 'الغربة', tawleh: 'الطاولة والشدّة', together: 'قعدة سوا',
-        teta: 'كرسي تيتا', ac: 'المكيّف'
+        teta: 'كرسي تيتا', ac: 'المكيّف', heat: 'الصوبيا'
       },
       hints: {
         atari: 'ألعاب فيديو متل زمان', radio: 'محطات لبنان مباشرة', tv: 'برامج ومسلسلات القنوات', news: 'أخبار اليوم', phone: 'لغرفة العيلة، مع أغنية', photos: 'علّق صورك',
         cassettes: 'أغاني لكل جوّ', clock: 'المنبّه', lamp: 'مؤقت النوم', window: 'ضيعتي والطقس', calendar: 'الأعياد والمناسبات',
         coffee: 'نقرا الفنجان؟', books: '٣٠ طبخة + طبخاتك', expat: 'بيروت من بعيد', tawleh: 'طاولة، طرنيب، ليخة', together: 'غرف العيلة برمز',
-        teta: 'كبير وسهل', ac: 'الوقت والطقس'
+        teta: 'كبير وسهل', ac: 'الوقت والطقس', heat: 'ولّعها أو طفّيها'
       },
       tvLede: 'اكبس عقناة، اختار برنامج أو مسلسل، وبيشتغل هون عالتلفزيون. بلا بثّ مباشر وبلا اشتراك.',
       photosLede: 'رسائل من الغربة لأهلنا بلبنان.',
@@ -89,13 +89,13 @@
         radio: 'Radio', tv: 'Television', atari: 'Game console', news: 'Newspaper', phone: 'Voice message', photos: 'Family photos',
         cassettes: 'Tapes', clock: 'Clock', lamp: 'Lamp', window: 'Balcony', calendar: 'Occasions',
         coffee: 'Coffee cup', books: 'Teta’s table', expat: 'Far from home', tawleh: 'Tawleh & cards', together: 'Family rooms',
-        teta: 'Teta’s chair', ac: 'Air conditioner'
+        teta: 'Teta’s chair', ac: 'Air conditioner', heat: 'The heater'
       },
       hints: {
         atari: 'Old-school video games', radio: 'Lebanese stations, live', tv: 'Lebanese channels’ shows', news: 'Today’s headlines', phone: 'To a family room, with a song', photos: 'Hang your photos',
         cassettes: 'A song for every mood', clock: 'Alarm', lamp: 'Sleep timer', window: 'My village, weather', calendar: 'Feasts and holidays',
         coffee: 'Read my cup?', books: '30 recipes + yours', expat: 'Beirut from afar', tawleh: 'Tawleh, Tarneeb, Likha', together: 'Private, with a passcode',
-        teta: 'Big and simple', ac: 'Time and weather'
+        teta: 'Big and simple', ac: 'Time and weather', heat: 'Light it or put it out'
       },
       tvLede: 'Press a channel, pick a show or series, and it plays right here on the TV. No live streams, nothing to pay.',
       photosLede: 'Messages from abroad to family in Lebanon.',
@@ -138,13 +138,13 @@
         radio: 'Radio', tv: 'Télévision', atari: 'Console de jeux', news: 'Journal', phone: 'Message vocal', photos: 'Photos de famille',
         cassettes: 'Cassettes', clock: 'Horloge', lamp: 'Lampe', window: 'Balcon', calendar: 'Fêtes',
         coffee: 'Tasse de café', books: 'La table de Teta', expat: 'Loin du pays', tawleh: 'Tawlé et cartes', together: 'Pièces de famille',
-        teta: 'Le fauteuil de Teta', ac: 'Climatiseur'
+        teta: 'Le fauteuil de Teta', ac: 'Climatiseur', heat: 'Le chauffage'
       },
       hints: {
         atari: 'Jeux vidéo d’antan', radio: 'Radios libanaises en direct', tv: 'Émissions des chaînes', news: 'Les titres du jour', phone: 'Pour une pièce de famille, avec une chanson', photos: 'Accrochez vos photos',
         cassettes: 'Une chanson pour chaque humeur', clock: 'Réveil', lamp: 'Minuterie', window: 'Mon village, la météo', calendar: 'Fêtes et jours fériés',
         coffee: 'Lire ma tasse ?', books: '30 recettes + les vôtres', expat: 'Beyrouth de loin', tawleh: 'Tawlé, Tarneeb, Likha', together: 'Privées, avec un code',
-        teta: 'Grand et simple', ac: 'Heure et météo'
+        teta: 'Grand et simple', ac: 'Heure et météo', heat: 'L’allumer ou l’éteindre'
       },
       tvLede: 'Appuyez sur une chaîne, choisissez une émission ou une série, elle passe ici, sur la télé. Sans direct, sans abonnement.',
       photosLede: 'Des messages de l’étranger pour la famille au Liban.',
@@ -166,6 +166,16 @@
   try {
     const eraNow = (window.SawtEras || {})[S.store.get('era', '90s')];
     if (eraNow && eraNow.ready && eraNow.labels) for (const [lg, names] of Object.entries(eraNow.labels)) if (R[lg]) Object.assign(R[lg].objects, names);
+    // the heater is named for what it is in that room
+    const HN = {
+      fire: { ar: 'الشومينيه', en: 'The fireplace', fr: 'La cheminée' },
+      kerosene: { ar: 'صوبيا الكاز', en: 'The kerosene heater', fr: 'Le poêle à pétrole' },
+      gas: { ar: 'صوبيا الغاز', en: 'The gas heater', fr: 'Le chauffage à gaz' },
+      radiator: { ar: 'الشوفاج الكهربا', en: 'The oil radiator', fr: 'Le radiateur à bain d’huile' },
+      electric: { ar: 'الدفّاية', en: 'The electric heater', fr: 'Le radiateur électrique' }
+    };
+    const hk = ((window.SawtEras || {})[S.store.get('era', '90s')] || {}).heat;
+    if (hk && HN[hk.kind]) for (const lg of ['ar', 'en', 'fr']) if (R[lg]) R[lg].objects.heat = HN[hk.kind][lg];
   } catch { /* fine */ }
   const r = (key, ...args) => {
     const v = (R[S.lang()] || R.ar)[key];
@@ -191,7 +201,7 @@
     setEra(eraReady(want) ? want : homesOf(decade)[0]);
   }
   let era = S.store.get('era', '90s'); if (!eraReady(era)) era = '90s';
-  const E = era === '90s' ? {} : ERA_DATA[era];
+  const E = era === '90s' ? (ERA_DATA['90s'] || {}) : ERA_DATA[era];
   const BASE = E.base || '/room/';
   function setEra(id) {
     if (!eraReady(id)) return;
@@ -227,8 +237,12 @@
   };
   // The objects in the order they sit in the room, left to right.
   const OBJECT_IDS = E.objects || ['ac', 'lamp', 'expat', 'phone', 'clock', 'radio', 'calendar', 'together', 'news', 'tawleh', 'window', 'coffee', 'teta', 'photos', 'cassettes', 'tv', 'atari', 'books'];
+  if (E.heat) {                                     // every room has its heater
+    if (!OBJECT_IDS.includes('heat')) OBJECT_IDS.push('heat');
+    if (!SPOTS.heat) SPOTS.heat = [E.heat.spot, E.heat.spot, E.heat.spot];
+  }
   const OBJECTS = OBJECT_IDS.map(id => ({ id }));
-  const ACTION_ONLY = { teta: true, ac: true };          // these do something instead of opening a drawer
+  const ACTION_ONLY = { teta: true, ac: true, heat: true };          // these do something instead of opening a drawer
   const PX = E.px || { day: [1264, 843], night: [1264, 843], sunset: [1536, 1024] };
   const TV = E.tv || {
     day: [[1088.3, 320], [1204, 319.3], [1202.7, 419.3], [1089.3, 418.3]],
@@ -237,9 +251,9 @@
   };
   // the family photos: the four corners of the print inside each frame (tl, tr, br, bl), in picture pixels
   const FRAMES = E.frames || {
-    day: [[[959.0,213.0],[991.0,213.0],[991.0,268.0],[959.0,268.0]], [[302.0,285.0],[329.0,284.0],[332.0,319.0],[303.0,319.0]], [[247.0,303.0],[268.0,303.0],[268.0,330.0],[247.0,330.0]], [[375.0,236.0],[403.0,239.0],[400.0,280.0],[372.0,279.0]], [[1161.0,133.0],[1197.0,133.0],[1197.0,166.0],[1161.0,166.0]]],
-    night: [[[958.0,212.0],[992.0,212.0],[992.0,270.0],[958.0,270.0]], [[307.0,284.0],[332.0,286.0],[333.0,319.0],[308.0,321.0]], [[262.0,303.0],[283.0,302.0],[283.0,331.0],[262.0,332.0]], [[373.0,239.0],[401.0,238.0],[400.0,277.0],[372.0,278.0]], [[1158.0,132.0],[1196.0,132.0],[1196.0,168.0],[1158.0,168.0]]],
-    sunset: [[[1163.0,251.0],[1203.0,251.0],[1203.0,318.0],[1163.0,318.0]], [[370.0,337.0],[401.0,338.0],[404.0,377.0],[370.0,378.0]], [[285.0,373.0],[303.0,373.0],[303.0,392.0],[285.0,392.0]], [[452.0,279.0],[485.0,279.0],[485.0,326.0],[452.0,327.0]], [[1402.0,153.0],[1468.0,153.0],[1468.0,200.0],[1402.0,200.0]]]
+    day: [[[959.0,213.0],[991.0,213.0],[991.0,268.0],[959.0,268.0]], [[302.0,285.0],[329.0,284.0],[332.0,319.0],[303.0,319.0]], [[247.0,303.0],[268.0,303.0],[268.0,330.0],[247.0,330.0]], [[375.0,236.0],[403.0,239.0],[400.0,280.0],[372.0,279.0]], [[1161.0,133.0],[1197.0,133.0],[1197.0,166.0],[1161.0,166.0]], [[1170.0,217.0],[1195.0,212.0],[1196.0,250.0],[1170.0,252.0]], [[1077.0,160.0],[1117.0,159.0],[1117.0,187.0],[1077.0,188.0]]],
+    night: [[[958.0,212.0],[992.0,212.0],[992.0,270.0],[958.0,270.0]], [[307.0,284.0],[332.0,286.0],[333.0,319.0],[308.0,321.0]], [[262.0,303.0],[283.0,302.0],[283.0,331.0],[262.0,332.0]], [[373.0,239.0],[401.0,238.0],[400.0,277.0],[372.0,278.0]], [[1158.0,132.0],[1196.0,132.0],[1196.0,168.0],[1158.0,168.0]], [[233.5,313.5],[251.0,313.5],[251.0,333.0],[233.5,333.0]], [[1224.0,272.0],[1251.0,271.0],[1253.0,300.0],[1222.0,300.0]]],
+    sunset: [[[1163.0,251.0],[1203.0,251.0],[1203.0,318.0],[1163.0,318.0]], [[370.0,337.0],[401.0,338.0],[404.0,377.0],[370.0,378.0]], [[285.0,373.0],[303.0,373.0],[303.0,392.0],[285.0,392.0]], [[452.0,279.0],[485.0,279.0],[485.0,326.0],[452.0,327.0]], [[1402.0,153.0],[1468.0,153.0],[1468.0,200.0],[1402.0,200.0]], [[316.0,362.0],[343.0,362.0],[343.0,396.0],[316.0,396.0]], [[1481.0,318.0],[1521.0,318.0],[1521.0,352.0],[1481.0,352.0]]]
   };
   const GLASS = E.glass || { day: [44.5, 21, 60.9, 55.8], night: [44.5, 21, 60.9, 55.8], sunset: [44.9, 20.7, 60.2, 54.7] };
   const STEAM = E.steam || { night: [[44.7, 55.6, 1], [48, 59.3, 0]], sunset: [[44.6, 54.2, 1], [53, 57.8, 0.7]], day: [[0, 0, 0], [0, 0, 0]] };
@@ -286,11 +300,12 @@
     if (weatherMode === 'snow' || (weatherMode === 'auto' && (occasion === 'xmas' || snowingInBeirut()))) return 'snowy';
     if (wet) return 'grey';
     if (month === 12 || month <= 2) return 'winter';
+    if (hotNow()) return 'hot';
     if (month >= 6 && month <= 9) return 'summer';
     return 'clear';
   }
   const GRADE = {                       // multiply rgb, saturation
-    clear: [1, 1, 1, 1], snowy: [0.96, 0.99, 1.06, 0.86], summer: [1.045, 1.0, 0.93, 1.06], winter: [0.97, 0.99, 1.03, 0.92], grey: [0.86, 0.9, 0.97, 0.78]
+    clear: [1, 1, 1, 1], hot: [1.07, 1.02, 0.91, 1.1], snowy: [0.96, 0.99, 1.06, 0.86], summer: [1.045, 1.0, 0.93, 1.06], winter: [0.97, 0.99, 1.03, 0.92], grey: [0.86, 0.9, 0.97, 0.78]
   };
 
   // Sunrise and sunset around a given moment (searched minute by minute).
@@ -336,7 +351,7 @@
   const canvas = $('view');
   // cx, cy: the point of the picture in the middle of the screen (0..1); z: zoom over "just fills the screen"
   const view = { cx: 0.5, cy: 0.5, z: 1, vx: 0, vy: 0 };
-  let gl = null, prog = null, tex = [null, null, null, null, null], mixAmount = 0, uni = {};
+  let gl = null, prog = null, tex = [null, null, null, null, null, null], mixAmount = 0, uni = {};
   let needsDraw = true;
   let aspect = 1.5;                       // of the picture on show
   let maxTex = 4096;
@@ -373,6 +388,20 @@
     uniform sampler2D tm;      // the windows of this room: r = glass (what is outside), g = sky, b = glass blurred (edges)
     uniform float hasMask;
     uniform vec4 bolt;         // lightning bolt: u, where it ends (v), seed, strength
+    uniform sampler2D te;      // the heater's own light (what the fire adds), over heatBox
+    uniform vec4 heatBox;      // u0, v0, u1, v1
+    uniform float heatOn;      // 0 out .. 1 burning
+    uniform vec4 heatGlow;     // u, v, reach, how dark the room is
+    uniform vec4 steamC;       // the kettle or the chestnuts
+    uniform vec4 moon;         // u, v, phase (0 new .. 0.5 full .. 1), strength
+    uniform float stars;
+    uniform vec4 birds;        // started (s ago), height v, direction, strength
+    uniform vec4 fan;          // ceiling fan: hub u, v, half-width, half-height (uv)
+    uniform float fanSpin;
+    uniform vec4 acBox;        // under the AC: u0, v0, u1, v1
+    uniform float acShim;
+    uniform vec2 seasonFx;     // kind (1 leaves, 2 blossom, 3 haze), amount
+    uniform float living;      // curtains breathe (0 in the light room)
     float h21(vec2 q) { q = fract(q * vec2(123.34, 456.21)); q += dot(q, q + 45.32); return fract(q.x * q.y); }
     float vn(vec2 q) { vec2 i = floor(q), f = fract(q); f = f * f * (3.0 - 2.0 * f);
       return mix(mix(h21(i), h21(i + vec2(1.0, 0.0)), f.x), mix(h21(i + vec2(0.0, 1.0)), h21(i + vec2(1.0, 1.0)), f.x), f.y); }
@@ -403,20 +432,18 @@
       y -= (gv.x - x) * (gv.x - x);
       vec2 dp = (gv - vec2(x, y)) / aspect;
       float drop = smoothstep(0.05, 0.03, length(dp));
-      vec2 tp = (gv - vec2(x, t * 0.25)) / aspect;
-      tp.y = (fract(tp.y * 8.0) - 0.5) / 8.0;
-      float trail = smoothstep(0.03, 0.01, length(tp));
-      float fog = smoothstep(-0.05, 0.05, dp.y) * smoothstep(0.5, y, gv.y);
-      trail *= fog;
-      return vec3(drop * dp + trail * tp, max(drop, trail));
+      // no trails: their thin stripes read as lines on a phone
+      drop *= smoothstep(0.5, 0.42, abs(gv.x)) * smoothstep(0.5, 0.42, abs(gv.y));
+      return vec3(drop * dp, drop);
     }
     // rain falling outside, seen through the glass: thin slanted streaks in two depths
-    float streaks(vec2 p, float t, float sp, float dens) {
+    float streaks(vec2 p, float t, float sp, float dens, float px) {
       p.x += p.y * 0.22;
       vec2 q = vec2(p.x * dens, p.y * 2.2 - t * sp);
       vec2 id = floor(q); vec2 f = fract(q);
       float r = h21(id + 1.7), r2 = h21(id.yx + 9.3);
-      float line = smoothstep(0.09, 0.0, abs(f.x - (0.15 + 0.7 * r)));
+      float w = max(0.07, px * dens * 1.2);           // never thinner than a pixel: no shimmering lines
+      float line = smoothstep(w, 0.0, abs(f.x - (0.15 + 0.7 * r))) * min(1.0, 0.07 / w * 1.6);
       float len = smoothstep(0.0, 0.12, f.y) * smoothstep(0.35 + 0.5 * r2, 0.2 + 0.3 * r2, f.y);
       return line * len * step(0.45, r2);
     }
@@ -453,8 +480,30 @@
         gl_FragColor = vec4(b, 1.0);
         return;
       }
-      vec4 c = texture2D(t0, uv);
-      if (mixv > 0.0) c = mix(c, texture2D(t1, uv), mixv);
+      vec2 su = uv;
+      if (hasMask > 0.5 && living > 0.0) {             // the sheer curtains breathe a little
+        float cu = texture2D(tm, uv).a;
+        if (cu > 0.01) su.x += (sin(time * 0.9 + uv.y * 7.0) * 0.6 + sin(time * 1.7 + uv.y * 13.0) * 0.4) * 0.0022 * cu * living;
+      }
+      if (acShim > 0.0 && uv.x > acBox.x && uv.x < acBox.z && uv.y > acBox.y && uv.y < acBox.w) {
+        float fy = (uv.y - acBox.y) / (acBox.w - acBox.y);
+        su.x += sin(uv.y * 260.0 - time * 7.0) * 0.0007 * acShim * (1.0 - fy) * smoothstep(0.0, 0.3, fy);
+      }
+      vec4 c = texture2D(t0, su);
+      if (mixv > 0.0) c = mix(c, texture2D(t1, su), mixv);
+      if (fanSpin > 0.0) {                             // the ceiling fan turning: the blades blur into a disc
+        vec2 fd = (uv - fan.xy) / fan.zw;
+        float fr = length(fd);
+        if (fr < 1.0 && fr > 0.12) {
+          float a0 = atan(fd.y, fd.x);
+          vec3 acc = vec3(0.0);
+          for (int k = 0; k < 10; k++) {
+            float a = a0 + (float(k) - 4.5) * 0.21;
+            acc += texture2D(t0, fan.xy + vec2(cos(a), sin(a)) * fr * fan.zw).rgb;
+          }
+          c.rgb = mix(c.rgb, acc / 10.0, fanSpin * smoothstep(1.0, 0.85, fr) * smoothstep(0.12, 0.2, fr));
+        }
+      }
       float m = smoothstep(glass.x, glass.x + 0.006, uv.x) * smoothstep(glass.z, glass.z - 0.006, uv.x) *
                 smoothstep(glass.y, glass.y + 0.006, uv.y) * smoothstep(glass.w, glass.w - 0.006, uv.y);
       float sky = m * smoothstep(glass.y + 0.25 * (glass.w - glass.y), glass.y, uv.y);
@@ -465,6 +514,58 @@
         float tw = vn(uv * vec2(asp, 1.0) * 220.0 + vec2(time * 0.9, time * 0.35)) * 2.0 - 1.0;
         c.rgb *= 1.0 + glow * m * smoothstep(0.5, 0.85, l) * tw * 0.28;
       }
+      if (m > 0.01) {
+        vec2 op = vec2(uv.x * asp, uv.y);
+        float olum = dot(c.rgb, vec3(0.3, 0.59, 0.11));
+        float darkSky = 1.0 - smoothstep(0.08, 0.3, olum);
+        if (stars > 0.0) {                             // stars in a dark sky
+          vec2 g = op * 260.0; vec2 id = floor(g); vec2 f = fract(g) - 0.5;
+          float n = h21(id);
+          float st0 = step(0.985, n) * smoothstep(0.32, 0.0, length(f + (vec2(fract(n * 13.0), fract(n * 7.0)) - 0.5) * 0.4));
+          float tw = 0.6 + 0.4 * sin(time * (1.0 + n * 3.0) + n * 40.0);
+          c.rgb += vec3(0.9, 0.93, 1.0) * st0 * tw * stars * darkSky * m * (0.4 + 0.6 * sky);
+        }
+        if (moon.w > 0.0) {                            // the moon, in its real phase
+          vec2 md = (op - vec2(moon.x * asp, moon.y)) / 0.022;
+          float r = length(md);
+          if (r < 3.0) {
+            float disc = smoothstep(1.0, 0.92, r);
+            float ph = moon.z * 2.0 - 1.0;              // -1 new .. 0 full .. 1 new
+            float xs = md.x / max(0.001, sqrt(max(0.0, 1.0 - md.y * md.y)));
+            float lit = ph < 0.0 ? smoothstep(-ph * 2.0 - 1.0 - 0.08, -ph * 2.0 - 1.0 + 0.08, xs) : smoothstep(1.0 - ph * 2.0 + 0.08, 1.0 - ph * 2.0 - 0.08, xs);
+            float glowM = exp(-r * 1.6) * 0.35;
+            vec3 mc = vec3(0.96, 0.95, 0.88) * (0.25 + 0.75 * lit) * (0.85 + 0.15 * vn(md * 3.0 + 5.0));
+            c.rgb = mix(c.rgb, mc, disc * moon.w * m * darkSky);
+            c.rgb += vec3(0.8, 0.82, 0.9) * glowM * moon.w * m * darkSky * (1.0 - 0.6 * abs(ph));
+          }
+        }
+        if (birds.w > 0.0) {                           // a few birds crossing the sky
+          for (int k = 0; k < 4; k++) {
+            float fk = float(k);
+            vec2 bp = vec2(-0.1 + birds.z * birds.x * 0.035 + fk * 0.03 * (h21(vec2(fk, 1.0)) + 0.5), birds.y + fk * 0.012 * sin(fk * 2.1) + sin(birds.x * 0.8 + fk) * 0.01);
+            if (birds.z < 0.0) bp.x += 1.2 + fk * 0.06;
+            vec2 q = (op - vec2(bp.x * asp, bp.y)) / 0.007;
+            float flap = sin(birds.x * 11.0 + fk * 1.9) * 0.6;
+            float wing = abs(q.y + abs(q.x) * (0.55 + flap * 0.5) - 0.1);
+            float bd = smoothstep(0.32, 0.12, wing) * step(abs(q.x), 1.3);
+            c.rgb = mix(c.rgb, vec3(0.12, 0.12, 0.14), bd * 0.75 * birds.w * m);
+          }
+        }
+        if (seasonFx.y > 0.0) {
+          if (seasonFx.x < 1.5 || seasonFx.x > 1.5 && seasonFx.x < 2.5) {   // leaves or blossom drifting down outside
+            vec2 lp = op * 9.0; lp.y -= time * 0.35; lp.x += sin(lp.y * 0.8 + time * 0.6) * 0.5;
+            vec2 id = floor(lp); vec2 f = fract(lp) - 0.5; float n = h21(id + 3.3);
+            vec2 o2 = vec2(n - 0.5, fract(n * 9.7) - 0.5) * 0.6;
+            vec2 d = f - o2; float ang = time * (1.0 + n * 2.0) + n * 6.0;
+            d = mat2(cos(ang), -sin(ang), sin(ang), cos(ang)) * d;
+            float leaf = smoothstep(0.06, 0.03, length(d * vec2(1.0, 2.2))) * step(0.82, fract(n * 5.1));
+            vec3 lc = seasonFx.x < 1.5 ? mix(vec3(0.75, 0.38, 0.1), vec3(0.85, 0.62, 0.18), fract(n * 3.7)) : mix(vec3(1.0, 0.86, 0.9), vec3(0.98, 0.97, 0.95), fract(n * 3.7));
+            c.rgb = mix(c.rgb, lc * (0.4 + 0.6 * (1.0 - darkSky)), leaf * seasonFx.y * m);
+          } else {                                       // summer haze over the far view
+            c.rgb = mix(c.rgb, vec3(olum) * vec3(1.04, 1.0, 0.92) + 0.05, 0.18 * seasonFx.y * m * (0.4 + 0.6 * sky));
+          }
+        }
+      }
       if (rain > 0.001 && m > 0.01) {
         vec2 sp2 = vec2(uv.x * asp, uv.y);
         // drops running down the glass bend what is outside
@@ -472,7 +573,7 @@
         vec3 a = drops(st, time);
         vec3 b = drops(st * 1.65 + vec2(7.54, 2.1), time * 1.1);
         vec3 e = beads(st * 6.0);
-        vec2 o = (a.xy + b.xy * 0.7 + e.xy) * rain;
+        vec2 o = (a.xy + b.xy * 0.7 + e.xy * 0.6) * rain * 0.7;
         float wet = max(max(a.z, b.z), e.z);
         vec2 u2 = uv - o * 0.05;
         float bl = 0.0022 * (1.0 - wet);
@@ -488,9 +589,10 @@
         o2 = mix(o2, vec3(lum * 0.55 + 0.12) * vec3(0.9, 0.94, 1.0), rain * 0.22 * (1.0 - sky));   // mist
         // the rain itself: three depths, slanted, in gusts
         float gust = 0.55 + 0.45 * vn(vec2(sp2.x * 1.5 - time * 0.4, time * 0.25));
-        float rs = streaks(sp2 * 0.7 + 11.0, time, 2.0, 120.0) * 0.45
-                 + streaks(sp2, time, 2.8, 70.0) * 0.8
-                 + streaks(sp2 * 1.5 + 3.1, time, 3.6, 46.0) * 1.0;
+        float pxs = cam.z * asp;
+        float rs = streaks(sp2 * 0.7 + 11.0, time, 2.0, 120.0, pxs * 0.7) * 0.45
+                 + streaks(sp2, time, 2.8, 70.0, pxs) * 0.8
+                 + streaks(sp2 * 1.5 + 3.1, time, 3.6, 46.0, pxs * 1.5) * 1.0;
         float dark = 1.0 - smoothstep(0.05, 0.7, lum);
         o2 += vec3(0.78, 0.83, 0.9) * rs * gust * rain * (0.22 + 0.4 * dark);
         // lightning: the whole sky lights up, and a bolt now and then
@@ -527,7 +629,22 @@
         c.rgb = mix(c.rgb, dd.rgb * mix(1.0, tw, glow), dd.a * decor);
       }
       c.rgb += flash * 0.1 * vec3(0.85, 0.9, 1.0);
-      float st = steam(steamA, uv, time) + steam(steamB, uv, time);
+      // the heater: flames that move, light that flickers on the floor and the walls
+      if (heatOn > 0.001) {
+        float fl = 0.78 + 0.22 * vn(vec2(time * 5.0, 1.7)) + 0.08 * sin(time * 17.0);
+        if (uv.x > heatBox.x && uv.x < heatBox.z && uv.y > heatBox.y && uv.y < heatBox.w) {
+          vec2 eu = (uv - heatBox.xy) / (heatBox.zw - heatBox.xy);
+          eu.x += sin(time * 9.0 + eu.y * 38.0) * 0.006 * (1.0 - eu.y);
+          eu.y += vn(vec2(eu.x * 14.0, time * 3.0)) * 0.01;
+          vec3 em = texture2D(te, eu).rgb;
+          float lick = 0.75 + 0.5 * vn(vec2(eu.x * 22.0, eu.y * 9.0 + time * 4.0));
+          c.rgb += em * heatOn * fl * lick * (1.0 + heatGlow.w * 0.6);
+        }
+        float d = length((uv - heatGlow.xy) * vec2(asp, 1.0));
+        float warm = smoothstep(heatGlow.z, 0.0, d);
+        c.rgb += vec3(1.0, 0.5, 0.18) * warm * warm * heatOn * fl * (0.035 + 0.11 * heatGlow.w) * (0.4 + dot(c.rgb, vec3(0.33)));
+      }
+      float st = steam(steamA, uv, time) + steam(steamB, uv, time) + steam(steamC * vec4(1.0, 1.0, heatOn, 1.0), uv, time);
       c.rgb = mix(c.rgb, vec3(0.96, 0.94, 0.9), clamp(st * 0.5, 0.0, 0.32));
       float l = dot(c.rgb, vec3(0.299, 0.587, 0.114));
       c.rgb = mix(vec3(l), c.rgb, grade.w) * grade.rgb;
@@ -564,21 +681,22 @@
     const a = gl.getAttribLocation(prog, 'a');
     gl.enableVertexAttribArray(a);
     gl.vertexAttribPointer(a, 2, gl.FLOAT, false, 0, 0);
-    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'snow', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign', 'tb', 'bgs', 'tm', 'hasMask', 'bolt']) uni[n] = gl.getUniformLocation(prog, n);
+    for (const n of ['res', 'cam', 'asp', 't0', 't1', 'mixv', 'glass', 'rain', 'snow', 'time', 'flash', 'power', 'motor', 'steamA', 'steamB', 'td', 'decor', 'glow', 'grade', 'vign', 'tb', 'bgs', 'tm', 'hasMask', 'bolt', 'te', 'heatBox', 'heatOn', 'heatGlow', 'steamC', 'moon', 'stars', 'birds', 'fan', 'fanSpin', 'acBox', 'acShim', 'seasonFx', 'living']) uni[n] = gl.getUniformLocation(prog, n);
     gl.uniform1i(uni.t0, 0);
     gl.uniform1i(uni.t1, 1);
     gl.uniform1i(uni.td, 2);
     gl.uniform1i(uni.tb, 3);
     gl.uniform1i(uni.tm, 4);
+    gl.uniform1i(uni.te, 5);
     canvas.addEventListener('webglcontextlost', e => { e.preventDefault(); }, false);
-    canvas.addEventListener('webglcontextrestored', () => { tex = [null, null, null, null, null]; initGL(); if (currentImg) { setTexture(0, currentImg); setBlur(currentImg); } if (maskImg) setTexture(4, maskImg); decorFor = null; loadDecor(); needsDraw = true; });
+    canvas.addEventListener('webglcontextrestored', () => { tex = [null, null, null, null, null, null]; heatImgSet = false; initGL(); if (currentImg) { setTexture(0, currentImg); setBlur(currentImg); } if (maskImg) setTexture(4, maskImg); if (heatImg) { setTexture(5, heatImg); heatImgSet = true; } decorFor = null; loadDecor(); needsDraw = true; });
     return true;
   }
 
   function setTexture(unit, img) {
     if (!tex[unit]) tex[unit] = gl.createTexture();
-    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4][unit]);
-    const rgba = unit === 2;
+    gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5][unit]);
+    const rgba = unit === 2 || unit === 4;
     gl.bindTexture(gl.TEXTURE_2D, tex[unit]);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
@@ -672,6 +790,37 @@
       gl.uniform1f(uni.hasMask, tex[4] ? 1 : 0);
       if (tex[4]) { gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, tex[4]); }
       gl.uniform4f(uni.bolt, boltNow.u, boltNow.v, boltNow.seed, boltNow.a);
+      const wet = rainNow > 0.05 || snowNow > 0.05;
+      const nowS = performance.now();
+      const night = scene === 'night';
+      gl.uniform1f(uni.stars, night && !wet && !lite ? 1 : 0);
+      const ph = moonPhase();
+      const mv = night && !wet && moonSpot && ph > 0.06 && ph < 0.94 ? 1 : 0;
+      gl.uniform4f(uni.moon, moonSpot ? moonSpot[0] : 0, moonSpot ? moonSpot[1] : 0, ph, mv);
+      const bt = birdStart >= 0 ? (nowS - birdStart) / 1000 : -1;
+      gl.uniform4f(uni.birds, bt, birdY, birdDir, bt >= 0 && bt < 40 && !lite ? 1 : 0);
+      const F = E.fan;
+      gl.uniform4f(uni.fan, F ? F[0] / 100 : 0, F ? F[1] / 100 : 0, F ? F[2] / 100 : 0, F ? F[3] / 100 : 0);
+      const hot = hotNow() && powerNow > 0.5 ? 1 : 0;
+      gl.uniform1f(uni.fanSpin, F && !lite ? hot : 0);
+      const acp = SPOTS.ac && SPOTS.ac[SI[scene]];
+      if (acp && !F) gl.uniform4f(uni.acBox, (acp[0] - 9) / 100, (acp[1] + 3) / 100, (acp[0] + 9) / 100, (acp[1] + 22) / 100);
+      gl.uniform1f(uni.acShim, !F && acp && !lite ? hot : 0);
+      const sk = seasonKind();
+      gl.uniform2f(uni.seasonFx, sk, sk && !wet && !lite ? (sk === 3 ? (scene === 'day' ? 1 : 0.4) : 1) : 0);
+      gl.uniform1f(uni.living, lite ? 0 : 1);
+      const hOn = HEAT && tex[5] ? heatNow : 0;
+      gl.uniform1f(uni.heatOn, hOn);
+      if (HEAT) {
+        const HB = (HEAT.scenes && HEAT.scenes[scene]) || HEAT;   // a room whose sunset photo is framed differently
+        const [bx0, by0, bx1, by1] = HB.box, P = HB.px || HEAT.px || PX.day;
+        gl.uniform4f(uni.heatBox, bx0 / P[0], by0 / P[1], bx1 / P[0], by1 / P[1]);
+        const g = HB.glow || HEAT.glow || [HEAT.spot[0], HEAT.spot[1] + 6];
+        gl.uniform4f(uni.heatGlow, g[0] / 100, g[1] / 100, HEAT.reach || 0.32, scene === 'night' ? 1 : scene === 'sunset' ? 0.5 : 0);
+        const sc = HEAT.steam;
+        gl.uniform4f(uni.steamC, sc ? sc[0] / 100 : 0, sc ? sc[1] / 100 : 0, sc ? 0.8 : 0, 0);
+        if (tex[5]) { gl.activeTexture(gl.TEXTURE5); gl.bindTexture(gl.TEXTURE_2D, tex[5]); }
+      } else gl.uniform4f(uni.steamC, 0, 0, 0, 0);
       gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, tex[0]);
       if (tex[1]) { gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, tex[1]); }
       gl.uniform1f(uni.decor, tex[2] && decorFor === scene ? 1 : 0);
@@ -846,6 +995,18 @@
     const at = unproject(e.clientX, e.clientY);
     glideTo(viewFor(at[0], at[1], view.z > zMin() * 1.4 ? zMin() : Math.max(1.6, zMin() * 2.2), e.clientX, e.clientY));
   });
+  function frameAt(x, y) {
+    const fs = FRAMES[scene] || [];
+    for (let i = 0; i < fs.length; i++) {
+      const f = fs[i], q = (Array.isArray(f[0]) ? f : [[f[0], f[1]], [f[2], f[1]], [f[2], f[3]], [f[0], f[3]]]).map(p => { const n = norm(scene, p); return project(n[0], n[1]); });
+      let inside = false;
+      for (let a = 0, b = q.length - 1; a < q.length; b = a++) {
+        if ((q[a].y > y) !== (q[b].y > y) && x < (q[b].x - q[a].x) * (y - q[a].y) / (q[b].y - q[a].y) + q[a].x) inside = !inside;
+      }
+      if (inside) return i;
+    }
+    return -1;
+  }
   // Tap on the picture near an object opens it (the dots are small on phones).
   canvas.addEventListener('click', e => {
     if (moved > 8 || introOn) return;
@@ -855,6 +1016,10 @@
       const d = Math.hypot(s.x - e.clientX, s.y - e.clientY);
       if (d < nd) { nd = d; near = o.id; }
     }
+    if (near && near !== 'photos') { openObject(near, true); return; }
+    // a tap inside a picture frame on the wall: what is in it
+    const fi = frameAt(e.clientX, e.clientY);
+    if (fi >= 0) { document.dispatchEvent(new CustomEvent('sawt:frame-tap', { detail: { i: fi, x: e.clientX, y: e.clientY } })); return; }
     if (near) { openObject(near, true); return; }
     if (sheetOpen() && innerWidth < 900) closeSheet();
   });
@@ -939,6 +1104,21 @@
     if (flashQ.length && now >= flashQ[0][0]) { flashNow = Math.max(flashNow, flashQ.shift()[1]); }
     if (flashNow > 0) { flashNow = Math.max(0, flashNow - 0.07); needsDraw = true; }
     if (boltNow.a > 0) { boltNow.a = Math.max(0, boltNow.a - 0.045); needsDraw = true; }
+    if (now > nextBirds) {
+      nextBirds = now + 45000 + Math.random() * 70000;
+      if (scene !== 'night' && rainNow < 0.05 && snowNow < 0.05 && boltSpots.length) {
+        const p = boltSpots[Math.floor(Math.random() * boltSpots.length)];
+        birdStart = now; birdY = Math.max(0.03, p[1] - 0.05); birdDir = Math.random() < 0.5 ? 1 : -1;
+      }
+    }
+    const alive = !lite && !document.hidden && ((birdStart >= 0 && now - birdStart < 40000) || seasonKind() || scene === 'night' || hotNow());
+    if (alive && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
+    if (HEAT) {
+      const needsPower = HEAT.kind === 'electric' || HEAT.kind === 'radiator';
+      const ht = heatWanted() && (!needsPower || powerNow > 0.5) ? 1 : 0;
+      if (Math.abs(heatNow - ht) > 0.003) { heatNow += (ht - heatNow) * 0.04; needsDraw = true; }
+      if (heatNow > 0.01 && !lite && !document.hidden && now - lastRainDraw > 33) { lastRainDraw = now; needsDraw = true; }
+    }
     if (needsDraw) { needsDraw = false; draw(); }
     requestAnimationFrame(frame);
   }
@@ -947,9 +1127,50 @@
   let snowNow = 0;
   let rainNow = 0, flashNow = 0, lastRainDraw = 0, nextFlash = performance.now() + 4000;
   const flashQ = [];
+  // ------------------------------------------------------------------ the heater: lit with rain, snow and cold days, or by a tap
+  const HEAT = E.heat || null;
+  let heatImg = null, heatImgSet = false, heatNow = 0;
+  function todayKey() { return beirutDate(new Date()); }
+  function beirutTemp() { const w = S.weather(); const c = w && (w.cities || []).find(x => x.id === 'beirut'); return c && typeof c.temperature === 'number' ? c.temperature : null; }
+  function coldNow() {
+    const t = beirutTemp(), m = Number(beirutDate(new Date()).slice(5, 7));
+    if (t !== null) return t <= 13 || (t <= 16 && scene !== 'day');
+    return [12, 1, 2].includes(m) && scene !== 'day';
+  }
+  function heatAuto() { return isRaining() || isSnowing() || coldNow(); }
+  function heatWanted() {
+    const m = S.store.get('heatManual', null);
+    if (m && m.day === todayKey()) return !!m.on;
+    return heatAuto();
+  }
+  function toggleHeat() {
+    const on = !heatWanted();
+    S.store.set('heatManual', { on, day: todayKey() });
+    document.dispatchEvent(new CustomEvent('sawt:heat-tap', { detail: { on, kind: HEAT ? HEAT.kind : 'fire' } }));
+    needsDraw = true;
+  }
+  function loadHeat() {
+    if (!HEAT) return;
+    loadImage(BASE + (HEAT.png || 'heat.png')).then(img => { heatImg = img; if (gl) { setTexture(5, img); heatImgSet = true; needsDraw = true; } }).catch(() => {});
+  }
   const boltNow = { u: 0, v: 0, seed: 0, a: 0 };
   // where a bolt can show: points of open sky seen through this room's windows
-  let maskImg = null, boltSpots = [];
+  let maskImg = null, boltSpots = [], moonSpot = null;
+  // the real moon: its phase from the date (0 new, 0.5 full)
+  function moonPhase(d = new Date()) {
+    const days = (d.valueOf() / 864e5) - 10957.5 - 5.597;   // since the new moon of 6 Jan 2000, 18:14 UTC
+    return ((days % 29.530588) + 29.530588) % 29.530588 / 29.530588;
+  }
+  function hotNow() { const t = beirutTemp(); return t !== null && t >= 30 && !isRaining() && !isSnowing(); }
+  function seasonKind() {
+    const m = Number(beirutDate(new Date()).slice(5, 7));
+    if (m === 10 || m === 11) return 1;        // falling leaves
+    if (m === 3 || m === 4) return 2;          // blossom
+    if (m === 7 || m === 8) return 3;          // summer haze
+    return 0;
+  }
+  // birds now and then, by day and at sunset
+  let birdStart = -1, birdY = 0.2, birdDir = 1, nextBirds = performance.now() + 8000;
   function loadMask() {
     loadImage(BASE + 'mask.png').then(img => {
       maskImg = img;
@@ -962,7 +1183,13 @@
           const i = (y * W + k) * 4;
           if (d[i] > 200) { any.push([k / W, y / H]); if (d[i + 1] > 150) pts.push([k / W, y / H]); }
         }
-        if (pts.length > 20) boltSpots = pts;
+        if (pts.length > 20) {
+          boltSpots = pts;
+          const top = pts.slice().sort((a, b) => a[1] - b[1]).slice(0, Math.max(3, Math.floor(pts.length * 0.15)));
+          const mx = top.reduce((s2, p) => s2 + p[0], 0) / top.length;
+          const best = top.reduce((b, p) => (Math.abs(p[0] - mx) < Math.abs(b[0] - mx) ? p : b), top[0]);
+          moonSpot = [best[0] + 0.01, best[1] + 0.06];
+        }
         else { any.sort((a, b) => a[1] - b[1]); boltSpots = any.slice(0, Math.max(1, Math.floor(any.length * 0.3))); }
       } catch { boltSpots = []; }
     }).catch(() => { maskImg = null; });
@@ -1364,6 +1591,7 @@
     if (hidden.has(id)) return;
     if (id === 'teta') { const b = $('simple-btn'); if (b) b.click(); return; }
     if (id === 'ac') { togglePop(true); return; }
+    if (id === 'heat') { toggleHeat(); return; }
     if (!pop.hidden) togglePop(false);
     if (!document.querySelector(`.pv[data-panel="${id}"]`)) return;
     returnFocus = document.activeElement;
@@ -1769,6 +1997,7 @@
     document.body.classList.toggle('is-lite', lite);
     initGL();
     loadMask();
+    loadHeat();
     Object.assign(view, startView());
     resize();
     window.addEventListener('resize', resize);
@@ -1896,6 +2125,9 @@
     openWeather: () => { setTimeout(() => togglePop(true), 60); },
     era: () => era,
     strike: () => strike(performance.now()),
+    heat: () => ({ on: heatNow > 0.5, level: heatNow, kind: HEAT ? HEAT.kind : null }),
+    summer: () => (hotNow() ? 1 : 0),
+    toggleHeat,
     eras: erasReady,
     decades: decadesReady,
     decade: () => decadeOf(era),

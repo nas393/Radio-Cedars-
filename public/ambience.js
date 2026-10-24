@@ -60,7 +60,21 @@
     const af = ctx.createBiquadFilter(); af.type = 'lowpass'; af.frequency.value = 500; af.connect(air);
     loop(pink).connect(af);
 
-    layers = { rain, kettle, cicada, motor, air, ticks: 0, crickets: 0, last: 0, tock: false };
+    // the heater: a soft roar for a wood fire, a hum or a hiss for the others
+    const fire = gain(0);
+    const ff = ctx.createBiquadFilter(); ff.type = 'lowpass'; ff.frequency.value = 420; ff.connect(fire);
+    loop(pink).connect(ff);
+    const hum = gain(0);
+    const h1 = ctx.createOscillator(); h1.type = 'sine'; h1.frequency.value = 100;
+    const hf = ctx.createBiquadFilter(); hf.type = 'bandpass'; hf.frequency.value = 2800; hf.Q.value = 0.6;
+    const hn = ctx.createGain(); hn.gain.value = 0.35; loop(white).connect(hf); hf.connect(hn); hn.connect(hum);
+    const h1g = ctx.createGain(); h1g.gain.value = 0.25; h1.connect(h1g); h1g.connect(hum); h1.start();
+    // summer: the ceiling fan or the AC
+    const fan = gain(0);
+    const fnf = ctx.createBiquadFilter(); fnf.type = 'lowpass'; fnf.frequency.value = 260; fnf.connect(fan);
+    loop(pink).connect(fnf);
+
+    layers = { rain, kettle, cicada, motor, air, fire, hum, fan, ticks: 0, crickets: 0, last: 0, tock: false };
   }
 
   function click(freq, len, vol) {
@@ -116,6 +130,46 @@
   }
   document.addEventListener('sawt:thunder', e => { const d = e.detail || {}; thunder(d.delay, d.power); });
 
+  // a crackle: a tiny dry burst of noise
+  function crackle(vol = 0.08) {
+    const s = ctx.createBufferSource(); s.buffer = layers.whiteBuf || (layers.whiteBuf = noiseBuffer(0.3, false));
+    const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = 1800 + Math.random() * 2500;
+    const g = ctx.createGain(); const t = ctx.currentTime + Math.random() * 0.9;
+    g.gain.setValueAtTime(vol * (0.4 + Math.random()), t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.02 + Math.random() * 0.05);
+    s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random() * 0.2); s.stop(t + 0.1);
+  }
+  // tapping the heater: a match strike, or a switch
+  let tapCtx = null;
+  document.addEventListener('sawt:heat-tap', e => {
+    const d = e.detail || {};
+    try {
+      const c = ctx || (tapCtx = tapCtx || new (window.AudioContext || window.webkitAudioContext)());
+      c.resume();
+      const t = c.currentTime;
+      if (d.kind === 'electric' || d.kind === 'radiator') {
+        const o = c.createOscillator(); o.type = 'square'; o.frequency.value = 1800;
+        const g = c.createGain(); g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+        o.connect(g); g.connect(c.destination); o.start(t); o.stop(t + 0.04);
+      } else if (d.on) {
+        const len = c.sampleRate * 0.6, b = c.createBuffer(1, len, c.sampleRate), x = b.getChannelData(0);
+        for (let i = 0; i < len; i++) x[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3);
+        const s = c.createBufferSource(); s.buffer = b;
+        const f = c.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 2400; f.Q.value = 0.7;
+        const g = c.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(0.5, t + 0.04); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.55);
+        s.connect(f); f.connect(g); g.connect(c.destination); s.start(t);
+        const s2 = c.createBufferSource(); s2.buffer = b; const f2 = c.createBiquadFilter(); f2.type = 'lowpass'; f2.frequency.value = 300;
+        const g2 = c.createGain(); g2.gain.setValueAtTime(0.0001, t + 0.15); g2.gain.linearRampToValueAtTime(0.35, t + 0.4); g2.gain.exponentialRampToValueAtTime(0.0001, t + 1.2);
+        s2.connect(f2); f2.connect(g2); g2.connect(c.destination); s2.start(t + 0.15);
+      } else {
+        const len = c.sampleRate * 0.5, b = c.createBuffer(1, len, c.sampleRate), x = b.getChannelData(0);
+        for (let i = 0; i < len; i++) x[i] = (Math.random() * 2 - 1) * (1 - i / len);
+        const s = c.createBufferSource(); s.buffer = b; const f = c.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 900;
+        const g = c.createGain(); g.gain.setValueAtTime(0.25, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+        s.connect(f); f.connect(g); g.connect(c.destination); s.start(t);
+      }
+    } catch { /* no sound */ }
+  });
+
   function busy() {                        // something else is playing: keep the room quiet under it
     const a = document.getElementById('audio');
     const radio = a && !a.paused;
@@ -136,9 +190,16 @@
     const mood = R && R.mood ? R.mood() : 'clear';
     const cold = mood === 'winter' || mood === 'grey';
     set(layers.kettle, scene !== 'day' && cold ? 0.05 : 0);
-    set(layers.cicada, mood === 'summer' && scene !== 'night' ? 0.035 : 0);
+    set(layers.cicada, (R && R.summer && R.summer()) && scene !== 'night' ? 0.045 : 0);
     set(layers.motor, motor * 0.12);
     set(layers.air, scene === 'day' ? 0.08 : (scene === 'sunset' ? 0.05 : 0.02));
+    const ht = R && R.heat ? R.heat() : { level: 0, kind: null };
+    const fireLike = ht.kind === 'fire' || ht.kind === 'kerosene';
+    set(layers.fire, fireLike ? ht.level * (ht.kind === 'fire' ? 0.22 : 0.08) : 0);
+    set(layers.hum, !fireLike && ht.kind ? ht.level * (ht.kind === 'gas' ? 0.05 : 0.025) : 0);
+    if (ht.kind === 'fire' && ht.level > 0.3) for (let k = 0; k < 4; k++) crackle(0.07 * ht.level);
+    const hot = R && R.summer ? R.summer() : 0;
+    set(layers.fan, hot * 0.07);
     // the clock: tick, tock
     layers.tock = !layers.tock;
     click(layers.tock ? 2600 : 2100, 0.03, 0.06);

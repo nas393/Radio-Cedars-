@@ -90,3 +90,9 @@ The working memory for this project. Upload it as a file in the Claude Project. 
 - The door asks "which living room?" (era cards, then apartment / village house), and 🙂 My corner can switch. The choice is per phone.
 - All eight are live (since 21 Oct 2026). A new era can be added with `ready: false` and checked with `?eras=preview` before going live.
 - To add or redo a room: generate the day picture, then use Gemini's edit for sunset and night (same room, only the light), download all three, place the spots on a % grid, and zoom in for the TV and frame corners in pixels.
+
+## Winter, summer and the walls (Oct 2026)
+- Every room has a heater (eras.js `heat`: kind, box in px, spot %): 80s kerosene sobia, 90s gas heater, 2000s oil radiator, 2026 electric heater; village houses a fireplace. Baked into the photos with Gemini; `heat.png` is the light it adds. Lights itself with rain, snow or cold (≤13°, ≤16° after dark); a tap lights/puts it out for the day.
+- Rain fixed: streak width follows screen pixels, no drop trails (the dark/light lines).
+- Frames never show strangers: empty frames show Lebanese places (`/room/places/`, sepia for 80s/90s, colour after). Your photos take frames in order. Tap a frame: name + one line + "put your photo here".
+- Living room: curtains sway (mask.png alpha), birds pass, real moon phase and stars, ceiling fan / AC on 30°+ days with cicadas, seasons outside (leaves, blossom, haze).
