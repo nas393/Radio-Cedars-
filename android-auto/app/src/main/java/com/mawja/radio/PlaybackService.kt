@@ -426,7 +426,7 @@ class PlaybackService : MediaLibraryService() {
             val first = mediaItems.firstOrNull()
             val q = first?.requestMetadata?.searchQuery
             when {
-                // "Hey Google, play <station> on Mawja Radio"
+                // "Hey Google, play <station> on Dandana"
                 q != null -> {
                     val r = (if (q.isBlank()) emptyList() else try { Repo.find(q) } catch (e: Exception) { emptyList() })
                         .ifEmpty { Store.recents().ifEmpty { Store.favs() } }

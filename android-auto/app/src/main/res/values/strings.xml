@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mawja Radio</string>
+    <string name="app_name">Dandana</string>
     <string name="favorites">Favorites</string>
     <string name="recent">Recent</string>
     <string name="featured">Featured</string>
@@ -19,7 +19,7 @@
     <string name="rename">Profile name</string>
     <string name="done">Done</string>
     <string name="empty">Nothing here yet</string>
-    <string name="share_text">🎧 Listening to %1$s on Mawja Radio</string>
+    <string name="share_text">🎧 Listening to %1$s on Dandana</string>
     <string name="favorite">Favorite</string>
     <string name="no_news">No headlines right now.</string>
     <string name="back">Back</string>

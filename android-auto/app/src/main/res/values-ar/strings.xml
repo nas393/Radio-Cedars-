@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="app_name">دندنة</string>
 
     <string name="favorites">المفضلة</string>
     <string name="recent">الأخيرة</string>
@@ -19,7 +20,7 @@
     <string name="rename">اسم الملف</string>
     <string name="done">تم</string>
     <string name="empty">لا شيء هنا بعد</string>
-    <string name="share_text">🎧 عم إسمع %1$s على راديو موجة</string>
+    <string name="share_text">🎧 عم إسمع %1$s على دندنة</string>
     <string name="favorite">المفضلة</string>
     <string name="no_news">لا عناوين حالياً.</string>
     <string name="back">رجوع</string>

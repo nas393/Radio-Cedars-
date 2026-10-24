@@ -1,4 +1,4 @@
-name: Build Mawja Radio Android app
+name: Build Dandana Android app
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: mawja-radio-apk
+          name: dandana-apk
           path: android-auto/app/build/outputs/apk/debug/app-debug.apk
 
       # Play Store bundle — runs only once the signing secrets are added in GitHub settings.
@@ -50,5 +50,5 @@ jobs:
         if: env.KEYSTORE_BASE64 != ''
         uses: actions/upload-artifact@v4
         with:
-          name: mawja-radio-playstore-aab
+          name: dandana-playstore-aab
           path: android-auto/app/build/outputs/bundle/release/app-release.aab

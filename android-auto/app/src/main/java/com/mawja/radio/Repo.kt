@@ -51,7 +51,7 @@ fun flag(cc: String): String = if (cc.length != 2) "🌐" else
 
 fun stationId(item: MediaItem?) = item?.mediaId?.removePrefix("st:") ?: ""
 
-const val UA = "MawjaRadio/1.1 (https://radio-cedars.vercel.app)"
+const val UA = "DandanaRadio/1.1 (https://radio-cedars.vercel.app)"
 
 object Repo {
     const val SITE = "https://radio-cedars.vercel.app"
