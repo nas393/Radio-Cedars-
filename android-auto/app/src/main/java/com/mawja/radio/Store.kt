@@ -31,7 +31,7 @@ object Store {
     fun setS(k: String, v: String) = edit { putString(k, v) }
 
     fun profiles() = (0..4).map {
-        Profile(it, p.getString("name$it", null) ?: defaults[it], p.getInt("theme$it", it), p.getBoolean("kids$it", it in 2..3))
+        Profile(it, p.getString("name$it", null) ?: defaults[it], p.getInt("theme$it", 0), p.getBoolean("kids$it", it in 2..3))
     }
     var currentId: Int
         get() = p.getInt("cur", 0)

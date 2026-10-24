@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="cedar">#1F5E3B</color>
+    <color name="cedar">#17120E</color>
     <style name="Theme.Mawja" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">@color/cedar</item>
     </style>

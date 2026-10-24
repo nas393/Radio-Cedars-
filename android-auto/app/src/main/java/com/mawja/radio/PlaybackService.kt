@@ -302,8 +302,8 @@ class PlaybackService : MediaLibraryService() {
 
     private fun t(id: Int) = getString(id)
 
-    private fun folder(id: String, title: String, sub: String? = null) = MediaItem.Builder().setMediaId(id).setMediaMetadata(
-        MediaMetadata.Builder().setTitle(title).setSubtitle(sub).setIsBrowsable(true).setIsPlayable(false)
+    private fun folder(id: String, title: String, sub: String? = null, art: Uri? = null) = MediaItem.Builder().setMediaId(id).setMediaMetadata(
+        MediaMetadata.Builder().setTitle(title).setSubtitle(sub).setArtworkUri(art).setIsBrowsable(true).setIsPlayable(false)
             .setMediaType(MediaMetadata.MEDIA_TYPE_FOLDER_RADIO_STATIONS).build()
     ).build()
 
@@ -312,28 +312,30 @@ class PlaybackService : MediaLibraryService() {
             .setMediaType(MediaMetadata.MEDIA_TYPE_NEWS).build()
     ).build()
 
+    private suspend fun ico(key: String, emoji: String) = runCatching { Wall.icon(this, key, emoji) }.getOrNull()
+
     private suspend fun kids(parent: String): List<MediaItem> = when {
         parent == "root" -> buildList {
             val prof = Store.current()
-            if (Store.b("night", true) && nightNow()) add(folder("night", "🌙 " + t(R.string.night_ride)))
+            if (Store.b("night", true) && nightNow()) add(folder("night", t(R.string.night_ride), null, ico("night", "🌙")))
             runCatching { Repo.stationOfDay() }.getOrNull()?.let { s ->
                 val it = s.item()
                 add(it.buildUpon().setMediaMetadata(it.mediaMetadata.buildUpon().setTitle("⭐ " + s.name).setSubtitle(t(R.string.station_day)).build()).build())
             }
-            add(folder("fav", "★ " + t(R.string.favorites), prof.name))
-            add(folder("rec", t(R.string.recent)))
-            add(folder("feat", t(R.string.featured)))
-            add(folder("c:LB", flag("LB") + " " + t(R.string.lebanon)))
-            if (!prof.kids) add(folder("world", "🌍 " + t(R.string.world)))
-            add(folder("profiles", t(R.string.profiles), prof.name))
+            add(folder("fav", t(R.string.favorites), prof.name, ico("fav", "❤️")))
+            add(folder("rec", t(R.string.recent), null, ico("rec", "🕘")))
+            add(folder("feat", t(R.string.featured), null, ico("feat", "⭐")))
+            add(folder("c:LB", t(R.string.lebanon), null, ico("c_LB", flag("LB"))))
+            if (!prof.kids) add(folder("world", t(R.string.world), null, ico("world", "🌍")))
+            add(folder("profiles", t(R.string.profiles), prof.name, ico("profiles", "🏠")))
             if (Store.newsFlash) add(newsStub())
         }
         parent == "fav" -> Store.favs().map { it.item() }
         parent == "rec" -> Store.recents().map { it.item() }
         parent == "feat" -> Repo.featured().map { it.item() }
         parent == "night" -> Repo.mood("chillout").map { it.item() }
-        parent == "world" -> Repo.countries().map { folder("c:${it.cc}", flag(it.cc) + " " + it.name, "${it.count}") }
-        parent == "profiles" -> Store.profiles().map { folder("p:${it.id}", it.name) }
+        parent == "world" -> Repo.countries().map { folder("c:${it.cc}", it.name, "${it.count}", ico("c_${it.cc}", flag(it.cc))) }
+        parent == "profiles" -> Store.profiles().map { folder("p:${it.id}", it.name, null, ico("p${it.id}_${it.name}", if (it.kids) "🧸" else it.name.take(1).uppercase())) }
         parent.startsWith("p:") -> { Store.currentId = parent.drop(2).toInt(); refreshWall(true); Store.favs().map { it.item() } }
         parent.startsWith("c:") -> Repo.byCountry(parent.drop(2)).map { it.item() }
         else -> emptyList()
@@ -374,7 +376,7 @@ class PlaybackService : MediaLibraryService() {
             session: MediaLibrarySession, browser: MediaSession.ControllerInfo, params: LibraryParams?
         ): ListenableFuture<LibraryResult<MediaItem>> {
             val extras = Bundle().apply {
-                putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 1)
+                putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 2)
                 putInt("android.media.browse.CONTENT_STYLE_PLAYABLE_HINT", 2)
                 putBoolean("android.media.browse.SEARCH_SUPPORTED", true)
             }

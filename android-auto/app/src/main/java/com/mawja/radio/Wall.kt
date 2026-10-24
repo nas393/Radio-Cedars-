@@ -93,24 +93,67 @@ object Wall {
         return if (bey == local) local else "$local · 🇱🇧 $bey"
     }
 
+    private val display by lazy { runCatching { androidx.core.content.res.ResourcesCompat.getFont(Store.ctx, R.font.lalezar) }.getOrNull() ?: Typeface.DEFAULT_BOLD }
+    private val body by lazy { runCatching { androidx.core.content.res.ResourcesCompat.getFont(Store.ctx, R.font.readex) }.getOrNull() ?: Typeface.DEFAULT }
+    private const val STONE = 0xFFEADFCB.toInt(); private const val STONE_DEEP = 0xFFC9B997.toInt(); private const val INK = 0xFF231A12.toInt()
+    private const val OCHRE = 0xFFD9A441.toInt(); private const val BRICK = 0xFFC2452F.toInt(); private const val COBALT = 0xFF3D74B8.toInt()
+
+    /** One pointed (Lebanese-house) arch: straight sides from [bottom] up to [side], meeting at [apex]. */
+    private fun arch(path: Path, x0: Float, x1: Float, apex: Float, side: Float, bottom: Float) {
+        val cx = (x0 + x1) / 2; val h = side - apex; val w = x1 - x0
+        path.moveTo(x0, bottom); path.lineTo(x0, side)
+        path.cubicTo(x0, side - h * .55f, cx - w * .18f, apex + h * .12f, cx, apex)
+        path.cubicTo(cx + w * .18f, apex + h * .12f, x1, side - h * .55f, x1, side)
+        path.lineTo(x1, bottom); path.close()
+    }
+
+    /** Now-playing art in the website's look: the view through three limestone arches, the radio dial below. */
     private fun carArt(scene: Bitmap, s: Station?, song: String?, w: Weather?, logo: Bitmap?): Bitmap {
-        val n = 1024; val out = cover(scene, n, n); val c = Canvas(out)
-        c.drawRect(0f, 0f, n.toFloat(), n.toFloat(), Paint().apply {
-            shader = LinearGradient(0f, n * .4f, 0f, n.toFloat(), Color.TRANSPARENT, Color.argb(230, 0, 0, 0), Shader.TileMode.CLAMP) })
-        val t = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { color = Color.WHITE; setShadowLayer(8f, 0f, 2f, Color.BLACK) }
-        fun line(text: String, size: Float, y: Float, bold: Boolean) {
-            t.textSize = size; t.typeface = if (bold) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
-            c.drawText(TextUtils.ellipsize(text, t, n - 120f, TextUtils.TruncateAt.END).toString(), 60f, y, t)
+        val n = 1024; val out = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888); val c = Canvas(out)
+        c.drawColor(STONE)
+        val arches = Path(); val gap = 26f; val left = 52f; val right = n - 52f; val aw = (right - left - 2 * gap) / 3
+        for (k in 0..2) { val x0 = left + k * (aw + gap); arch(arches, x0, x0 + aw, 70f, 300f, 680f) }
+        c.save(); c.clipPath(arches)
+        c.drawBitmap(cover(scene, (right - left).toInt(), 610), left, 70f, Paint(Paint.FILTER_BITMAP_FLAG)); c.restore()
+        c.drawPath(arches, Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 8f; color = STONE_DEEP })
+        // the radio dial: ochre scale with the brick needle
+        val dial = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = OCHRE; strokeWidth = 4f }
+        c.drawLine(left, 712f, right, 712f, dial)
+        for (k in 0..24) { val x = left + k * (right - left) / 24; c.drawLine(x, 702f, x, if (k % 4 == 0) 690f else 698f, dial) }
+        val needle = left + ((s?.name?.hashCode() ?: 0).toLong().and(0xffff) % 1000) / 1000f * (right - left)
+        c.drawRect(needle - 4f, 680f, needle + 4f, 722f, Paint().apply { color = BRICK })
+        val t = TextPaint(Paint.ANTI_ALIAS_FLAG)
+        fun line(text: String, size: Float, x: Float, y: Float, face: Typeface, color: Int) {
+            t.textSize = size; t.typeface = face; t.color = color
+            c.drawText(TextUtils.ellipsize(text, t, n - x - 52f, TextUtils.TruncateAt.END).toString(), x, y, t)
         }
+        val tx = if (logo != null) 236f else 52f
         logo?.let {
-            val sh = BitmapShader(cover(it, 200, 200), Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
-            sh.setLocalMatrix(Matrix().apply { setTranslate(60f, n - 470f) })
-            c.drawCircle(160f, n - 370f, 100f, Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = sh })
+            val sh = BitmapShader(cover(it, 160, 160), Shader.TileMode.CLAMP, Shader.TileMode.CLAMP)
+            sh.setLocalMatrix(Matrix().apply { setTranslate(52f, 770f) })
+            c.drawCircle(132f, 850f, 80f, Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = sh })
+            c.drawCircle(132f, 850f, 80f, Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 6f; color = OCHRE })
         }
-        line(s?.name ?: "Sawt el Beit", 66f, n - 200f, true)
-        song?.let { line(it, 42f, n - 140f, false) }
-        line(listOfNotNull(w?.let { "${it.icon} ${it.temp}° ${it.place}" }, clocks()).joinToString("   "), 38f, n - 75f, false)
+        line(s?.name ?: "Sawt el Beit", 70f, tx, 830f, display, INK)
+        song?.let { line(it, 38f, tx, 882f, body, 0xFF6A5B48.toInt()) }
+        line(listOfNotNull(w?.let { "${it.icon} ${it.temp}° ${it.place}" }, clocks()).joinToString("   "), 34f, tx, 950f, body, 0xFF8E2A1C.toInt())
         return out
+    }
+
+    /** Car-menu tiles in the house colors: a limestone arch on a floor tile, with an emoji inside. */
+    suspend fun icon(ctx: Context, key: String, emoji: String): Uri = withContext(Dispatchers.IO) {
+        val f = File(ctx.cacheDir, "ico_" + key.replace(Regex("[^A-Za-z0-9]"), "_") + ".png")
+        if (!f.exists()) {
+            val n = 256; val b = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888); val c = Canvas(b)
+            val tile = listOf(COBALT, OCHRE, BRICK, 0xFF2B221A.toInt())[(key.hashCode() and 0x7fffffff) % 4]
+            c.drawRoundRect(RectF(0f, 0f, n.toFloat(), n.toFloat()), 44f, 44f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = tile })
+            val a = Path(); arch(a, 52f, n - 52f, 34f, 120f, n - 24f)
+            c.drawPath(a, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = STONE })
+            val p = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { textSize = 104f; textAlign = Paint.Align.CENTER }
+            c.drawText(emoji, n / 2f, 182f, p)
+            f.outputStream().use { b.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
+        ArtProvider.file(f.name)
     }
 
     private var files = emptyList<String>()

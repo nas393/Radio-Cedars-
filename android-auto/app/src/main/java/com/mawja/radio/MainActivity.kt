@@ -177,7 +177,7 @@ fun Root(pc: PlayerConn) {
     val prof = Store.current()
     val dark = when (Store.i("look")) { 1 -> false; 2 -> true; else -> isSystemInDarkTheme() }
     val th = THEMES[prof.theme]
-    MaterialTheme(colorScheme = if (dark) th.dark else th.light) {
+    MaterialTheme(colorScheme = if (dark) th.dark else th.light, typography = HouseType) {
         Box(Modifier.fillMaxSize().background(cs.background)) {
             // Full-screen live wallpaper behind everything
             Wall.state?.let { AsyncImage(it.scene, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop) }
@@ -193,7 +193,9 @@ fun Badge(p: Profile, size: Dp, onClick: () -> Unit) {
     val t = THEMES[p.theme]
     Box(Modifier.size(size).clip(RoundedCornerShape(size / 4))
         .background(Brush.linearGradient(listOf(t.dark.primary, t.dark.secondary))).clickable(onClick = onClick),
-        contentAlignment = Alignment.Center) { Text(if (p.kids) "🧸" else t.emoji, fontSize = (size.value / 2.4).sp) }
+        contentAlignment = Alignment.Center) {
+        Text(if (p.kids) "🧸" else p.name.take(1).uppercase(), fontSize = (size.value / 2).sp, fontFamily = Lalezar, color = Color(0xFF17120E))
+    }
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -518,7 +520,7 @@ fun Drive(pc: PlayerConn, exit: () -> Unit) {
     val ctx = LocalContext.current
     LaunchedEffect(Unit) { startSpeed(ctx) }
     val now by produceState(Date()) { while (true) { delay(15_000); value = Date() } }
-    MaterialTheme(colorScheme = DRIVE.dark) {
+    MaterialTheme(colorScheme = DRIVE.dark, typography = HouseType) {
         BoxWithConstraints(Modifier.fillMaxSize().background(cs.background.copy(alpha = .85f)).safeDrawingPadding().padding(20.dp)) {
             val wide = maxWidth > maxHeight
             Text(clocks(now) + (Wall.state?.weather?.let { "   ${it.icon} ${it.temp}° ${it.place}" } ?: ""),
@@ -526,7 +528,7 @@ fun Drive(pc: PlayerConn, exit: () -> Unit) {
             IconButton(exit, Modifier.align(Alignment.TopEnd)) { Icon(Icons.Default.Close, null, tint = cs.onBackground) }
             val gauge: @Composable () -> Unit = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(Speed.kmh?.toString() ?: "--", fontSize = 120.sp, fontWeight = FontWeight.Bold, color = cs.primary)
+                    Text(Speed.kmh?.toString() ?: "--", fontSize = 120.sp, fontFamily = Lalezar, color = cs.primary)
                     Text("km/h", color = cs.onBackground.copy(alpha = .7f), fontSize = 20.sp)
                 }
             }

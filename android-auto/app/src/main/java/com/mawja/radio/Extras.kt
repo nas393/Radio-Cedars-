@@ -48,7 +48,7 @@ class ArtProvider : ContentProvider() {
     override fun openFile(uri: Uri, mode: String): ParcelFileDescriptor? {
         val seg = uri.pathSegments
         val f = if (seg.size == 2 && seg[0] == "f") {
-            File(context!!.cacheDir, File(seg[1]).name).takeIf { it.name.startsWith("wall_") && it.exists() } ?: return null
+            File(context!!.cacheDir, File(seg[1]).name).takeIf { (it.name.startsWith("wall_") || it.name.startsWith("ico_")) && it.exists() } ?: return null
         } else {
             val url = uri.lastPathSegment ?: return null
             val f = File(context!!.cacheDir, "art_" + Integer.toHexString(url.hashCode()))
