@@ -51,11 +51,12 @@ fun flag(cc: String): String = if (cc.length != 2) "🌐" else
 
 fun stationId(item: MediaItem?) = item?.mediaId?.removePrefix("st:") ?: ""
 
-const val UA = "DandanaRadio/1.1 (https://radio-cedars.vercel.app)"
+const val UA = "SawtElBeit/1.1 (https://radio-cedars.vercel.app)"
 
 object Repo {
     const val SITE = "https://radio-cedars.vercel.app"
     private const val FEATURED = "https://raw.githubusercontent.com/nas393/Radio-Cedars-/main/android-auto/featured.json"
+    private const val TV = "https://raw.githubusercontent.com/nas393/Radio-Cedars-/main/android-auto/tv.json"
     private const val TTL = 30 * 60_000L
     private val mirrors = listOf(
         "https://de1.api.radio-browser.info", "https://de2.api.radio-browser.info", "https://fi1.api.radio-browser.info"
@@ -195,6 +196,24 @@ object Repo {
             }
         }
         out.filter { it.title.isNotBlank() }.sortedByDescending { it.date }
+    }
+
+    data class TvList(val title: String, val id: String)
+    data class TvChannel(val name: String, val ar: String, val color: Int, val lists: List<TvList>)
+
+    /** Lebanese channels' official YouTube playlists — same list as the website's TV (android-auto/tv.json). */
+    suspend fun tv(lang: String): List<TvChannel> = io {
+        val raw = runCatching { get(TV) }.getOrNull() ?: Store.ctx.assets.open("tv.json").bufferedReader().readText()
+        val a = JSONArray(raw)
+        (0 until a.length()).map { i ->
+            val c = a.getJSONObject(i); val l = c.getJSONArray("lists")
+            TvChannel(c.optString("name"), c.optString("ar"),
+                runCatching { android.graphics.Color.parseColor(c.optString("color")) }.getOrDefault(0xFF1E4429.toInt()),
+                (0 until l.length()).map { j ->
+                    val o = l.getJSONObject(j); val t = o.opt("t")
+                    TvList(if (t is JSONObject) t.optString(lang).ifBlank { t.optString("en") } else t.toString(), o.getString("id"))
+                })
+        }
     }
 
     /** Real photos of a place from Wikimedia Commons (free, no key). */

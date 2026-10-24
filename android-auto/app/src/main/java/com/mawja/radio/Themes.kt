@@ -31,3 +31,6 @@ val THEMES = listOf(
     FamilyTheme("Byblos Sunset", "🌅", 0xFFFF8A65, 0xFFFFC857, 0xFF2A0F2E, 0xFF3B1640, 0xFF4A1D50, 0xFFC4462A, 0xFFFFF5EE, 0xFFF9E0D6),
     FamilyTheme("Beirut Nights", "✨", 0xFFFFC300, 0xFF00E5FF, 0xFF05070D, 0xFF111522, 0xFF1B2133, 0xFF8A6A00, 0xFFF7F7F2, 0xFFE6E6DA)
 )
+
+/** The car look for Drive mode: dashboard black with amber gauges. */
+val DRIVE = FamilyTheme("Drive", "🚗", 0xFFFFB300, 0xFF4CAF50, 0xFF0B0D10, 0xFF15181D, 0xFF1E2228, 0xFFB37A00, 0xFFF5F5F5, 0xFFE3E3E3)

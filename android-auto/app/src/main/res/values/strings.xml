@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Dandana</string>
+    <string name="app_name">Sawt el Beit</string>
     <string name="favorites">Favorites</string>
     <string name="recent">Recent</string>
     <string name="featured">Featured</string>
@@ -19,8 +19,15 @@
     <string name="rename">Profile name</string>
     <string name="done">Done</string>
     <string name="empty">Nothing here yet</string>
-    <string name="share_text">🎧 Listening to %1$s on Dandana</string>
+    <string name="share_text">🎧 Listening to %1$s on Sawt el Beit</string>
     <string name="favorite">Favorite</string>
     <string name="no_news">No headlines right now.</string>
     <string name="back">Back</string>
+    <string name="tv">TV</string>
+    <string name="drive">Drive mode</string>
+    <string name="speed">Car speed</string>
+    <string name="speed_show">Show car speed (GPS)</string>
+    <string name="speed_car">Speed on the car screen</string>
+    <string name="stop">Stop</string>
+    <string name="tv_driving">TV pauses while the car is moving.</string>
 </resources>

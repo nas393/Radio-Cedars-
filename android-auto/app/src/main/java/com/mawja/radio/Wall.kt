@@ -107,7 +107,7 @@ object Wall {
             sh.setLocalMatrix(Matrix().apply { setTranslate(60f, n - 470f) })
             c.drawCircle(160f, n - 370f, 100f, Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = sh })
         }
-        line(s?.name ?: "Dandana", 66f, n - 200f, true)
+        line(s?.name ?: "Sawt el Beit", 66f, n - 200f, true)
         song?.let { line(it, 42f, n - 140f, false) }
         line(listOfNotNull(w?.let { "${it.icon} ${it.temp}° ${it.place}" }, clocks()).joinToString("   "), 38f, n - 75f, false)
         return out

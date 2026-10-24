@@ -19,8 +19,15 @@
     <string name="rename">Nom du profil</string>
     <string name="done">OK</string>
     <string name="empty">Rien pour l’instant</string>
-    <string name="share_text">🎧 J’écoute %1$s sur Dandana</string>
+    <string name="share_text">🎧 J’écoute %1$s sur Sawt el Beit</string>
     <string name="favorite">Favori</string>
     <string name="no_news">Aucun titre pour le moment.</string>
     <string name="back">Retour</string>
+    <string name="tv">TV</string>
+    <string name="drive">Mode conduite</string>
+    <string name="speed">Vitesse</string>
+    <string name="speed_show">Afficher la vitesse (GPS)</string>
+    <string name="speed_car">Vitesse sur l’écran de la voiture</string>
+    <string name="stop">Arrêter</string>
+    <string name="tv_driving">La TV est en pause quand la voiture roule.</string>
 </resources>

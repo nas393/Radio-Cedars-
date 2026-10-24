@@ -37,7 +37,6 @@ import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.*
 import kotlinx.coroutines.guava.future
-import org.json.JSONObject
 import java.io.File
 import java.time.LocalDate
 import java.util.Calendar
@@ -48,10 +47,8 @@ import kotlin.coroutines.resume
 class PlaybackService : MediaLibraryService() {
     companion object {
         const val AUTOPLAY = "com.mawja.radio.AUTOPLAY"
-        const val ALARM = "com.mawja.radio.ALARM"
         private const val CAR = "com.google.android.projection.gearhead"
         private val FAV = SessionCommand("fav", Bundle.EMPTY)
-        private val SONG = SessionCommand("song", Bundle.EMPTY)
         val LEB = Station("lb", "Lebanon", "", null, null, "Lebanon", "LB", "", 0, null, null)
         val MOODS = listOf(R.string.happy to "pop", R.string.nostalgic to "oldies", R.string.calm to "chillout",
             R.string.party to "dance", R.string.tarab to "arabic")
@@ -72,11 +69,11 @@ class PlaybackService : MediaLibraryService() {
     private var wallJob: Job? = null
     private var minutes = 0
     var sleepMin = 0; private set
+    var carOn = false; private set
     private val sleepRun = Runnable { fade(1f, 0f, 20_000) { player.pause(); player.volume = 1f }; sleepMin = 0; Store.bump() }
 
     private val minuteTick = object : Runnable {
         override fun run() {
-            if (player.isPlaying) Repo.stations[stationId(player.currentMediaItem)]?.let { Store.addMinute(it) }
             if (++minutes % 10 == 0) scope.launch { checkBreaking() }
             handler.postDelayed(this, 60_000L)
         }
@@ -121,7 +118,7 @@ class PlaybackService : MediaLibraryService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        when (intent?.action) { AUTOPLAY -> playLast(); ALARM -> alarm() }
+        if (intent?.action == AUTOPLAY) playLast()
         return super.onStartCommand(intent, flags, startId)
     }
 
@@ -146,12 +143,20 @@ class PlaybackService : MediaLibraryService() {
 
     private fun playLast() { if (!player.isPlaying) start(Store.recents().map { it.item() }) }
 
-    private fun alarm() {
-        val s = Store.s("alarmSt")?.let { runCatching { Station.of(JSONObject(it)) }.getOrNull() } ?: Store.last() ?: return
-        Repo.stations[s.id] = s
-        player.volume = 0f
-        start(listOf(s.item()) + Store.recents().filter { it.id != s.id }.map { it.item() })
-        fade(0f, 1f, 60_000)
+    private var speedAt = 0L
+    private var shownSpeed: Int? = null
+
+    /** Car speed in the now-playing line: "🚗 87 km/h · Lebanon". */
+    fun showSpeed(k: Int?) {
+        val now = System.currentTimeMillis()
+        if (k == shownSpeed || (k != null && now - speedAt < 3000)) return
+        speedAt = now; shownSpeed = k
+        val cur = player.currentMediaItem ?: return
+        val s = Repo.stations[stationId(cur)] ?: return
+        val base = listOf(s.country, s.tags).filter { it.isNotBlank() }.joinToString(" · ")
+        val artist = if (k == null || !Store.b("speedCar", true)) base else "🚗 $k km/h" + if (base.isNotBlank()) " · $base" else ""
+        player.replaceMediaItem(player.currentMediaItemIndex,
+            cur.buildUpon().setMediaMetadata(cur.mediaMetadata.buildUpon().setArtist(artist).build()).build())
     }
 
     /** Car connected: morning brief before 10am, night ride after 11pm, else the last station. */
@@ -182,12 +187,6 @@ class PlaybackService : MediaLibraryService() {
         Store.bump()
     }
 
-    /** Song catcher: saves the song title the station is broadcasting. */
-    fun saveSong(): Boolean {
-        val t = player.mediaMetadata.title?.toString() ?: return false
-        if (t == player.mediaMetadata.station?.toString() || t.isBlank()) return false
-        Store.addSong(t); return true
-    }
 
     fun refreshWall(next: Boolean) {
         wallJob?.cancel()
@@ -325,7 +324,6 @@ class PlaybackService : MediaLibraryService() {
             add(folder("rec", t(R.string.recent)))
             add(folder("feat", t(R.string.featured)))
             add(folder("c:LB", flag("LB") + " " + t(R.string.lebanon)))
-            add(folder("moods", "🎭 " + t(R.string.moods)))
             if (!prof.kids) add(folder("world", "🌍 " + t(R.string.world)))
             add(folder("profiles", t(R.string.profiles), prof.name))
             if (Store.newsFlash) add(newsStub())
@@ -334,8 +332,6 @@ class PlaybackService : MediaLibraryService() {
         parent == "rec" -> Store.recents().map { it.item() }
         parent == "feat" -> Repo.featured().map { it.item() }
         parent == "night" -> Repo.mood("chillout").map { it.item() }
-        parent == "moods" -> MOODS.map { folder("m:${it.second}", t(it.first)) }
-        parent.startsWith("m:") -> Repo.mood(parent.drop(2)).map { it.item() }
         parent == "world" -> Repo.countries().map { folder("c:${it.cc}", flag(it.cc) + " " + it.name, "${it.count}") }
         parent == "profiles" -> Store.profiles().map { folder("p:${it.id}", it.name) }
         parent.startsWith("p:") -> { Store.currentId = parent.drop(2).toInt(); refreshWall(true); Store.favs().map { it.item() } }
@@ -351,15 +347,17 @@ class PlaybackService : MediaLibraryService() {
 
     private inner class Callback : MediaLibrarySession.Callback {
         override fun onConnect(session: MediaSession, controller: MediaSession.ControllerInfo): MediaSession.ConnectionResult {
+            if (controller.packageName == CAR) carOn = true
             if (controller.packageName == CAR && Store.autoplay && player.mediaItemCount == 0) handler.post { carStart() }
-            val cmds = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon().add(FAV).add(SONG).build()
+            val cmds = MediaSession.ConnectionResult.DEFAULT_SESSION_AND_LIBRARY_COMMANDS.buildUpon().add(FAV).build()
             return MediaSession.ConnectionResult.AcceptedResultBuilder(session).setAvailableSessionCommands(cmds)
-                .setCustomLayout(ImmutableList.of(button(R.string.favorite, R.drawable.ic_heart, FAV), button(R.string.save_song, R.drawable.ic_note, SONG)))
+                .setCustomLayout(ImmutableList.of(button(R.string.favorite, R.drawable.ic_heart, FAV)))
                 .build()
         }
 
         // Arrival fade: the music eases out when you leave the car.
         override fun onDisconnected(session: MediaSession, controller: MediaSession.ControllerInfo) {
+            if (controller.packageName == CAR) { carOn = false; SpeedService.stop(this@PlaybackService) }
             if (controller.packageName == CAR && player.isPlaying) fade(1f, 0f, 3000) { player.pause(); player.volume = 1f }
         }
 
@@ -368,7 +366,6 @@ class PlaybackService : MediaLibraryService() {
         ): ListenableFuture<SessionResult> {
             when (customCommand.customAction) {
                 FAV.customAction -> Repo.stations[stationId(player.currentMediaItem)]?.let { Store.toggleFav(it) }
-                SONG.customAction -> saveSong()
             }
             return Futures.immediateFuture(SessionResult(SessionResult.RESULT_SUCCESS))
         }
@@ -426,7 +423,7 @@ class PlaybackService : MediaLibraryService() {
             val first = mediaItems.firstOrNull()
             val q = first?.requestMetadata?.searchQuery
             when {
-                // "Hey Google, play <station> on Dandana"
+                // "Hey Google, play <station> on Sawt el Beit"
                 q != null -> {
                     val r = (if (q.isBlank()) emptyList() else try { Repo.find(q) } catch (e: Exception) { emptyList() })
                         .ifEmpty { Store.recents().ifEmpty { Store.favs() } }

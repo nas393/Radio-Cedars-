@@ -1,6 +1,21 @@
 package com.mawja.radio
 
-import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.Service
+import android.content.pm.ServiceInfo
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
+import android.os.Bundle
+import android.os.IBinder
+import android.os.Looper
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.core.app.NotificationCompat
+import androidx.core.app.ServiceCompat
+import kotlin.math.roundToInt
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
@@ -21,12 +36,11 @@ import androidx.media3.session.MediaButtonReceiver
 import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
-import java.util.Calendar
 
 /** Serves station logos and the live wallpaper to Android Auto, which can't load web images directly. */
 class ArtProvider : ContentProvider() {
     companion object {
-        private const val AUTH = "com.mawja.radio.art"
+        private const val AUTH = "com.sawtelbeit.app.art"
         fun uri(url: String?): Uri? = url?.let { Uri.parse("content://$AUTH/" + Uri.encode(it)) }
         fun file(name: String): Uri = Uri.parse("content://$AUTH/f/$name")
     }
@@ -82,31 +96,43 @@ class MawjaWidget : AppWidgetProvider() {
     }
 }
 
-/** Fairuz sunrise alarm: plays the saved Fairuz station, fading in over a minute. */
-object Alarm {
-    fun schedule(c: Context) {
-        val am = c.getSystemService(AlarmManager::class.java)
-        val pi = PendingIntent.getBroadcast(c, 7, Intent(c, AlarmReceiver::class.java).setAction("ring"),
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
-        am.cancel(pi)
-        if (!Store.b("alarm")) return
-        val now = Calendar.getInstance()
-        val t = (now.clone() as Calendar).apply {
-            set(Calendar.HOUR_OF_DAY, Store.i("ah", 7)); set(Calendar.MINUTE, Store.i("am", 0)); set(Calendar.SECOND, 0)
-            if (!after(now)) add(Calendar.DAY_OF_YEAR, 1)
-        }
-        if (Build.VERSION.SDK_INT < 31 || am.canScheduleExactAlarms()) {
-            val show = PendingIntent.getActivity(c, 8, Intent(c, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-            am.setAlarmClock(AlarmManager.AlarmClockInfo(t.timeInMillis, show), pi)
-        } else am.setWindow(AlarmManager.RTC_WAKEUP, t.timeInMillis, 10 * 60_000L, pi)
-    }
-}
+object Speed { var kmh by mutableStateOf<Int?>(null) }
 
-class AlarmReceiver : BroadcastReceiver() {
-    override fun onReceive(c: Context, i: Intent) {
-        Alarm.schedule(c)   // after boot, and tomorrow's ring
-        if (i.action != "ring") return
-        try { ContextCompat.startForegroundService(c, Intent(c, PlaybackService::class.java).setAction(PlaybackService.ALARM)) }
-        catch (_: Exception) {}
+/** GPS speed while driving. Started from the open app so it keeps working with the screen off. */
+class SpeedService : Service(), LocationListener {
+    companion object {
+        fun start(c: Context) = runCatching { ContextCompat.startForegroundService(c, Intent(c, SpeedService::class.java)) }
+        fun stop(c: Context) = c.stopService(Intent(c, SpeedService::class.java))
+    }
+
+    override fun onBind(i: Intent?): IBinder? = null
+
+    override fun onStartCommand(i: Intent?, flags: Int, id: Int): Int {
+        if (i?.action == "stop") { Store.setB("speed", false); stopSelf(); return START_NOT_STICKY }
+        getSystemService(NotificationManager::class.java)
+            .createNotificationChannel(NotificationChannel("speed", getString(R.string.speed), NotificationManager.IMPORTANCE_LOW))
+        val stop = PendingIntent.getService(this, 4, Intent(this, SpeedService::class.java).setAction("stop"), PendingIntent.FLAG_IMMUTABLE)
+        val n = NotificationCompat.Builder(this, "speed").setSmallIcon(R.drawable.ic_note).setContentTitle(getString(R.string.speed))
+            .setOngoing(true).addAction(0, getString(R.string.stop), stop).build()
+        try {
+            ServiceCompat.startForeground(this, 42, n, if (Build.VERSION.SDK_INT >= 29) ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION else 0)
+            getSystemService(LocationManager::class.java).requestLocationUpdates(LocationManager.GPS_PROVIDER, 1000L, 0f, this, Looper.getMainLooper())
+        } catch (e: Exception) { stopSelf() }
+        return START_NOT_STICKY
+    }
+
+    override fun onLocationChanged(l: Location) {
+        val k = if (l.hasSpeed()) (l.speed * 3.6f).roundToInt() else 0
+        Speed.kmh = k; PlaybackService.instance?.showSpeed(k)
+    }
+    @Deprecated("Deprecated in Java")
+    override fun onStatusChanged(p: String?, s: Int, e: Bundle?) {}
+    override fun onProviderEnabled(p: String) {}
+    override fun onProviderDisabled(p: String) {}
+
+    override fun onDestroy() {
+        runCatching { getSystemService(LocationManager::class.java).removeUpdates(this) }
+        Speed.kmh = null; PlaybackService.instance?.showSpeed(null)
+        super.onDestroy()
     }
 }

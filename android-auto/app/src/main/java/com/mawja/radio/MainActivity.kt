@@ -49,6 +49,10 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import android.webkit.WebView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -112,6 +116,7 @@ class PlayerConn(ctx: Context) {
     }
     fun news() = c?.run { setMediaItem(MediaItem.Builder().setMediaId("news").build()); prepare(); play() }
     fun toggle() = c?.run { if (isPlaying) pause() else { if (playbackState == Player.STATE_IDLE) prepare(); play() } }
+    fun pause() = c?.pause()
     fun next() = c?.seekToNextMediaItem()
     fun prev() = c?.seekToPreviousMediaItem()
     fun release() = c?.release()
@@ -135,10 +140,25 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() { pc.release(); super.onDestroy() }
 
+    override fun onResume() { super.onResume(); if (PlaybackService.instance?.carOn == true) startSpeed(this) }
+
+    override fun onRequestPermissionsResult(code: Int, perms: Array<out String>, res: IntArray) {
+        super.onRequestPermissionsResult(code, perms, res)
+        if (Manifest.permission.ACCESS_FINE_LOCATION in perms && res.any { it == PackageManager.PERMISSION_GRANTED }) startSpeed(this)
+    }
+
     fun ask(p: String) { if (checkSelfPermission(p) != PackageManager.PERMISSION_GRANTED) requestPermissions(arrayOf(p), 1) }
 }
 
 private val cs @Composable get() = MaterialTheme.colorScheme
+
+fun startSpeed(ctx: Context) {
+    if (!Store.b("speed", true)) return
+    if (ctx.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) SpeedService.start(ctx)
+    else (ctx as? MainActivity)?.requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION), 2)
+}
+
+fun currentLang() = AppCompatDelegate.getApplicationLocales()[0]?.language ?: Locale.getDefault().language
 
 fun open(ctx: Context, url: String) = try { ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url))) } catch (_: Exception) {}
 
@@ -195,8 +215,8 @@ fun Picker(pick: (Int) -> Unit) {
 
 private enum class Page(val label: Int, val kids: Boolean) {
     FAV(R.string.favorites, true), REC(R.string.recent, true), FEAT(R.string.featured, true), LB(R.string.lebanon, true),
-    MOODS(R.string.moods, true), WORLD(R.string.world, false), SEARCH(R.string.search, false), NEWS(R.string.news, false),
-    MUSIC(R.string.music, false), PHOTOS(R.string.photos, false), PASS(R.string.passport, true)
+    WORLD(R.string.world, false), SEARCH(R.string.search, false), NEWS(R.string.news, false),
+    TV(R.string.tv, false), PHOTOS(R.string.photos, false)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -209,7 +229,9 @@ fun Home(pc: PlayerConn, prof: Profile, switch: () -> Unit) {
     var query by rememberSaveable { mutableStateOf("") }
     val rev = Store.rev.intValue
     val now by produceState(Date()) { while (true) { delay(30_000); value = Date() } }
+    var drive by rememberSaveable { mutableStateOf(false) }
     if (settings) Settings(prof) { settings = false }
+    if (drive) { Drive(pc) { drive = false }; return }
 
     Column(Modifier.fillMaxSize().safeDrawingPadding()) {
         Row(Modifier.fillMaxWidth().padding(16.dp, 12.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -220,6 +242,7 @@ fun Home(pc: PlayerConn, prof: Profile, switch: () -> Unit) {
                     style = MaterialTheme.typography.bodySmall, color = cs.onBackground.copy(alpha = .8f), maxLines = 1)
             }
             if (Store.newsFlash) IconButton({ pc.news() }) { Icon(Icons.Default.Newspaper, stringResource(R.string.news_flash), tint = cs.onBackground) }
+            IconButton({ drive = true }) { Icon(Icons.Default.DirectionsCar, stringResource(R.string.drive), tint = cs.onBackground) }
             IconButton({ settings = true }) { Icon(Icons.Default.Settings, stringResource(R.string.settings), tint = cs.onBackground) }
         }
         val sel = tab.coerceIn(0, tabs.size - 1)
@@ -232,7 +255,6 @@ fun Home(pc: PlayerConn, prof: Profile, switch: () -> Unit) {
                 Page.REC -> Grid(remember(rev) { Store.recents() }, pc)
                 Page.FEAT -> Stations("feat", pc) { Repo.featured() }
                 Page.LB -> Stations("LB", pc, dayPick = true) { Repo.byCountry("LB") }
-                Page.MOODS -> Moods(pc)
                 Page.WORLD -> country?.let { c ->
                     Column {
                         Row(Modifier.clickable { country = null }.padding(16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -248,9 +270,8 @@ fun Home(pc: PlayerConn, prof: Profile, switch: () -> Unit) {
                     if (query.trim().length >= 2) Stations("q:$query", pc) { delay(400); Repo.find(query.trim()) }
                 }
                 Page.NEWS -> News()
-                Page.MUSIC -> Music(rev)
+                Page.TV -> Tv(pc)
                 Page.PHOTOS -> Photos(rev)
-                Page.PASS -> Passport(rev)
             }
         }
         NowPlaying(pc)
@@ -278,17 +299,6 @@ fun Stations(key: Any, pc: PlayerConn, dayPick: Boolean = false, load: suspend (
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Moods(pc: PlayerConn) {
-    var tag by rememberSaveable { mutableStateOf("pop") }
-    Column {
-        Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp).horizontalScroll(rememberScrollState()), Arrangement.spacedBy(8.dp)) {
-            PlaybackService.MOODS.forEach { (label, t) -> FilterChip(tag == t, { tag = t }, { Text(stringResource(label)) }) }
-        }
-        Stations("m:$tag", pc) { Repo.mood(tag) }
     }
 }
 
@@ -359,48 +369,6 @@ fun News() {
 }
 
 @Composable
-fun Music(rev: Int) {
-    val ctx = LocalContext.current
-    var link by remember { mutableStateOf("") }
-    val songs = remember(rev) { Store.songs() }
-    val lists = remember(rev) { Store.playlists() }
-    LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        item {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button({ open(ctx, "spotify:") }) { Text("Spotify") }
-                Button({ open(ctx, "https://music.youtube.com") }) { Text("YouTube Music") }
-            }
-        }
-        item { Text(stringResource(R.string.playlists), fontWeight = FontWeight.Bold, color = cs.onBackground, modifier = Modifier.padding(top = 12.dp)) }
-        item {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                OutlinedTextField(link, { link = it }, Modifier.weight(1f), singleLine = true, placeholder = { Text(stringResource(R.string.add_playlist)) })
-                IconButton({ if (link.startsWith("http")) { Store.addPlaylist(link.trim()); link = "" } }) { Icon(Icons.Default.Add, null, tint = cs.primary) }
-            }
-        }
-        items(lists) { u ->
-            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(cs.surface.copy(alpha = .85f)).clickable { open(ctx, u) }.padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically) {
-                Text(if ("spotify" in u) "🟢" else "▶️", fontSize = 20.sp)
-                Text(Uri.parse(u).run { (host ?: "") + (path ?: "") }, Modifier.padding(start = 12.dp).weight(1f), maxLines = 1, overflow = TextOverflow.Ellipsis, color = cs.onSurface)
-                IconButton({ Store.removePlaylist(u) }) { Icon(Icons.Default.Close, null, tint = cs.onSurface) }
-            }
-        }
-        item { Text("🎵 " + stringResource(R.string.liked_songs), fontWeight = FontWeight.Bold, color = cs.onBackground, modifier = Modifier.padding(top = 12.dp)) }
-        if (songs.isEmpty()) item { Text(stringResource(R.string.empty), color = cs.onBackground.copy(alpha = .7f)) }
-        items(songs) { s ->
-            Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(cs.surface.copy(alpha = .85f)).padding(start = 12.dp),
-                verticalAlignment = Alignment.CenterVertically) {
-                Text(s, Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis, color = cs.onSurface)
-                TextButton({ open(ctx, "https://open.spotify.com/search/" + Uri.encode(s)) }) { Text("Spotify") }
-                TextButton({ open(ctx, "https://music.youtube.com/search?q=" + enc(s)) }) { Text("YouTube") }
-                IconButton({ Store.removeSong(s) }) { Icon(Icons.Default.Close, null, tint = cs.onSurface) }
-            }
-        }
-    }
-}
-
-@Composable
 fun Photos(rev: Int) {
     val ctx = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -421,7 +389,7 @@ fun Photos(rev: Int) {
             Button({ pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }) { Icon(Icons.Default.PhotoLibrary, null); Text(" " + stringResource(R.string.add_phone)) }
             Button({
                 val f = File(Store.galleryDir(), "cam_${System.currentTimeMillis()}.jpg"); shot = f
-                cam.launch(FileProvider.getUriForFile(ctx, "com.mawja.radio.files", f))
+                cam.launch(FileProvider.getUriForFile(ctx, "com.sawtelbeit.app.files", f))
             }) { Icon(Icons.Default.PhotoCamera, null); Text(" " + stringResource(R.string.camera)) }
             IconButton({ PlaybackService.instance?.refreshWall(true) }) { Icon(Icons.Default.Wallpaper, null, tint = cs.onBackground) }
         }
@@ -441,41 +409,11 @@ fun Photos(rev: Int) {
 }
 
 @Composable
-fun Passport(rev: Int) {
-    val st = remember(rev) { Store.stats() }
-    val total = st.optInt("t")
-    val countries = st.optJSONObject("c")?.let { o -> o.keys().asSequence().map { it to o.optInt(it) }.sortedByDescending { it.second }.toList() } ?: emptyList()
-    val top = st.optJSONObject("s")?.let { o -> o.keys().asSequence().map { it to o.optInt(it) }.sortedByDescending { it.second }.take(5).toList() } ?: emptyList()
-    LazyVerticalGrid(GridCells.Adaptive(96.dp), contentPadding = PaddingValues(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Card(colors = CardDefaults.cardColors(cs.surface.copy(alpha = .88f))) {
-                Column(Modifier.fillMaxWidth().padding(16.dp)) {
-                    Text("🛂 " + stringResource(R.string.passport), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = cs.onSurface)
-                    Text(stringResource(R.string.hours, "%.1f".format(total / 60f)) + " · " + stringResource(R.string.countries, countries.size), color = cs.primary)
-                    if (top.isNotEmpty()) Text(stringResource(R.string.top_stations), fontWeight = FontWeight.SemiBold, color = cs.onSurface, modifier = Modifier.padding(top = 10.dp))
-                    top.forEachIndexed { i, (n, m) -> Text("${i + 1}. $n · ${m}m", color = cs.onSurface) }
-                }
-            }
-        }
-        items(countries) { (cc, m) ->
-            Column(Modifier.border(2.dp, cs.primary, RoundedCornerShape(14.dp)).background(cs.surface.copy(alpha = .8f), RoundedCornerShape(14.dp)).padding(10.dp),
-                horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(flag(cc), fontSize = 34.sp)
-                Text(cc, fontWeight = FontWeight.Bold, color = cs.onSurface)
-                Text("${m}m", style = MaterialTheme.typography.bodySmall, color = cs.onSurface.copy(alpha = .7f))
-            }
-        }
-    }
-}
-
-@Composable
 fun NowPlaying(pc: PlayerConn) {
     if (pc.name.isEmpty()) return
     val ctx = LocalContext.current
     Store.rev.intValue
     val shareText = stringResource(R.string.share_text, pc.name + if (pc.sub.isNotBlank()) " — ${pc.sub}" else "") + " " + Repo.SITE
-    val saved = stringResource(R.string.saved_song)
     val sleep = PlaybackService.instance?.sleepMin ?: 0
     Surface(color = cs.surface.copy(alpha = .92f), tonalElevation = 6.dp, shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)) {
         Column(Modifier.fillMaxWidth().padding(16.dp)) {
@@ -484,9 +422,6 @@ fun NowPlaying(pc: PlayerConn) {
                 Column(Modifier.weight(1f).padding(horizontal = 12.dp)) {
                     Text(pc.name, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = cs.onSurface)
                     Text(pc.sub, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyMedium, color = cs.onSurface.copy(alpha = .7f))
-                }
-                if (pc.song) IconButton({ if (PlaybackService.instance?.saveSong() == true) Toast.makeText(ctx, saved, Toast.LENGTH_SHORT).show() }) {
-                    Icon(Icons.Default.LibraryMusic, stringResource(R.string.save_song), tint = cs.onSurface)
                 }
                 pc.station?.let { s ->
                     IconButton({ Store.toggleFav(s) }) {
@@ -555,24 +490,13 @@ fun Settings(prof: Profile, close: () -> Unit) {
                 Chips(listOf(0 to stringResource(R.string.every_song), 5 to "5 min", 15 to "15 min", 30 to "30 min"), Store.i("slide")) { Store.setI("slide", it) }
                 Toggle(R.string.data_saver, Store.dataSaver) { Store.dataSaver = it }
                 Toggle(R.string.autoplay, Store.autoplay) { Store.autoplay = it; if (it && Build.VERSION.SDK_INT >= 31) (ctx as? MainActivity)?.ask(Manifest.permission.BLUETOOTH_CONNECT) }
+                Toggle(R.string.speed_show, Store.b("speed", true)) { Store.setB("speed", it); if (it) startSpeed(ctx) else SpeedService.stop(ctx) }
+                Toggle(R.string.speed_car, Store.b("speedCar", true)) { Store.setB("speedCar", it); PlaybackService.instance?.showSpeed(null) }
                 Toggle(R.string.brief, Store.b("brief", true)) { Store.setB("brief", it) }
                 Toggle(R.string.night_ride, Store.b("night", true)) { Store.setB("night", it) }
                 Toggle(R.string.news_flash, Store.newsFlash) { Store.newsFlash = it }
                 Toggle(R.string.breaking_speak, Store.b("bspeak")) { Store.setB("bspeak", it) }
                 Toggle(R.string.breaking_notify, Store.b("bnotif", true)) { Store.setB("bnotif", it) }
-                Toggle(R.string.alarm, Store.b("alarm")) { on ->
-                    Store.setB("alarm", on)
-                    if (on) {
-                        val am = ctx.getSystemService(AlarmManager::class.java)
-                        if (Build.VERSION.SDK_INT >= 31 && !am.canScheduleExactAlarms())
-                            runCatching { ctx.startActivity(Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:" + ctx.packageName))) }
-                        scope.launch { runCatching { Repo.find("Fairuz").firstOrNull() }.getOrNull()?.let { Store.setS("alarmSt", it.json().toString()) } }
-                    }
-                    Alarm.schedule(ctx)
-                }
-                if (Store.b("alarm")) TextButton({
-                    TimePickerDialog(ctx, { _, h, m -> Store.setI("ah", h); Store.setI("am", m); Alarm.schedule(ctx) }, Store.i("ah", 7), Store.i("am", 0), true).show()
-                }) { Text("⏰ %02d:%02d".format(Store.i("ah", 7), Store.i("am", 0))) }
             }
         })
 }
@@ -585,5 +509,108 @@ fun Toggle(label: Int, on: Boolean, set: (Boolean) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(stringResource(label), Modifier.weight(1f))
         Switch(on, set)
+    }
+}
+
+/** Drive mode: the car look, a big speedometer and big buttons. */
+@Composable
+fun Drive(pc: PlayerConn, exit: () -> Unit) {
+    val ctx = LocalContext.current
+    LaunchedEffect(Unit) { startSpeed(ctx) }
+    val now by produceState(Date()) { while (true) { delay(15_000); value = Date() } }
+    MaterialTheme(colorScheme = DRIVE.dark) {
+        BoxWithConstraints(Modifier.fillMaxSize().background(cs.background.copy(alpha = .85f)).safeDrawingPadding().padding(20.dp)) {
+            val wide = maxWidth > maxHeight
+            Text(clocks(now) + (Wall.state?.weather?.let { "   ${it.icon} ${it.temp}° ${it.place}" } ?: ""),
+                Modifier.align(Alignment.TopStart), color = cs.onBackground.copy(alpha = .85f), fontSize = 18.sp)
+            IconButton(exit, Modifier.align(Alignment.TopEnd)) { Icon(Icons.Default.Close, null, tint = cs.onBackground) }
+            val gauge: @Composable () -> Unit = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(Speed.kmh?.toString() ?: "--", fontSize = 120.sp, fontWeight = FontWeight.Bold, color = cs.primary)
+                    Text("km/h", color = cs.onBackground.copy(alpha = .7f), fontSize = 20.sp)
+                }
+            }
+            val player: @Composable () -> Unit = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Logo(pc.station, 72.dp)
+                    Text(pc.name.ifEmpty { stringResource(R.string.app_name) }, Modifier.padding(top = 8.dp), fontSize = 26.sp, fontWeight = FontWeight.Bold,
+                        maxLines = 1, overflow = TextOverflow.Ellipsis, color = cs.onBackground)
+                    Text(pc.sub, fontSize = 17.sp, maxLines = 1, overflow = TextOverflow.Ellipsis, color = cs.onBackground.copy(alpha = .7f))
+                    Row(Modifier.padding(top = 16.dp), Arrangement.spacedBy(20.dp), Alignment.CenterVertically) {
+                        IconButton({ pc.prev() }, Modifier.size(72.dp)) { Icon(Icons.Default.SkipPrevious, null, Modifier.size(52.dp), cs.onBackground) }
+                        FilledIconButton({ pc.toggle() }, Modifier.size(104.dp)) {
+                            Icon(if (pc.playing) Icons.Default.Pause else Icons.Default.PlayArrow, null, Modifier.size(64.dp))
+                        }
+                        IconButton({ pc.next() }, Modifier.size(72.dp)) { Icon(Icons.Default.SkipNext, null, Modifier.size(52.dp), cs.onBackground) }
+                        pc.station?.let { s ->
+                            IconButton({ Store.toggleFav(s) }, Modifier.size(72.dp)) {
+                                Icon(if (Store.isFav(s.id)) Icons.Default.Favorite else Icons.Default.FavoriteBorder, null, Modifier.size(40.dp), cs.primary)
+                            }
+                        }
+                    }
+                }
+            }
+            if (wide) Row(Modifier.align(Alignment.Center), Arrangement.spacedBy(48.dp), Alignment.CenterVertically) { gauge(); player() }
+            else Column(Modifier.align(Alignment.Center), Arrangement.spacedBy(32.dp), Alignment.CenterHorizontally) { gauge(); player() }
+        }
+    }
+}
+
+/** The website's Lebanese TV: each channel's official YouTube playlists. Phone only, paused while moving. */
+@Composable
+fun Tv(pc: PlayerConn) {
+    val lang = currentLang()
+    val list by produceState<List<Repo.TvChannel>?>(null) { value = runCatching { Repo.tv(lang) }.getOrElse { emptyList() } }
+    var ch by remember { mutableStateOf<Repo.TvChannel?>(null) }
+    var play by remember { mutableStateOf<String?>(null) }
+    val moving = (Speed.kmh ?: 0) > 10
+    if (moving) {
+        Box(Modifier.fillMaxSize(), Alignment.Center) { Text("🚗 " + stringResource(R.string.tv_driving), color = cs.onBackground, textAlign = TextAlign.Center) }
+        return
+    }
+    play?.let { id -> YouTube(id) { play = null } }
+    val l = list ?: return Box(Modifier.fillMaxSize(), Alignment.Center) { CircularProgressIndicator() }
+    val c = ch
+    if (c == null) LazyVerticalGrid(GridCells.Adaptive(150.dp), contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        items(l) { x ->
+            Card({ ch = x }, colors = CardDefaults.cardColors(Color(x.color))) {
+                Column(Modifier.fillMaxWidth().padding(vertical = 28.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(x.name, fontSize = 22.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                    Text(x.ar, color = Color.White.copy(alpha = .85f))
+                }
+            }
+        }
+    } else Column {
+        Row(Modifier.clickable { ch = null }.padding(16.dp, 8.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back), tint = cs.onBackground)
+            Text("  📺 ${c.name}", color = cs.onBackground, fontWeight = FontWeight.SemiBold)
+        }
+        LazyColumn(contentPadding = PaddingValues(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(c.lists) { p ->
+                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(cs.surface.copy(alpha = .88f))
+                    .clickable { pc.pause(); play = p.id }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.PlayCircle, null, tint = cs.primary)
+                    Text(p.title, Modifier.padding(start = 12.dp), color = cs.onSurface)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun YouTube(list: String, close: () -> Unit) {
+    val html = "<html><body style='margin:0;background:#000;height:100%'><iframe style='border:0;width:100%;height:100%' " +
+        "src='https://www.youtube.com/embed/videoseries?list=$list&autoplay=1&playsinline=1' allow='autoplay; encrypted-media; fullscreen' allowfullscreen></iframe></body></html>"
+    Dialog(close, DialogProperties(usePlatformDefaultWidth = false)) {
+        Box(Modifier.fillMaxSize().background(Color.Black)) {
+            AndroidView({ c -> WebView(c).apply {
+                settings.javaScriptEnabled = true; settings.domStorageEnabled = true; settings.mediaPlaybackRequiresUserGesture = false
+                loadDataWithBaseURL(Repo.SITE, html, "text/html", "utf-8", null)
+            } }, Modifier.fillMaxSize(), onRelease = { it.destroy() })
+            IconButton(close, Modifier.align(Alignment.TopEnd).padding(8.dp).background(Color.Black.copy(alpha = .6f), CircleShape)) {
+                Icon(Icons.Default.Close, null, tint = Color.White)
+            }
+        }
     }
 }
