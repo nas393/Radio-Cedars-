@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="favorites">Favoritos</string>
+    <string name="recent">Recentes</string>
+    <string name="featured">Destaques</string>
+    <string name="lebanon">Líbano</string>
+    <string name="world">Mundo</string>
+    <string name="search">Pesquisar</string>
+    <string name="profiles">Perfis</string>
+    <string name="who">Quem está a ouvir?</string>
+    <string name="settings">Definições</string>
+    <string name="language">Idioma</string>
+    <string name="theme">Tema</string>
+    <string name="data_saver">Poupança de dados</string>
+    <string name="autoplay">Tocar ao ligar o carro / Bluetooth</string>
+    <string name="news_flash">Flash de notícias (títulos em voz alta)</string>
+    <string name="sleep">Temporizador</string>
+    <string name="rename">Nome do perfil</string>
+    <string name="done">Feito</string>
+    <string name="empty">Ainda nada aqui</string>
+    <string name="share_text">🎧 A ouvir %1$s no Mawja Radio</string>
+    <string name="favorite">Favorito</string>
+    <string name="no_news">Sem notícias de momento.</string>
+    <string name="back">Voltar</string>
+</resources>
