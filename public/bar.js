@@ -19,7 +19,6 @@
   const ITEMS = [
     { id: 'radio', ic: '📻', go: () => R().open('radio') },
     { id: 'tv', ic: '📺', go: () => R().open('tv') },
-    { id: 'chat', ic: '💬', go: () => { const b = document.getElementById('chat-btn'); if (b && !b.hidden) b.click(); else R().open('together'); } },
     { id: 'games', ic: '🎲', go: () => R().open('tawleh') },
     { id: 'more', ic: '☰', go: () => { const b = document.getElementById('all-btn'); if (b) b.click(); } }
   ];

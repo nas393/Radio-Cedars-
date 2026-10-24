@@ -442,10 +442,10 @@
       vec2 q = vec2(p.x * dens, p.y * 2.2 - t * sp);
       vec2 id = floor(q); vec2 f = fract(q);
       float r = h21(id + 1.7), r2 = h21(id.yx + 9.3);
-      float w = max(0.07, px * dens * 1.2);           // never thinner than a pixel: no shimmering lines
-      float line = smoothstep(w, 0.0, abs(f.x - (0.15 + 0.7 * r))) * min(1.0, 0.07 / w * 1.6);
+      float w = max(0.16, px * dens * 2.4);           // never thinner than a pixel: no shimmering lines
+      float line = smoothstep(w, 0.0, abs(f.x - (0.15 + 0.7 * r))) * min(1.0, 0.16 / w * 1.4);
       float len = smoothstep(0.0, 0.12, f.y) * smoothstep(0.35 + 0.5 * r2, 0.2 + 0.3 * r2, f.y);
-      return line * len * step(0.45, r2);
+      return line * len * step(0.62, r2);
     }
     // snowflakes drifting down and swaying
     float flakes(vec2 p, float t, float sc) {
@@ -569,14 +569,11 @@
       if (rain > 0.001 && m > 0.01) {
         vec2 sp2 = vec2(uv.x * asp, uv.y);
         // drops running down the glass bend what is outside
-        vec2 st = sp2 * 6.5;
-        vec3 a = drops(st, time);
-        vec3 b = drops(st * 1.65 + vec2(7.54, 2.1), time * 1.1);
-        vec3 e = beads(st * 6.0);
-        vec2 o = (a.xy + b.xy * 0.7 + e.xy * 0.6) * rain * 0.7;
-        float wet = max(max(a.z, b.z), e.z);
-        vec2 u2 = uv - o * 0.05;
-        float bl = 0.0022 * (1.0 - wet);
+        // (no running drops: they looked painted on; the glass is just wet and soft)
+        vec2 o = vec2(0.0);
+        float wet = 0.0;
+        vec2 u2 = uv;
+        float bl = 0.0026;
         vec3 out0 = (texture2D(t0, u2 + vec2(bl, 0.0)).rgb + texture2D(t0, u2 - vec2(bl, 0.0)).rgb +
                      texture2D(t0, u2 + vec2(0.0, bl)).rgb + texture2D(t0, u2 - vec2(0.0, bl)).rgb) * 0.25;
         float lum = dot(out0, vec3(0.3, 0.59, 0.11));
@@ -590,11 +587,10 @@
         // the rain itself: three depths, slanted, in gusts
         float gust = 0.55 + 0.45 * vn(vec2(sp2.x * 1.5 - time * 0.4, time * 0.25));
         float pxs = cam.z * asp;
-        float rs = streaks(sp2 * 0.7 + 11.0, time, 2.0, 120.0, pxs * 0.7) * 0.45
-                 + streaks(sp2, time, 2.8, 70.0, pxs) * 0.8
-                 + streaks(sp2 * 1.5 + 3.1, time, 3.6, 46.0, pxs * 1.5) * 1.0;
+        float rs = streaks(sp2 * 0.7 + 11.0, time, 1.6, 90.0, pxs * 0.7) * 0.5
+                 + streaks(sp2 * 1.4 + 3.1, time, 2.4, 40.0, pxs * 1.4) * 0.8;
         float dark = 1.0 - smoothstep(0.05, 0.7, lum);
-        o2 += vec3(0.78, 0.83, 0.9) * rs * gust * rain * (0.22 + 0.4 * dark);
+        o2 += vec3(0.78, 0.83, 0.9) * rs * gust * rain * (0.1 + 0.2 * dark);
         // lightning: the whole sky lights up, and a bolt now and then
         o2 += flash * vec3(0.8, 0.86, 1.0) * (0.25 + 0.75 * sky) * (0.55 + 0.45 * dark);
         if (bolt.w > 0.0 && uv.y < bolt.y) {
@@ -633,11 +629,13 @@
       if (heatOn > 0.001) {
         float fl = 0.78 + 0.22 * vn(vec2(time * 5.0, 1.7)) + 0.08 * sin(time * 17.0);
         if (uv.x > heatBox.x && uv.x < heatBox.z && uv.y > heatBox.y && uv.y < heatBox.w) {
-          vec2 eu = (uv - heatBox.xy) / (heatBox.zw - heatBox.xy);
-          eu.x += sin(time * 9.0 + eu.y * 38.0) * 0.006 * (1.0 - eu.y);
-          eu.y += vn(vec2(eu.x * 14.0, time * 3.0)) * 0.01;
-          vec3 em = texture2D(te, eu).rgb;
-          float lick = 0.75 + 0.5 * vn(vec2(eu.x * 22.0, eu.y * 9.0 + time * 4.0));
+          vec2 eu0 = (uv - heatBox.xy) / (heatBox.zw - heatBox.xy), eu = eu0;
+          eu.x += sin(time * 9.0 + eu.y * 38.0) * 0.004 * (1.0 - eu.y);
+          eu.y += vn(vec2(eu.x * 14.0, time * 3.0)) * 0.006;
+          // the flames move only where the fire already is: never outside the fireplace
+          vec3 e0 = texture2D(te, eu0).rgb;
+          vec3 em = min(texture2D(te, eu).rgb, e0 * 1.25 + 0.02);
+          float lick = mix(1.0, 0.75 + 0.5 * vn(vec2(eu.x * 22.0, eu.y * 9.0 + time * 4.0)), smoothstep(0.15, 0.45, max(e0.r, e0.g)));
           c.rgb += em * heatOn * fl * lick * (1.0 + heatGlow.w * 0.6);
         }
         float d = length((uv - heatGlow.xy) * vec2(asp, 1.0));
@@ -1267,9 +1265,9 @@
   function rainTarget() {
     if (!isRaining()) return 0;
     const code = beirutCode();
-    if (weatherMode === 'rain' || code === null) return 0.85;
+    if (weatherMode === 'rain' || code === null) return 0.7;
     if (code === 51 || code === 56 || code === 61 || code === 80) return 0.55;    // light
-    return 0.95;
+    return 0.8;
   }
   let mood = 'clear';
   function updateMood() { const m = moodNow(); if (m !== mood) { mood = m; needsDraw = true; } }

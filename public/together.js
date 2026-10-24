@@ -290,15 +290,15 @@
     try { navigator.vibrate && navigator.vibrate([120, 80, 160]); } catch { /* fine */ }
   }
   let unread = 0;
-  const chatBtn = el('button', { type: 'button', className: 'chat-btn', id: 'chat-btn', hidden: true }, [el('span', { className: 'chat-ic', text: '💬' }), el('b', { className: 'chat-n', hidden: true })]);
-  (document.getElementById('who-btn') || document.querySelector('.room-top .langs')).after(chatBtn);
+  const chatBtn = el('button', { type: 'button', className: 'chat-btn', id: 'chat-btn' }, [el('span', { className: 'chat-ic', text: '💬' }), el('b', { className: 'chat-n', hidden: true })]);
+  document.body.appendChild(chatBtn);   // all chat lives behind one bubble in the corner, apart from the room
   chatBtn.addEventListener('click', () => {
     if (!openRoom && rooms[0] && rooms[0].token) enter(rooms[0]);
     else if (openRoom) screen = 'room';
     if (window.SawtRoom) window.SawtRoom.open('together');
   });
   function badge() {
-    chatBtn.hidden = !storeOn;
+    chatBtn.hidden = false;
     chatBtn.setAttribute('aria-label', t('chat') + (unread ? ` (${unread})` : ''));
     chatBtn.title = t('chat');
     const n = chatBtn.querySelector('.chat-n');
