@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moods">Moods</string>
+    <string name="news">News</string>
+    <string name="music">Music</string>
+    <string name="passport">Passport</string>
+    <string name="photos">Photos</string>
+    <string name="wallpaper">Live wallpaper (phone + car)</string>
+    <string name="source_mix">My photos + region</string>
+    <string name="source_mine">My photos</string>
+    <string name="source_region">Region photos</string>
+    <string name="slide">Change photo</string>
+    <string name="every_song">Every song</string>
+    <string name="look">Day / night</string>
+    <string name="auto">Auto (car &amp; phone)</string>
+    <string name="day">Day</string>
+    <string name="night">Night</string>
+    <string name="alarm">Fairuz sunrise alarm</string>
+    <string name="brief">Morning brief in the car (before 10am)</string>
+    <string name="breaking_speak">Speak breaking news</string>
+    <string name="breaking_notify">Breaking news notifications</string>
+    <string name="breaking">Breaking</string>
+    <string name="night_ride">Night ride (calm music after 11pm)</string>
+    <string name="kids">Kids mode</string>
+    <string name="add_phone">From gallery</string>
+    <string name="camera">Camera</string>
+    <string name="no_photos">Add your photos — they become the full-screen background on the phone and in the car.</string>
+    <string name="liked_songs">Liked songs</string>
+    <string name="playlists">My Spotify &amp; YouTube playlists</string>
+    <string name="add_playlist">Paste a Spotify or YouTube link</string>
+    <string name="hours">%1$s h listened</string>
+    <string name="countries">%1$d countries</string>
+    <string name="top_stations">Top stations</string>
+    <string name="station_day">Station of the day</string>
+    <string name="good_morning">Good morning</string>
+    <string name="happy">Happy</string>
+    <string name="nostalgic">Nostalgic</string>
+    <string name="calm">Calm</string>
+    <string name="party">Party</string>
+    <string name="tarab">Tarab</string>
+    <string name="save_song">Save song</string>
+    <string name="saved_song">Song saved</string>
+</resources>

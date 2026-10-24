@@ -41,7 +41,7 @@ data class Station(
 }
 
 data class Country(val name: String, val cc: String, val count: Int)
-data class Weather(val place: String, val temp: Int, val icon: String)
+data class Weather(val place: String, val temp: Int, val icon: String, val code: Int = 0, val day: Boolean = true)
 
 fun JSONObject.str(k: String): String? = if (isNull(k)) null else optString(k).ifBlank { null }
 fun JSONObject.dbl(k: String): Double? = if (isNull(k)) null else optDouble(k).takeIf { !it.isNaN() }
@@ -50,6 +50,8 @@ fun flag(cc: String): String = if (cc.length != 2) "🌐" else
     cc.uppercase().map { String(Character.toChars(0x1F1E6 + (it - 'A'))) }.joinToString("")
 
 fun stationId(item: MediaItem?) = item?.mediaId?.removePrefix("st:") ?: ""
+
+const val UA = "MawjaRadio/1.1 (https://radio-cedars.vercel.app)"
 
 object Repo {
     const val SITE = "https://radio-cedars.vercel.app"
@@ -67,7 +69,7 @@ object Repo {
     fun get(url: String): String {
         val c = URL(url).openConnection() as HttpURLConnection
         c.connectTimeout = 8000; c.readTimeout = 10000
-        c.setRequestProperty("User-Agent", "MawjaRadio/1.0")
+        c.setRequestProperty("User-Agent", UA)
         try {
             if (c.responseCode !in 200..299) error("HTTP ${c.responseCode}")
             return c.inputStream.bufferedReader().readText()
@@ -156,14 +158,56 @@ object Repo {
         out.filter { it.second.isNotBlank() }
     }
 
+    private val weatherCache = ConcurrentHashMap<String, Pair<Long, Weather>>()
     suspend fun weather(s: Station): Weather? = io {
         val cap = Capitals.of(s.cc)
         val lat = s.lat ?: cap?.lat ?: return@io null
         val lon = s.lon ?: cap?.lon ?: return@io null
-        val c = JSONObject(get("https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,weather_code"))
+        val key = "$lat,$lon"
+        weatherCache[key]?.let { if (System.currentTimeMillis() - it.first < 20 * 60_000L) return@io it.second }
+        val c = JSONObject(get("https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current=temperature_2m,weather_code,is_day"))
             .getJSONObject("current")
-        Weather(if (s.lat != null || cap == null) s.country else cap.city, c.optDouble("temperature_2m").roundToInt(), icon(c.optInt("weather_code")))
+        val code = c.optInt("weather_code")
+        Weather(if (s.lat != null || cap == null) s.country else cap.city, c.optDouble("temperature_2m").roundToInt(), icon(code),
+            code, c.optInt("is_day", 1) == 1).also { weatherCache[key] = System.currentTimeMillis() to it }
     }
+
+    fun bytes(url: String): ByteArray {
+        val c = URL(url).openConnection() as HttpURLConnection
+        c.connectTimeout = 8000; c.readTimeout = 15000
+        c.setRequestProperty("User-Agent", UA)
+        try { return c.inputStream.use { it.readBytes() } } finally { c.disconnect() }
+    }
+
+    suspend fun mood(tag: String) = cached("m:$tag") { search("tag" to tag, "limit" to "60") }
+
+    suspend fun stationOfDay(): Station? = byCountry("LB").let { if (it.isEmpty()) null else it[java.time.LocalDate.now().dayOfYear % it.size] }
+
+    data class Headline(val source: String, val lang: String, val title: String, val link: String?, val date: Long)
+    suspend fun headlines(): List<Headline> = io {
+        val src = JSONObject(get("$SITE/api/news")).getJSONArray("sources"); val out = ArrayList<Headline>()
+        for (i in 0 until src.length()) {
+            val s = src.getJSONObject(i); val items = s.optJSONArray("items") ?: continue
+            for (j in 0 until minOf(items.length(), 8)) {
+                val o = items.getJSONObject(j)
+                val d = runCatching { java.time.Instant.parse(o.optString("date")).toEpochMilli() }.getOrDefault(0L)
+                out += Headline(s.optString("source"), s.optString("lang", "ar"), o.optString("title"), o.str("link"), d)
+            }
+        }
+        out.filter { it.title.isNotBlank() }.sortedByDescending { it.date }
+    }
+
+    /** Real photos of a place from Wikimedia Commons (free, no key). */
+    private val photos = ConcurrentHashMap<String, List<String>>()
+    suspend fun commons(q: String): List<String> = photos[q] ?: io {
+        val u = "https://commons.wikimedia.org/w/api.php?action=query&format=json&generator=search&gsrnamespace=6&gsrlimit=25" +
+            "&prop=imageinfo&iiprop=url&iiurlwidth=1400&gsrsearch=" + URLEncoder.encode("$q filetype:bitmap", "UTF-8")
+        val pages = JSONObject(get(u)).optJSONObject("query")?.optJSONObject("pages") ?: return@io emptyList<String>()
+        val out = ArrayList<String>()
+        for (k in pages.keys()) pages.getJSONObject(k).optJSONArray("imageinfo")?.optJSONObject(0)?.str("thumburl")
+            ?.let { if (Regex("""\.jpe?g""", RegexOption.IGNORE_CASE).containsMatchIn(it)) out += it }
+        out
+    }.also { if (it.isNotEmpty()) photos[q] = it }
 
     private fun icon(c: Int) = when (c) {
         0 -> "☀️"; 1, 2 -> "🌤️"; 3 -> "☁️"; 45, 48 -> "🌫️"

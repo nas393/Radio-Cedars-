@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moods">Humores</string>
+    <string name="news">Notícias</string>
+    <string name="music">Música</string>
+    <string name="passport">Passaporte</string>
+    <string name="photos">Fotos</string>
+    <string name="wallpaper">Fundo vivo (telemóvel + carro)</string>
+    <string name="source_mix">Minhas fotos + região</string>
+    <string name="source_mine">Minhas fotos</string>
+    <string name="source_region">Fotos da região</string>
+    <string name="slide">Mudar foto</string>
+    <string name="every_song">A cada música</string>
+    <string name="look">Dia / noite</string>
+    <string name="auto">Auto (carro e telemóvel)</string>
+    <string name="day">Dia</string>
+    <string name="night">Noite</string>
+    <string name="alarm">Despertador Fairuz</string>
+    <string name="brief">Resumo da manhã no carro (antes das 10h)</string>
+    <string name="breaking_speak">Ler notícias urgentes</string>
+    <string name="breaking_notify">Notificações de notícias urgentes</string>
+    <string name="breaking">Urgente</string>
+    <string name="night_ride">Passeio noturno (calmo após as 23h)</string>
+    <string name="kids">Modo crianças</string>
+    <string name="add_phone">Da galeria</string>
+    <string name="camera">Câmara</string>
+    <string name="no_photos">Adicione as suas fotos — ficam como fundo em ecrã inteiro no telemóvel e no carro.</string>
+    <string name="liked_songs">Músicas favoritas</string>
+    <string name="playlists">As minhas playlists Spotify e YouTube</string>
+    <string name="add_playlist">Cole um link do Spotify ou YouTube</string>
+    <string name="hours">%1$s h ouvidas</string>
+    <string name="countries">%1$d países</string>
+    <string name="top_stations">Estações top</string>
+    <string name="station_day">Estação do dia</string>
+    <string name="good_morning">Bom dia</string>
+    <string name="happy">Alegre</string>
+    <string name="nostalgic">Nostálgico</string>
+    <string name="calm">Calmo</string>
+    <string name="party">Festa</string>
+    <string name="tarab">Tarab</string>
+    <string name="save_song">Guardar música</string>
+    <string name="saved_song">Música guardada</string>
+</resources>

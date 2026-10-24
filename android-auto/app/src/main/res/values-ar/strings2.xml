@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="moods">المزاج</string>
+    <string name="news">الأخبار</string>
+    <string name="music">موسيقى</string>
+    <string name="passport">جواز السفر</string>
+    <string name="photos">الصور</string>
+    <string name="wallpaper">خلفية حيّة (الهاتف والسيارة)</string>
+    <string name="source_mix">صوري + المنطقة</string>
+    <string name="source_mine">صوري</string>
+    <string name="source_region">صور المنطقة</string>
+    <string name="slide">تغيير الصورة</string>
+    <string name="every_song">مع كل أغنية</string>
+    <string name="look">نهار / ليل</string>
+    <string name="auto">تلقائي (السيارة والهاتف)</string>
+    <string name="day">نهار</string>
+    <string name="night">ليل</string>
+    <string name="alarm">منبّه فيروز الصباحي</string>
+    <string name="brief">موجز الصباح في السيارة (قبل العاشرة)</string>
+    <string name="breaking_speak">قراءة الأخبار العاجلة</string>
+    <string name="breaking_notify">إشعارات الأخبار العاجلة</string>
+    <string name="breaking">عاجل</string>
+    <string name="night_ride">سهرة هادئة (بعد الحادية عشرة)</string>
+    <string name="kids">وضع الأطفال</string>
+    <string name="add_phone">من المعرض</string>
+    <string name="camera">الكاميرا</string>
+    <string name="no_photos">أضف صورك — بتصير خلفية كاملة على الهاتف وبالسيارة.</string>
+    <string name="liked_songs">أغاني أعجبتني</string>
+    <string name="playlists">قوائمي على سبوتيفاي ويوتيوب</string>
+    <string name="add_playlist">الصق رابط سبوتيفاي أو يوتيوب</string>
+    <string name="hours">%1$s ساعة استماع</string>
+    <string name="countries">%1$d بلد</string>
+    <string name="top_stations">أكثر المحطات</string>
+    <string name="station_day">محطة اليوم</string>
+    <string name="good_morning">صباح الخير</string>
+    <string name="happy">فرح</string>
+    <string name="nostalgic">حنين</string>
+    <string name="calm">هدوء</string>
+    <string name="party">سهرة</string>
+    <string name="tarab">طرب</string>
+    <string name="save_song">حفظ الأغنية</string>
+    <string name="saved_song">انحفظت الأغنية</string>
+</resources>
