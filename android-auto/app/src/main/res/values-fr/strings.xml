@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="favorites">Favoris</string>
+    <string name="recent">Récents</string>
+    <string name="featured">À la une</string>
+    <string name="lebanon">Liban</string>
+    <string name="world">Monde</string>
+    <string name="search">Rechercher</string>
+    <string name="profiles">Profils</string>
+    <string name="who">Qui écoute ?</string>
+    <string name="settings">Paramètres</string>
+    <string name="language">Langue</string>
+    <string name="theme">Thème</string>
+    <string name="data_saver">Économie de données</string>
+    <string name="autoplay">Lecture auto à la connexion voiture / Bluetooth</string>
+    <string name="news_flash">Flash info (titres lus à voix haute)</string>
+    <string name="sleep">Minuterie</string>
+    <string name="rename">Nom du profil</string>
+    <string name="done">OK</string>
+    <string name="empty">Rien pour l’instant</string>
+    <string name="share_text">🎧 J’écoute %1$s sur Mawja Radio</string>
+    <string name="favorite">Favori</string>
+    <string name="no_news">Aucun titre pour le moment.</string>
+    <string name="back">Retour</string>
+</resources>
