@@ -32,6 +32,11 @@ data class Station(
             .setMediaType(MediaMetadata.MEDIA_TYPE_RADIO_STATION).build()
     ).build()
 
+    /** The Radio Browser shape, for the globe page. */
+    fun rb(): JSONObject = JSONObject().put("stationuuid", id).put("name", name).put("url_resolved", url).put("url", backup ?: url)
+        .put("favicon", logo ?: "").put("country", country).put("countrycode", cc).put("tags", tags).put("bitrate", bitrate)
+        .put("geo_lat", lat).put("geo_long", lon).put("lastcheckok", 1)
+
     companion object {
         fun of(o: JSONObject) = Station(
             o.getString("id"), o.getString("name"), o.getString("url"), o.str("backup"), o.str("logo"),
@@ -76,6 +81,9 @@ object Repo {
             return c.inputStream.bufferedReader().readText()
         } finally { c.disconnect() }
     }
+
+    fun fromBrowser(json: String): List<Station> = runCatching { parse(JSONArray(json)) }.getOrDefault(emptyList())
+    fun rbPath(path: String) = rb(path)
 
     private fun rb(path: String): String {
         var last: Exception? = null

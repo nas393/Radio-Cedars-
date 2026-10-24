@@ -41,4 +41,5 @@
     <string name="house">Maison au village</string>
     <string name="fav_hint">Touchez ♥ sur une station : elle devient une cassette ici.</string>
     <string name="share">Partager</string>
+    <string name="explore">Explorer le monde</string>
 </resources>

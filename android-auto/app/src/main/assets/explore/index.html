@@ -1,0 +1,241 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Explore the world</title>
+<style>
+:root{--bg:#03060F;--gold:#D9B56B;--blue:#4FA8FF;--fg:#F3F6FB;--dim:#8A96AD;--glass:rgba(13,20,38,.84);--line:rgba(255,255,255,.13)}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,'Readex Pro',sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+#g{position:fixed;inset:0}
+.top{position:fixed;top:12px;left:12px;right:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;z-index:3}
+.brand{font-weight:700;letter-spacing:5px;font-size:15px;margin-inline-end:auto}
+.brand small{display:block;font-weight:400;letter-spacing:0;color:var(--dim);font-size:12px}
+.btn{min-height:52px;min-width:52px;padding:0 16px;border-radius:26px;background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--fg);font:inherit;font-size:15px}
+.search{display:flex;align-items:center;gap:8px;height:52px;padding:0 16px;border-radius:26px;background:rgba(255,255,255,.07);border:1px solid var(--line);flex:1 1 200px;max-width:340px}
+.search input{flex:1;background:none;border:0;color:var(--fg);font:inherit;font-size:15px;outline:none;min-width:0}
+#ask{position:fixed;left:0;right:0;bottom:150px;text-align:center;color:var(--dim);font-size:17px;letter-spacing:1px;pointer-events:none;transition:opacity .6s;z-index:2}
+#hops{position:fixed;inset-inline-start:12px;bottom:150px;display:flex;gap:6px;z-index:3}
+#hops button{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--glass);font-size:24px}
+#panel{position:fixed;inset-inline-end:12px;top:136px;bottom:146px;width:min(440px,calc(100% - 24px));background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:24px;padding:16px;display:none;flex-direction:column;gap:10px;z-index:4}
+#panel.show{display:flex}
+.head{display:flex;align-items:center;gap:12px}
+.flag{font-size:36px}.title{font-size:21px;font-weight:700}.sub{color:var(--dim);font-size:13px}
+.clock{margin-inline-start:auto;text-align:end}.clock b{font-size:19px;font-variant-numeric:tabular-nums}
+.chips{display:flex;gap:6px;overflow-x:auto;flex:none}
+.chip{flex:none;min-height:40px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:none;color:#C9D2E3;font:inherit;font-size:13px}
+.chip.on{border-color:var(--gold);color:var(--gold);background:rgba(217,181,107,.12)}
+#list{overflow-y:auto;display:flex;flex-direction:column;gap:6px;flex:1}
+.row{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:14px;background:rgba(255,255,255,.04);min-height:64px}
+.row.playing{background:rgba(79,168,255,.14);outline:1px solid rgba(79,168,255,.5)}
+.logo{width:44px;height:44px;border-radius:10px;background:#142540 center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-weight:700;color:#7FC0FF;flex:none}
+.nm{flex:1;min-width:0}.nm b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nm span{font-size:12px;color:var(--dim)}
+.ic{width:48px;height:48px;border-radius:50%;border:0;background:rgba(255,255,255,.08);color:var(--fg);font-size:18px;flex:none}
+.ic.fav{color:var(--gold)}
+.empty{color:var(--dim);padding:24px;text-align:center}
+.fallback{position:fixed;inset:120px 12px 150px;overflow:auto;display:none;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.fallback button{min-height:56px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--fg);font:inherit}
+.top,#panel,#hops{transition:opacity .5s}
+body.ambient .top,body.ambient #panel,body.ambient #hops{opacity:0;pointer-events:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="g"></div>
+<div class="top">
+  <div class="brand">TERRA RADIO<small id="tag"></small></div>
+  <label class="search"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#8A96AD" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="q" enterkeyhint="search"></label>
+  <button class="btn" id="near"></button>
+  <button class="btn" id="favs"></button>
+  <button class="btn" id="recent"></button>
+  <button class="btn" id="rand"></button>
+  <button class="btn" id="home" aria-label="Globe">⟲</button>
+  <button class="btn" id="back" aria-label="Back">✕</button>
+</div>
+<div id="ask"></div>
+<div id="hops"></div>
+<div class="fallback" id="fb"></div>
+<div id="panel">
+  <div class="head">
+    <span class="flag" id="pf"></span>
+    <div><div class="title" id="pt"></div><div class="sub" id="ps"></div></div>
+    <div class="clock"><b id="pc"></b><div class="sub" id="pw"></div></div>
+    <button class="ic" id="px" aria-label="Close">✕</button>
+  </div>
+  <div class="chips" id="chips"></div>
+  <div id="list"></div>
+</div>
+<script src="globe.gl.min.js"></script>
+<script>
+'use strict';
+const P = new URLSearchParams(location.search), L = P.get('lang') || 'en';
+const TT = {
+  en: { tag: 'The World Is Your Radio.', ask: 'Where do you want to listen?', q: 'Country, city or station', near: 'Nearby', favs: 'Favorites', recent: 'Recent', rand: 'Surprise me', st: n => n + ' stations', none: 'No stations found here yet.', load: 'Loading…', all: 'All', noloc: 'Allow location to see stations near you.', nogl: '3D is not available here — pick a country:' },
+  ar: { tag: 'العالم كلّه راديو.', ask: 'وين بدّك تسمع؟', q: 'بلد، مدينة أو محطة', near: 'حدّي', favs: 'المفضلة', recent: 'الأخيرة', rand: 'فاجئني', st: n => n + ' محطة', none: 'ما في محطات هون بعد.', load: 'عم يحمّل…', all: 'الكل', noloc: 'اسمح بالموقع لتشوف المحطات حدّك.', nogl: 'الـ3D مش متاح هون — اختار بلد:' },
+  fr: { tag: 'Le monde est votre radio.', ask: 'Où voulez-vous écouter ?', q: 'Pays, ville ou station', near: 'À proximité', favs: 'Favoris', recent: 'Récents', rand: 'Surprise', st: n => n + ' stations', none: 'Aucune station ici pour l’instant.', load: 'Chargement…', all: 'Tout', noloc: 'Autorisez la localisation pour voir les stations proches.', nogl: '3D indisponible ici — choisissez un pays :' },
+  pt: { tag: 'O mundo é o seu rádio.', ask: 'Onde quer ouvir?', q: 'País, cidade ou estação', near: 'Perto', favs: 'Favoritos', recent: 'Recentes', rand: 'Surpresa', st: n => n + ' estações', none: 'Ainda sem estações aqui.', load: 'A carregar…', all: 'Todas', noloc: 'Permita a localização para ver estações perto de si.', nogl: '3D indisponível aqui — escolha um país:' }
+};
+const T = TT[L] || TT.en;
+if (L === 'ar') document.documentElement.dir = 'rtl';
+const $ = id => document.getElementById(id);
+$('tag').textContent = T.tag; $('ask').textContent = T.ask; $('q').placeholder = T.q;
+['near', 'favs', 'recent', 'rand'].forEach(k => $(k).textContent = T[k]);
+
+// ---- network through the app (no CORS, mirror fallback)
+let seq = 0; const waits = {};
+window.__res = (id, ok, txt) => { const w = waits[id]; delete waits[id]; if (w) ok ? w.res(txt) : w.rej(new Error(txt)); };
+const get = url => new Promise((res, rej) => { const id = ++seq; waits[id] = { res, rej }; Sawt.get(id, url); });
+const rb = async path => JSON.parse(await get('https://de1.api.radio-browser.info/json/' + path));
+const ok = s => s.lastcheckok == 1 && /^https?:/.test(s.url_resolved || s.url || '') && !/\.(pls|m3u|asx|xspf)(\?|$)/i.test(s.url_resolved || s.url);
+const clean = a => { const seen = new Set(); return a.filter(s => ok(s) && !seen.has(s.name.trim().toLowerCase()) && seen.add(s.name.trim().toLowerCase())); };
+const flag = cc => cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1E6 + c.charCodeAt(0) - 65)) : '🌐';
+const km = (a, b, c, d) => { const r = Math.PI / 180, x = Math.sin((c - a) * r / 2) ** 2 + Math.cos(a * r) * Math.cos(c * r) * Math.sin((d - b) * r / 2) ** 2; return 12742 * Math.asin(Math.sqrt(x)); };
+
+let points = [], feats = [], sel = null, playing = P.get('playing') || '', current = [];
+
+// ---- the Earth
+const hasGL = (() => { try { return !!document.createElement('canvas').getContext('webgl'); } catch { return false; } })();
+const globe = hasGL ? Globe()($('g'))
+  .globeImageUrl(P.get('night') === '1' ? 'night.jpg' : 'day.jpg')
+  .backgroundColor('#03060F').atmosphereColor('#4FA8FF').atmosphereAltitude(.18)
+  .pointLat(s => +s.geo_lat).pointLng(s => +s.geo_long).pointAltitude(.012)
+  .pointsMerge(false).onPointClick(s => around(s))
+  .polygonSideColor(() => 'rgba(0,0,0,0)')
+  .onPolygonClick(f => country(f.properties.cc)) : null;
+function paint() {
+  if (!globe) return;
+  globe.pointRadius(s => s.stationuuid === playing ? .55 : .2).pointColor(s => s.stationuuid === playing ? '#D9B56B' : '#7FC0FF')
+    .polygonCapColor(f => f.properties.cc === sel ? 'rgba(217,181,107,.33)' : 'rgba(255,255,255,.015)')
+    .polygonStrokeColor(f => f.properties.cc === sel ? '#D9B56B' : 'rgba(255,255,255,.16)')
+    .polygonAltitude(f => f.properties.cc === sel ? .02 : .006);
+}
+paint();
+const fly = (lat, lng, alt) => globe && globe.pointOfView({ lat, lng, altitude: alt }, matchMedia('(prefers-reduced-motion:reduce)').matches ? 0 : 1400);
+if (globe) {
+  globe.controls().autoRotate = true; globe.controls().autoRotateSpeed = .35;
+  fly(28, 30, 2.4);
+  addEventListener('resize', () => globe.width(innerWidth).height(innerHeight));
+}
+
+fetch('countries.json').then(r => r.json()).then(g => {
+  feats = g.features;
+  if (globe) globe.polygonsData(feats);
+  else { const fb = $('fb'); fb.style.display = 'grid'; fb.innerHTML = '<p style="grid-column:1/-1;color:#8A96AD">' + T.nogl + '</p>';
+    feats.slice().sort((a, b) => a.properties.name.localeCompare(b.properties.name)).forEach(f => { const b = document.createElement('button'); b.textContent = flag(f.properties.cc) + ' ' + f.properties.name; b.onclick = () => country(f.properties.cc); fb.appendChild(b); }); }
+});
+rb('stations/search?has_geo_info=true&hidebroken=true&order=clickcount&reverse=true&limit=900').then(a => { points = clean(a); if (globe) globe.pointsData(points); }).catch(() => {});
+
+// ---- the panel
+function show(fl, title, sub) { $('pf').textContent = fl; $('pt').textContent = title; $('ps').textContent = sub || ''; $('pc').textContent = ''; $('pw').textContent = ''; $('chips').innerHTML = ''; $('list').innerHTML = '<div class="empty">' + T.load + '</div>'; $('panel').classList.add('show'); $('ask').style.opacity = 0; }
+$('px').onclick = () => { $('panel').classList.remove('show'); };
+function render(list, title) {
+  current = list;
+  if (title) $('pt').textContent = title;
+  $('ps').textContent = list.length ? T.st(list.length) : '';
+  const tags = {}; list.forEach(s => (s.tags || '').split(',').map(t => t.trim().toLowerCase()).filter(t => t && t.length < 16).forEach(t => tags[t] = (tags[t] || 0) + 1));
+  const top = Object.entries(tags).sort((a, b) => b[1] - a[1]).slice(0, 7).map(e => e[0]);
+  const chips = $('chips'); chips.innerHTML = '';
+  [''].concat(top).forEach(t => { const b = document.createElement('button'); b.className = 'chip' + (t ? '' : ' on'); b.textContent = t || T.all;
+    b.onclick = () => { [...chips.children].forEach(c => c.classList.remove('on')); b.classList.add('on'); rows(t ? list.filter(s => (s.tags || '').toLowerCase().includes(t)) : list); }; chips.appendChild(b); });
+  rows(list);
+}
+function rows(list) {
+  const box = $('list'); box.innerHTML = '';
+  if (!list.length) { box.innerHTML = '<div class="empty">' + T.none + '</div>'; return; }
+  list.slice(0, 120).forEach(s => {
+    const r = document.createElement('div'); r.className = 'row' + (s.stationuuid === playing ? ' playing' : ''); r.dataset.id = s.stationuuid;
+    const lg = document.createElement('span'); lg.className = 'logo'; lg.textContent = s.name.trim().charAt(0).toUpperCase();
+    if (/^https:/.test(s.favicon || '')) { const im = new Image(); im.onload = () => { lg.style.backgroundImage = 'url("' + s.favicon + '")'; lg.textContent = ''; }; im.src = s.favicon; }
+    const nm = document.createElement('span'); nm.className = 'nm';
+    const b = document.createElement('b'); b.textContent = s.name.trim();
+    const sp = document.createElement('span'); sp.textContent = [s.state || s.country, (s.language || '').split(',')[0], (s.tags || '').split(',')[0]].filter(Boolean).join(' · ');
+    nm.append(b, sp);
+    const pl = document.createElement('button'); pl.className = 'ic'; pl.textContent = '▶'; pl.setAttribute('aria-label', 'Play');
+    const fv = document.createElement('button'); fv.className = 'ic fav'; fv.textContent = Sawt.isFav(s.stationuuid) ? '♥' : '♡'; fv.setAttribute('aria-label', 'Favorite');
+    fv.onclick = e => { e.stopPropagation(); fv.textContent = Sawt.fav(JSON.stringify(s)) ? '♥' : '♡'; };
+    r.onclick = () => play(s, list);
+    r.append(lg, nm, pl, fv); box.appendChild(r);
+  });
+}
+function play(s, list) {
+  playing = s.stationuuid; Sawt.play(JSON.stringify(list.slice(0, 120)), s.stationuuid); paint(); markRows();
+  if (s.geo_lat && s.geo_long) fly(+s.geo_lat, +s.geo_long, 1.2);
+}
+function markRows() { [...$('list').children].forEach(r => r.classList && r.classList.toggle('playing', r.dataset.id === playing)); }
+window.setPlaying = id => { playing = id; paint(); markRows(); };
+
+// ---- local time + weather for the place
+let clockTimer;
+const icons = c => c === 0 ? '☀️' : c < 3 ? '🌤️' : c === 3 ? '☁️' : c < 50 ? '🌫️' : c < 70 || (c >= 80 && c < 83) ? '🌧️' : c < 87 ? '❄️' : '⛈️';
+async function info(lat, lng) {
+  clearInterval(clockTimer);
+  try {
+    const j = JSON.parse(await get(`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(2)}&longitude=${lng.toFixed(2)}&current=temperature_2m,weather_code&timezone=auto`));
+    const off = j.utc_offset_seconds || 0;
+    const tick = () => { const d = new Date(Date.now() + off * 1000); $('pc').textContent = String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); };
+    tick(); clockTimer = setInterval(tick, 20000);
+    $('pw').textContent = icons(j.current.weather_code) + ' ' + Math.round(j.current.temperature_2m) + '°';
+  } catch { $('pw').textContent = ''; }
+}
+
+// ---- countries, cities, search, nearby
+const center = f => { const g = f.geometry, rings = g.type === 'Polygon' ? [g.coordinates[0]] : g.coordinates.map(p => p[0]); const r = rings.reduce((a, b) => b.length > a.length ? b : a); const xs = r.map(p => p[0]), ys = r.map(p => p[1]); return { lng: (Math.min(...xs) + Math.max(...xs)) / 2, lat: (Math.min(...ys) + Math.max(...ys)) / 2 }; };
+async function country(cc) {
+  const f = feats.find(x => x.properties.cc === cc); sel = cc; paint();
+  const name = f ? f.properties.name : cc;
+  show(flag(cc), name);
+  if (f) { const c = center(f); fly(c.lat, c.lng, 1.5); info(c.lat, c.lng); }
+  hop(cc);
+  try { render(clean(await rb('stations/bycountrycodeexact/' + cc + '?hidebroken=true&order=clickcount&reverse=true&limit=100')), name); } catch { rows([]); }
+}
+function around(s) {
+  const lat = +s.geo_lat, lng = +s.geo_long; sel = s.countrycode; paint();
+  show(flag(s.countrycode), s.state || s.country); fly(lat, lng, .9); info(lat, lng);
+  render(points.filter(p => km(lat, lng, +p.geo_lat, +p.geo_long) < 80).sort((a, b) => km(lat, lng, +a.geo_lat, +a.geo_long) - km(lat, lng, +b.geo_lat, +b.geo_long)));
+}
+$('near').onclick = () => {
+  const lat = parseFloat(P.get('lat')), lng = parseFloat(P.get('lon'));
+  if (isNaN(lat)) { show('📍', T.near); rows([]); $('list').innerHTML = '<div class="empty">' + T.noloc + '</div>'; return; }
+  show('📍', T.near); fly(lat, lng, .9); info(lat, lng);
+  render(points.filter(p => km(lat, lng, +p.geo_lat, +p.geo_long) < 250).sort((a, b) => km(lat, lng, +a.geo_lat, +a.geo_long) - km(lat, lng, +b.geo_lat, +b.geo_long)), T.near);
+};
+$('favs').onclick = () => { show('♥', T.favs); render(JSON.parse(Sawt.list('fav')), T.favs); };
+$('recent').onclick = () => { show('🕘', T.recent); render(JSON.parse(Sawt.list('rec')), T.recent); };
+$('rand').onclick = () => { if (!points.length) return; const s = points[Math.floor(Math.random() * points.length)]; around(s); play(s, [s]); };
+$('home').onclick = home; $('back').onclick = () => Sawt.close();
+function home() { sel = null; paint(); $('panel').classList.remove('show'); $('ask').style.opacity = 1; fly(28, 30, 2.4); }
+$('g').addEventListener('dblclick', home);
+$('q').addEventListener('keydown', async e => {
+  if (e.key !== 'Enter') return;
+  const t = $('q').value.trim(); if (!t) return; $('q').blur();
+  const f = feats.find(x => x.properties.name.toLowerCase().startsWith(t.toLowerCase()));
+  if (f) return country(f.properties.cc);
+  show('🔎', '“' + t + '”');
+  try {
+    const enc = encodeURIComponent(t), q = '&hidebroken=true&order=clickcount&reverse=true&limit=60';
+    let a = clean(await rb('stations/search?name=' + enc + q));
+    if (!a.length) a = clean(await rb('stations/search?tag=' + enc + q));
+    if (!a.length) a = clean(await rb('stations/search?language=' + enc + q));
+    render(a);
+  } catch { rows([]); }
+});
+
+// ---- country hopping: your last countries, one tap away
+function hop(cc) {
+  let h = []; try { h = JSON.parse(localStorage.getItem('hops') || '[]'); } catch {}
+  h = [cc].concat(h.filter(x => x !== cc)).slice(0, 5);
+  try { localStorage.setItem('hops', JSON.stringify(h)); } catch {}
+  drawHops(h);
+}
+function drawHops(h) { const box = $('hops'); box.innerHTML = ''; h.forEach(cc => { const b = document.createElement('button'); b.textContent = flag(cc); b.setAttribute('aria-label', cc); b.onclick = () => country(cc); box.appendChild(b); }); }
+try { drawHops(JSON.parse(localStorage.getItem('hops') || '[]')); } catch {}
+
+// ---- ambient mode: after a quiet minute the controls fade and the Earth turns slowly
+let idle;
+const wake = () => { document.body.classList.remove('ambient'); clearTimeout(idle); idle = setTimeout(() => { document.body.classList.add('ambient'); if (globe) globe.controls().autoRotate = true; }, 60000); };
+addEventListener('pointerdown', () => { if (globe) globe.controls().autoRotate = false; wake(); });
+wake();
+</script>
+</body>
+</html>

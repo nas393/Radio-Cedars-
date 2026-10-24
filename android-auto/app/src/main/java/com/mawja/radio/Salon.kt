@@ -123,6 +123,7 @@ object Sky {
                 .mapNotNull { runCatching { lm.getLastKnownLocation(it) }.getOrNull() }.maxByOrNull { it.time }
         }.getOrNull()
         val lat = loc?.latitude ?: 33.89; val lon = loc?.longitude ?: 35.50
+        if (loc != null) { Store.setS("lat", "%.3f".format(Locale.US, lat)); Store.setS("lon", "%.3f".format(Locale.US, lon)) }
         val j = JSONObject(Repo.get("https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon" +
             "&current=temperature_2m,weather_code,is_day&daily=sunrise,sunset&timezone=auto&forecast_days=1"))
         val d = j.getJSONObject("daily")
@@ -174,6 +175,7 @@ fun SalonScreen(pc: PlayerConn) {
     var tvList by remember { mutableStateOf<String?>(null) }
     var full by remember { mutableStateOf(false) }
     var drive by remember { mutableStateOf(false) }
+    var explore by remember { mutableStateOf(false) }
     val moving = (Speed.kmh ?: 0) > 10
     LaunchedEffect(Unit) { while (true) { runCatching { Sky.refresh(ctx) }; delay(15 * 60_000L) } }
     val surprise: () -> Unit = {
@@ -184,6 +186,7 @@ fun SalonScreen(pc: PlayerConn) {
     }
 
     if (drive) { Drive(pc) { drive = false }; return }
+    if (explore) { Explore(pc) { explore = false }; return }
 
     BoxWithConstraints(Modifier.fillMaxSize().background(WALNUT)) {
         val size = era.px[scene] ?: era.px.getValue("day")
@@ -251,7 +254,7 @@ fun SalonScreen(pc: PlayerConn) {
             }
         }
 
-        TopBar(Modifier.align(Alignment.TopCenter), surprise, { drawer = "era" }, { drawer = "window" })
+        TopBar(Modifier.align(Alignment.TopCenter), surprise, { drawer = "era" }, { drawer = "window" }) { explore = true }
 
         Column(Modifier.align(Alignment.BottomCenter)) {
             Tuner(pc, onHome = { drawer = null }, onPill = { drawer = "radio" }, surprise = surprise)
@@ -274,7 +277,7 @@ fun SalonScreen(pc: PlayerConn) {
                     "photos" -> Photos(rev)
                     "cassettes" -> Cassettes(pc)
                     "era" -> EraPicker { Store.setS("era", it); PlaybackService.instance?.refreshWall(false); drawer = null }
-                    else -> More(pc, { radioTab = it; drawer = "radio" }, { drawer = "era" }) { drawer = null; drive = true }
+                    else -> More(pc, { radioTab = it; drawer = "radio" }, { drawer = "era" }, { drawer = null; explore = true }) { drawer = null; drive = true }
                 }
             }
         }
@@ -352,7 +355,7 @@ fun RoundBtn(m: Modifier = Modifier, onClick: () -> Unit, content: @Composable (
         contentAlignment = Alignment.Center) { content() }
 
 @Composable
-fun TopBar(m: Modifier, surprise: () -> Unit, era: () -> Unit, weather: () -> Unit) {
+fun TopBar(m: Modifier, surprise: () -> Unit, era: () -> Unit, weather: () -> Unit, explore: () -> Unit) {
     val lang = currentLang()
     val now by produceState(Date()) { while (true) { delay(20_000); value = Date() } }
     Column(m.fillMaxWidth().safeDrawingPadding().padding(horizontal = 16.dp, vertical = 8.dp), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -368,6 +371,8 @@ fun TopBar(m: Modifier, surprise: () -> Unit, era: () -> Unit, weather: () -> Un
             Spacer(Modifier.width(10.dp))
             RoundBtn(onClick = { Store.setI("aa", (Store.i("aa") + 1) % 3) }) { Text("Aa", color = STONE, fontWeight = FontWeight.Bold) }
             Spacer(Modifier.weight(1f))
+            RoundBtn(onClick = explore) { Icon(Icons.Default.Public, stringResource(R.string.explore), tint = Color(0xFF7FC0FF)) }
+            Spacer(Modifier.width(10.dp))
             RoundBtn(onClick = surprise) { Text("🎲", fontSize = 22.sp) }
             Spacer(Modifier.width(12.dp))
             Arches(Modifier.size(52.dp, 40.dp).clickable(onClick = era), BRASS)
@@ -659,13 +664,14 @@ fun MoreRow(icon: String, label: String, onClick: () -> Unit) =
     }
 
 @Composable
-fun More(pc: PlayerConn, radio: (String) -> Unit, era: () -> Unit, drive: () -> Unit) {
+fun More(pc: PlayerConn, radio: (String) -> Unit, era: () -> Unit, explore: () -> Unit, drive: () -> Unit) {
     val ctx = LocalContext.current
     val sleep = PlaybackService.instance?.sleepMin ?: 0
     val shareText = stringResource(R.string.share_text, pc.name) + " " + Repo.SITE
     LazyColumn {
         item { DrawerTitle("☰ " + stringResource(R.string.more)) }
-        item { MoreRow("🌍", stringResource(R.string.world)) { radio("world") } }
+        item { MoreRow("🌍", stringResource(R.string.explore), explore) }
+        item { MoreRow("🗺️", stringResource(R.string.world)) { radio("world") } }
         item { MoreRow("🔎", stringResource(R.string.search)) { radio("search") } }
         item { MoreRow("📼", stringResource(R.string.cassettes)) { radio("fav") } }
         item { MoreRow("🚗", stringResource(R.string.drive), drive) }
