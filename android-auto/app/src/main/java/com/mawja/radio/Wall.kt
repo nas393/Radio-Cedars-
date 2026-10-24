@@ -112,7 +112,8 @@ object Wall {
         val left = (room.width * rx - side / 2f).toInt().coerceIn(0, max(0, room.width - side))
         val out = cover(Bitmap.createBitmap(room, left, 0, side, side), 1400, 1400)
         val c = Canvas(out); val k = 1400f / side
-        fun x(p: Float) = (p / 100f * room.width - left) * k; fun y(p: Float) = p / 100f * room.height * k
+        fun x(p: Float) = (p / 100f * room.width - left) * k
+        fun y(p: Float) = p / 100f * room.height * k
         era.glass[sc]?.let { g -> c.save(); c.clipRect(x(g[0]), y(g[1]), x(g[2]), y(g[3])); effects(c, 1400, 1400, fx); c.restore() }
         if (sc == "night" && !Store.b("lamp", true)) c.drawColor(Color.argb(110, 0, 0, 0))
         era.spot("radio", sc)?.let { (px, py) ->

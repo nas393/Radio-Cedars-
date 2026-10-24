@@ -195,7 +195,8 @@ fun SalonScreen(pc: PlayerConn) {
             val rx = era.spot("radio", scene)?.first ?: 50f
             with(dens) { scroll.scrollTo(((w.toPx() * rx / 100f) - viewW.toPx() / 2).roundToInt().coerceAtLeast(0)) }
         }
-        fun x(p: Float) = w * (p / 100f); fun y(p: Float) = h * (p / 100f)
+        fun x(p: Float) = w * (p / 100f)
+        fun y(p: Float) = h * (p / 100f)
         fun px(p: Pt) = w * (p.first / size.first) to h * (p.second / size.second)
 
         Box(Modifier.fillMaxHeight().horizontalScroll(scroll)) {

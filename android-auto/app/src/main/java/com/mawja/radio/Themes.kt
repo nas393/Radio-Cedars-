@@ -12,7 +12,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.ui.graphics.Color
 
 private val W = Color.White
-private val INK = Color(0xFF1A1A1A)
+private val DARK_INK = Color(0xFF1A1A1A)
 
 /** One look per family member, each with a night (dark) and day (light) version. */
 class FamilyTheme(
@@ -27,7 +27,7 @@ class FamilyTheme(
     val light = lightColorScheme(
         primary = Color(dayPrimary), onPrimary = W, secondary = Color(secondary),
         background = Color(dayBg), surface = W, surfaceVariant = Color(dayVariant),
-        onBackground = INK, onSurface = INK, onSurfaceVariant = INK.copy(alpha = .75f)
+        onBackground = DARK_INK, onSurface = DARK_INK, onSurfaceVariant = DARK_INK.copy(alpha = .75f)
     )
 }
 
