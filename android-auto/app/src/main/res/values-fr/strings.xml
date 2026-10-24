@@ -30,4 +30,15 @@
     <string name="speed_car">Vitesse sur l’écran de la voiture</string>
     <string name="stop">Arrêter</string>
     <string name="tv_driving">La TV est en pause quand la voiture roule.</string>
+    <string name="radio_l">Radio</string>
+    <string name="weather_l">Météo</string>
+    <string name="cassettes">Cassettes</string>
+    <string name="lamp">Lampe</string>
+    <string name="salon">Salon</string>
+    <string name="more">Tout</string>
+    <string name="era">Salon</string>
+    <string name="apt">Appartement à Beyrouth</string>
+    <string name="house">Maison au village</string>
+    <string name="fav_hint">Touchez ♥ sur une station : elle devient une cassette ici.</string>
+    <string name="share">Partager</string>
 </resources>

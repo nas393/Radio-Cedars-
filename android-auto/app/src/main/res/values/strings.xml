@@ -30,4 +30,15 @@
     <string name="speed_car">Speed on the car screen</string>
     <string name="stop">Stop</string>
     <string name="tv_driving">TV pauses while the car is moving.</string>
+    <string name="radio_l">Radio</string>
+    <string name="weather_l">Weather</string>
+    <string name="cassettes">Cassettes</string>
+    <string name="lamp">Lamp</string>
+    <string name="salon">Salon</string>
+    <string name="more">Everything</string>
+    <string name="era">Living room</string>
+    <string name="apt">Beirut apartment</string>
+    <string name="house">Village house</string>
+    <string name="fav_hint">Tap ♥ on a station and it becomes a cassette here.</string>
+    <string name="share">Share</string>
 </resources>

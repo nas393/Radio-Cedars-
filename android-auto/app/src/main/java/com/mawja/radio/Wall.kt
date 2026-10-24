@@ -107,22 +107,34 @@ object Wall {
         path.lineTo(x1, bottom); path.close()
     }
 
-    /** Now-playing art in the website's look: the view through three limestone arches, the radio dial below. */
+    private fun salonSquare(room: Bitmap, era: Era, sc: String, fx: String): Bitmap {
+        val side = minOf(room.height, room.width); val rx = (era.spot("radio", sc)?.first ?: 50f) / 100f
+        val left = (room.width * rx - side / 2f).toInt().coerceIn(0, max(0, room.width - side))
+        val out = cover(Bitmap.createBitmap(room, left, 0, side, side), 1400, 1400)
+        val c = Canvas(out); val k = 1400f / side
+        fun x(p: Float) = (p / 100f * room.width - left) * k; fun y(p: Float) = p / 100f * room.height * k
+        era.glass[sc]?.let { g -> c.save(); c.clipRect(x(g[0]), y(g[1]), x(g[2]), y(g[3])); effects(c, 1400, 1400, fx); c.restore() }
+        if (sc == "night" && !Store.b("lamp", true)) c.drawColor(Color.argb(110, 0, 0, 0))
+        era.spot("radio", sc)?.let { (px, py) ->
+            val cx = x(px); val cy = y(py)
+            c.drawCircle(cx, cy, 170f, Paint(Paint.ANTI_ALIAS_FLAG).apply {
+                shader = RadialGradient(cx, cy, 170f, Color.argb(160, 217, 164, 65), Color.TRANSPARENT, Shader.TileMode.CLAMP) })
+        }
+        return out
+    }
+
+    /** Now-playing art: the salon, then the wooden tuner band with the dial, station, song, weather and clocks. */
     private fun carArt(scene: Bitmap, s: Station?, song: String?, w: Weather?, logo: Bitmap?): Bitmap {
-        val n = 1024; val out = Bitmap.createBitmap(n, n, Bitmap.Config.ARGB_8888); val c = Canvas(out)
-        c.drawColor(STONE)
-        val arches = Path(); val gap = 26f; val left = 52f; val right = n - 52f; val aw = (right - left - 2 * gap) / 3
-        for (k in 0..2) { val x0 = left + k * (aw + gap); arch(arches, x0, x0 + aw, 70f, 300f, 680f) }
-        c.save(); c.clipPath(arches)
-        c.drawBitmap(cover(scene, (right - left).toInt(), 610), left, 70f, Paint(Paint.FILTER_BITMAP_FLAG)); c.restore()
-        c.drawPath(arches, Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 8f; color = STONE_DEEP })
-        // the radio dial: ochre scale with the brick needle
+        val n = 1024; val out = cover(scene, n, n); val c = Canvas(out)
+        c.drawRect(0f, n * .52f, n.toFloat(), n.toFloat(), Paint().apply {
+            shader = LinearGradient(0f, n * .52f, 0f, n.toFloat(), Color.TRANSPARENT, 0xF017120E.toInt(), Shader.TileMode.CLAMP) })
+        val left = 52f; val right = n - 52f
         val dial = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = OCHRE; strokeWidth = 4f }
         c.drawLine(left, 712f, right, 712f, dial)
-        for (k in 0..24) { val x = left + k * (right - left) / 24; c.drawLine(x, 702f, x, if (k % 4 == 0) 690f else 698f, dial) }
+        for (k in 0..24) { val xx = left + k * (right - left) / 24; c.drawLine(xx, 702f, xx, if (k % 4 == 0) 688f else 697f, dial) }
         val needle = left + ((s?.name?.hashCode() ?: 0).toLong().and(0xffff) % 1000) / 1000f * (right - left)
-        c.drawRect(needle - 4f, 680f, needle + 4f, 722f, Paint().apply { color = BRICK })
-        val t = TextPaint(Paint.ANTI_ALIAS_FLAG)
+        c.drawRect(needle - 4f, 680f, needle + 4f, 724f, Paint().apply { color = BRICK })
+        val t = TextPaint(Paint.ANTI_ALIAS_FLAG).apply { setShadowLayer(6f, 0f, 2f, Color.BLACK) }
         fun line(text: String, size: Float, x: Float, y: Float, face: Typeface, color: Int) {
             t.textSize = size; t.typeface = face; t.color = color
             c.drawText(TextUtils.ellipsize(text, t, n - x - 52f, TextUtils.TruncateAt.END).toString(), x, y, t)
@@ -134,9 +146,9 @@ object Wall {
             c.drawCircle(132f, 850f, 80f, Paint(Paint.ANTI_ALIAS_FLAG).apply { shader = sh })
             c.drawCircle(132f, 850f, 80f, Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE; strokeWidth = 6f; color = OCHRE })
         }
-        line(s?.name ?: "Sawt el Beit", 70f, tx, 830f, display, INK)
-        song?.let { line(it, 38f, tx, 882f, body, 0xFF6A5B48.toInt()) }
-        line(listOfNotNull(w?.let { "${it.icon} ${it.temp}° ${it.place}" }, clocks()).joinToString("   "), 34f, tx, 950f, body, 0xFF8E2A1C.toInt())
+        line(s?.name ?: "Sawt el Beit", 70f, tx, 830f, display, STONE)
+        song?.let { line(it, 38f, tx, 882f, body, 0xFFC9B997.toInt()) }
+        line(listOfNotNull(w?.let { "${it.icon} ${it.temp}° ${it.place}" }, clocks()).joinToString("   "), 34f, tx, 950f, body, OCHRE)
         return out
     }
 
@@ -162,17 +174,13 @@ object Wall {
     suspend fun refresh(ctx: Context, s: Station?, song: String?, next: Boolean): Uri? = withContext(Dispatchers.IO) {
         if (next) slide++
         val w = runCatching { Repo.weather(s?.takeIf { it.cc.isNotBlank() } ?: PlaybackService.LEB) }.getOrNull()
-        val prof = Store.current()
-        val mine = if (prof.kids) emptyList() else Store.gallery()
-        val src = Store.i("src")   // 0 = mix, 1 = my photos, 2 = region
-        val useMine = mine.isNotEmpty() && (src == 1 || (src == 0 && slide % 2 == 0))
-        val photo = (if (useMine) myPhoto(mine[slide % mine.size]) else regionPhoto(s, w))
-            ?: mine.firstOrNull()?.let { myPhoto(it) }
-            ?: Bitmap.createBitmap(1400, 1400, Bitmap.Config.ARGB_8888).also { b ->
-                Canvas(b).drawPaint(Paint().apply { shader = LinearGradient(0f, 0f, 1400f, 1400f, 0xFF1E4429.toInt(), 0xFF05070D.toInt(), Shader.TileMode.CLAMP) })
+        // the car shows the website's salon at this hour, centred on the radio, the real weather in its window
+        val era = Salon.era(); val sc = Sky.scene()
+        val room = runCatching { decode(Repo.bytes(Salon.image(era, sc)), 1400) }.getOrNull()
+        val bg = if (room != null) salonSquare(room, era, sc, scene(Sky.weather ?: w)) else
+            Bitmap.createBitmap(1400, 1400, Bitmap.Config.ARGB_8888).also { b ->
+                Canvas(b).drawPaint(Paint().apply { shader = LinearGradient(0f, 0f, 1400f, 1400f, 0xFF2B221A.toInt(), 0xFF17120E.toInt(), Shader.TileMode.CLAMP) })
             }
-        val fx = scene(w)
-        val bg = cover(photo, 1400, 1400).also { effects(Canvas(it), 1400, 1400, fx) }
         val logo = s?.logo?.let { runCatching { decode(Repo.bytes(it), 200) }.getOrNull() }
         val ts = System.currentTimeMillis()
         val sf = File(ctx.cacheDir, "wall_s$ts.jpg"); val af = File(ctx.cacheDir, "wall_a$ts.jpg")

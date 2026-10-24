@@ -327,7 +327,6 @@ class PlaybackService : MediaLibraryService() {
             add(folder("feat", t(R.string.featured), null, ico("feat", "⭐")))
             add(folder("c:LB", t(R.string.lebanon), null, ico("c_LB", flag("LB"))))
             if (!prof.kids) add(folder("world", t(R.string.world), null, ico("world", "🌍")))
-            add(folder("profiles", t(R.string.profiles), prof.name, ico("profiles", "🏠")))
             if (Store.newsFlash) add(newsStub())
         }
         parent == "fav" -> Store.favs().map { it.item() }

@@ -228,7 +228,7 @@ object Repo {
         out
     }.also { if (it.isNotEmpty()) photos[q] = it }
 
-    private fun icon(c: Int) = when (c) {
+    fun icon(c: Int) = when (c) {
         0 -> "☀️"; 1, 2 -> "🌤️"; 3 -> "☁️"; 45, 48 -> "🌫️"
         in 51..67, in 80..82 -> "🌧️"; in 71..77, 85, 86 -> "❄️"; in 95..99 -> "⛈️"; else -> "🌡️"
     }
