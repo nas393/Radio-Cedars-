@@ -45,7 +45,8 @@ jobs:
           $AAPT dump xmltree $APK --file AndroidManifest.xml > m.txt 2>&1 || true
           grep -iE "car\.app|automotive|gms\.car|CAR_SPEED|category" m.txt | sed 's/^ */::notice::/' || true
           SIG=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
-          $SIG verify --print-certs $APK | grep -m1 SHA-256 | sed 's/^/::notice::/' || true
+          echo "::notice::verify: $($SIG verify -v $APK 2>&1 | tr '\n' ' ' | cut -c1-600)"
+          echo "::notice::size: $(stat -c %s $APK) bytes; minSdk: $($AAPT dump badging $APK | grep -o "sdkVersion:'[0-9]*'")"
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
