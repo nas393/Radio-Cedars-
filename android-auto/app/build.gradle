@@ -12,8 +12,8 @@ android {
         applicationId 'com.sawtelbeit.app'
         minSdk 26
         targetSdk 35
-        versionCode 8
-        versionName '7.1'
+        versionCode 9
+        versionName '7.2'
     }
 
     signingConfigs {
@@ -39,8 +39,8 @@ android {
         release {
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
-            if (System.getenv('KEYSTORE_FILE')) signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig System.getenv('KEYSTORE_FILE') ? signingConfigs.release : signingConfigs.debug
         }
     }
 

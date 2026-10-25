@@ -27,13 +27,13 @@ jobs:
         with:
           packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
-      - name: Build debug APK (install on your phone)
+      - name: Build the APK (install on your phone)
         working-directory: android-auto
         shell: bash
         run: |
           chmod +x gradlew
           set +e
-          ./gradlew assembleDebug --no-daemon 2>&1 | tee build.log
+          ./gradlew assembleRelease --no-daemon 2>&1 | tee build.log
           code=${PIPESTATUS[0]}
           grep -E "^e: (file|[A-Za-z]+\.kt)|^e: .*\.kt:|What went wrong" -A1 build.log | head -40 | sed 's/^/::error::/'
           exit $code
@@ -42,7 +42,7 @@ jobs:
         shell: bash
         continue-on-error: true
         run: |
-          APK=android-auto/app/build/outputs/apk/debug/app-debug.apk
+          APK=android-auto/app/build/outputs/apk/release/app-release.apk
           AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt2 | tail -1)
           $AAPT dump xmltree $APK --file AndroidManifest.xml > m.txt 2>&1 || true
           echo "::notice::car: $(grep -ciE 'CarAppService|category.NAVIGATION|minCarApiLevel|MediaBrowserService' m.txt) car entries"
@@ -54,7 +54,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: sawt-el-beit-apk
-          path: android-auto/app/build/outputs/apk/debug/app-debug.apk
+          path: android-auto/app/build/outputs/apk/release/app-release.apk
 
       # One direct link that always holds the newest APK (no zip, no GitHub login)
       - name: Publish the APK to the download link
@@ -62,7 +62,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          cp android-auto/app/build/outputs/apk/debug/app-debug.apk sawt-el-beit.apk
+          cp android-auto/app/build/outputs/apk/release/app-release.apk sawt-el-beit.apk
           gh release view apk-latest >/dev/null 2>&1 || gh release create apk-latest --title "Sawt el Beit — latest APK" --notes "Always the newest build. Download sawt-el-beit.apk on your phone and install it."
           gh release upload apk-latest sawt-el-beit.apk --clobber
 
