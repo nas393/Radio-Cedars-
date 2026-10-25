@@ -68,7 +68,7 @@ object Wall {
         return out
     }
 
-    private fun effects(c: Canvas, w: Int, h: Int, sc: String) {
+    fun effects(c: Canvas, w: Int, h: Int, sc: String) {
         val r = Random(7); val p = Paint(Paint.ANTI_ALIAS_FLAG)
         when (sc) {
             "rain", "storm" -> {
@@ -93,8 +93,8 @@ object Wall {
         return if (bey == local) local else "$local · 🇱🇧 $bey"
     }
 
-    private val display by lazy { runCatching { androidx.core.content.res.ResourcesCompat.getFont(Store.ctx, R.font.lalezar) }.getOrNull() ?: Typeface.DEFAULT_BOLD }
-    private val body by lazy { runCatching { androidx.core.content.res.ResourcesCompat.getFont(Store.ctx, R.font.readex) }.getOrNull() ?: Typeface.DEFAULT }
+    val display by lazy { runCatching { androidx.core.content.res.ResourcesCompat.getFont(Store.ctx, R.font.lalezar) }.getOrNull() ?: Typeface.DEFAULT_BOLD }
+    val body by lazy { runCatching { androidx.core.content.res.ResourcesCompat.getFont(Store.ctx, R.font.readex) }.getOrNull() ?: Typeface.DEFAULT }
     private const val STONE = 0xFFEADFCB.toInt(); private const val STONE_DEEP = 0xFFC9B997.toInt(); private const val INK = 0xFF231A12.toInt()
     private const val OCHRE = 0xFFD9A441.toInt(); private const val BRICK = 0xFFC2452F.toInt(); private const val COBALT = 0xFF3D74B8.toInt()
 

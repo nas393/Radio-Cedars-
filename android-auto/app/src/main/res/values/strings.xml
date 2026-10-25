@@ -56,4 +56,9 @@
     <string name="ritual">Morning ritual: lamp, radio and newspaper</string>
     <string name="my_room">My own salon</string>
     <string name="my_room_pick">Use a photo of my room</string>
+    <string name="car_app">Sawt el Beit · Salon</string>
+    <string name="stations">Stations</string>
+    <string name="tv_phone">TV plays on the phone when you are parked.</string>
+    <string name="photos_phone">Change the frame pictures on your phone.</string>
+    <string name="read_aloud">Read the headlines aloud</string>
 </resources>

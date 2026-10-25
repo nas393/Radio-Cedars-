@@ -56,4 +56,9 @@
     <string name="ritual">Ritual da manhã: candeeiro, rádio e jornal</string>
     <string name="my_room">A minha sala</string>
     <string name="my_room_pick">Usar uma foto da minha sala</string>
+    <string name="car_app">Sawt el Beit · Sala</string>
+    <string name="stations">Estações</string>
+    <string name="tv_phone">A TV vê-se no telemóvel, com o carro parado.</string>
+    <string name="photos_phone">Mude as fotos das molduras no telemóvel.</string>
+    <string name="read_aloud">Ler as notícias em voz alta</string>
 </resources>

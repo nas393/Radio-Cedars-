@@ -57,4 +57,9 @@
     <string name="ritual">طقس الصبح: اللمبادير والراديو والجريدة</string>
     <string name="my_room">صالوني</string>
     <string name="my_room_pick">استعمل صورة صالوني</string>
+    <string name="car_app">صوت البيت · الصالون</string>
+    <string name="stations">المحطات</string>
+    <string name="tv_phone">التلفزيون بيشتغل عالتلفون وقت توقف.</string>
+    <string name="photos_phone">غيّر صور الإطارات من التلفون.</string>
+    <string name="read_aloud">إقرا العناوين بصوت عالي</string>
 </resources>
