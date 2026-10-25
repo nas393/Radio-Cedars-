@@ -228,6 +228,12 @@ fun Photos(rev: Int) {
                 cam.launch(FileProvider.getUriForFile(ctx, "com.sawtelbeit.app.files", f))
             }, colors = b) { Icon(Icons.Default.PhotoCamera, null); Text(" " + stringResource(R.string.camera)) }
         }
+        if (photos.isNotEmpty()) TextButton({
+            val era = Salon.era(); val n = era.frames.values.maxOfOrNull { it.size } ?: 0
+            for (i in 0 until n) Store.setFrame(era.id, i, photos[i % photos.size].name)
+            PlaybackService.instance?.refreshWall(false)
+        }, Modifier.padding(horizontal = 8.dp)) { Text(stringResource(R.string.fill_frames), color = OCHRE) }
+        Text(stringResource(R.string.frame_hint), Modifier.padding(horizontal = 16.dp), color = STONE_DIM, fontSize = 13.sp)
         if (photos.isEmpty()) Text(stringResource(R.string.no_photos), Modifier.padding(24.dp), color = STONE_DIM, textAlign = TextAlign.Center)
         else LazyVerticalGrid(GridCells.Adaptive(110.dp), contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {

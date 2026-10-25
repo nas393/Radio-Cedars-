@@ -42,4 +42,8 @@
     <string name="fav_hint">Touchez ♥ sur une station : elle devient une cassette ici.</string>
     <string name="share">Partager</string>
     <string name="explore">Explorer le monde</string>
+    <string name="frame_n">Cadre %1$d</string>
+    <string name="remove">Retirer</string>
+    <string name="fill_frames">Remplir tous les cadres avec mes photos</string>
+    <string name="frame_hint">Touchez un cadre une fois pour le voir, deux fois pour choisir sa photo.</string>
 </resources>

@@ -69,6 +69,10 @@ object Store {
     fun galleryDir(id: Int = currentId) = File(ctx.filesDir, "gallery/$id").apply { mkdirs() }
     fun gallery(): List<File> = galleryDir().listFiles()?.filter { it.isFile && it.length() > 0 }?.sortedBy { it.name } ?: emptyList()
 
+    // Which of your photos hangs in each wall frame, per room
+    fun framePhoto(era: String, i: Int): File? = s("fr_${era}_$i")?.let { File(galleryDir(), it).takeIf { f -> f.exists() } }
+    fun setFrame(era: String, i: Int, name: String?) = edit { if (name == null) remove("fr_${era}_$i") else putString("fr_${era}_$i", name) }
+
     // Listening stats & radio passport: {"t": minutes, "s": {station: min}, "c": {country code: min}}
     fun stats(): JSONObject = try { JSONObject(p.getString("stat$currentId", "{}")!!) } catch (e: Exception) { JSONObject() }
     fun addMinute(s: Station) {

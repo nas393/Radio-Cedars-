@@ -42,4 +42,8 @@
     <string name="fav_hint">Tap ♥ on a station and it becomes a cassette here.</string>
     <string name="share">Share</string>
     <string name="explore">Explore the world</string>
+    <string name="frame_n">Frame %1$d</string>
+    <string name="remove">Remove</string>
+    <string name="fill_frames">Fill all frames with my photos</string>
+    <string name="frame_hint">Tap a frame on the wall once to see it, twice to choose its picture.</string>
 </resources>

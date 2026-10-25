@@ -15,6 +15,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.FileProvider
+import java.io.File
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -175,6 +181,9 @@ fun SalonScreen(pc: PlayerConn) {
     var tvList by remember { mutableStateOf<String?>(null) }
     var full by remember { mutableStateOf(false) }
     var drive by remember { mutableStateOf(false) }
+    var focus by remember { mutableStateOf<String?>(null) }
+    var frame by remember { mutableIntStateOf(0) }
+    LaunchedEffect(focus) { if (focus != null) { delay(5000); focus = null } }
     var explore by remember { mutableStateOf(false) }
     val moving = (Speed.kmh ?: 0) > 10
     LaunchedEffect(Unit) { while (true) { runCatching { Sky.refresh(ctx) }; delay(15 * 60_000L) } }
@@ -203,15 +212,22 @@ fun SalonScreen(pc: PlayerConn) {
         fun px(p: Pt) = w * (p.first / size.first) to h * (p.second / size.second)
 
         Box(Modifier.fillMaxHeight().horizontalScroll(scroll)) {
-            Box(Modifier.size(w, h)) {
+            Box(Modifier.size(w, h).clickable(remember { MutableInteractionSource() }, null) { focus = null }) {
                 AsyncImage(Salon.image(era, scene), null, Modifier.fillMaxSize(), contentScale = ContentScale.FillBounds)
                 // your photos in the wall frames
-                val photos = remember(rev) { Store.gallery() }
+                // every frame can hold a picture you choose: tap once to see it, twice to change it
                 era.frames[scene].orEmpty().forEachIndexed { i, q ->
-                    photos.getOrNull(i)?.let { f ->
-                        val a = px(q.minOf { it.first } to q.minOf { it.second }); val b = px(q.maxOf { it.first } to q.maxOf { it.second })
-                        AsyncImage(f, null, Modifier.offset(a.first, a.second).size(b.first - a.first, b.second - a.second), contentScale = ContentScale.Crop)
+                    val a = px(q.minOf { it.first } to q.minOf { it.second }); val b = px(q.maxOf { it.first } to q.maxOf { it.second })
+                    val fw = b.first - a.first; val fh = b.second - a.second
+                    remember(rev, era.id) { Store.framePhoto(era.id, i) }?.let { f ->
+                        AsyncImage(f, null, Modifier.offset(a.first, a.second).size(fw, fh), contentScale = ContentScale.Crop)
                     }
+                    val hit = 44.dp
+                    Box(Modifier.offset(a.first + fw / 2 - hit / 2, a.second + fh / 2 - hit / 2).size(hit)
+                        .clickable(remember { MutableInteractionSource() }, null) { if (focus == "f$i") { frame = i; drawer = "frame" } else focus = "f$i" })
+                    if (focus == "f$i") Text(stringResource(R.string.frame_n, i + 1), Modifier.offset(a.first + fw / 2 - 40.dp, a.second - 26.dp).width(80.dp)
+                        .background(CREAM.copy(alpha = .92f), RoundedCornerShape(50)).padding(vertical = 2.dp), color = INK, fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, maxLines = 1)
                 }
                 // the window shows the real weather outside
                 era.glass[scene]?.let { g ->
@@ -246,8 +262,8 @@ fun SalonScreen(pc: PlayerConn) {
                 listOf("radio" to R.string.radio_l, "tv" to R.string.tv, "news" to R.string.news, "window" to R.string.weather_l,
                     "photos" to R.string.photos, "cassettes" to R.string.cassettes, "lamp" to R.string.lamp).forEach { (k, label) ->
                     era.spot(k, scene)?.let { (sx, sy) ->
-                        Hotspot(Modifier.offset(x(sx) - 60.dp, y(sy) - 14.dp), stringResource(label)) {
-                            if (k == "lamp") Store.setB("lamp", !lampOn) else drawer = k
+                        Hotspot(Modifier.offset(x(sx) - 60.dp, y(sy) - 22.dp), stringResource(label), focus == k) {
+                            if (focus != k) focus = k else { focus = null; if (k == "lamp") Store.setB("lamp", !lampOn) else drawer = k }
                         }
                     }
                 }
@@ -275,6 +291,7 @@ fun SalonScreen(pc: PlayerConn) {
                     "news" -> Newspaper()
                     "window" -> WeatherCard()
                     "photos" -> Photos(rev)
+                    "frame" -> FrameDrawer(era, frame) { drawer = null }
                     "cassettes" -> Cassettes(pc)
                     "era" -> EraPicker { Store.setS("era", it); PlaybackService.instance?.refreshWall(false); drawer = null }
                     else -> More(pc, { radioTab = it; drawer = "radio" }, { drawer = "era" }, { drawer = null; explore = true }) { drawer = null; drive = true }
@@ -294,14 +311,14 @@ fun MiniBtn(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -
     }
 
 @Composable
-fun Hotspot(m: Modifier, label: String, onClick: () -> Unit) {
+fun Hotspot(m: Modifier, label: String, show: Boolean, onClick: () -> Unit) {
     val t by rememberInfiniteTransition(label = "dot").animateFloat(.5f, 1f, infiniteRepeatable(tween(1600), RepeatMode.Reverse), label = "d")
-    Column(m.width(120.dp).clickable(onClick = onClick), horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(28.dp), contentAlignment = Alignment.Center) {
-            Glow(Modifier.size(28.dp), Color.White.copy(alpha = .35f * t))
+    Column(m.width(120.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+        Box(Modifier.size(44.dp).clip(CircleShape).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+            Glow(Modifier.size(if (show) 40.dp else 28.dp), Color.White.copy(alpha = (if (show) .6f else .35f) * t))
             Box(Modifier.size(12.dp).background(Color.White.copy(alpha = .9f), CircleShape).border(2.dp, Color.White.copy(alpha = .5f), CircleShape))
         }
-        Text(label, Modifier.background(CREAM.copy(alpha = .92f), RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 2.dp),
+        if (show) Text(label, Modifier.background(CREAM.copy(alpha = .92f), RoundedCornerShape(50)).padding(horizontal = 10.dp, vertical = 2.dp),
             color = INK, fontSize = 12.sp, fontWeight = FontWeight.SemiBold, maxLines = 1)
     }
 }
@@ -709,4 +726,43 @@ fun YouTubeView(list: String, m: Modifier) {
             loadDataWithBaseURL(Repo.SITE, html, "text/html", "utf-8", null)
         }
     }, m, onRelease = { it.destroy() })
+}
+
+/** Copies a picked picture into this phone's private photo folder. */
+fun copyIn(ctx: Context, u: android.net.Uri): File? = runCatching {
+    val f = File(Store.galleryDir(), "img_${System.nanoTime()}.jpg")
+    ctx.contentResolver.openInputStream(u)?.use { i -> f.outputStream().use { i.copyTo(it) } }; f
+}.getOrNull()
+
+/** One wall frame: pick its picture from the phone, the camera or your photos, or give it back to the room. */
+@Composable
+fun FrameDrawer(era: Era, i: Int, done: () -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val rev = Store.rev.intValue
+    val photos = remember(rev) { Store.gallery() }
+    val set: (File?) -> Unit = { f -> Store.setFrame(era.id, i, f?.name); PlaybackService.instance?.refreshWall(false); done() }
+    val pick = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u ->
+        if (u != null) scope.launch(Dispatchers.IO) { val f = copyIn(ctx, u); withContext(Dispatchers.Main) { set(f) } }
+    }
+    var shot by remember { mutableStateOf<File?>(null) }
+    val cam = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { ok -> if (ok) set(shot) else shot?.delete() }
+    val b = ButtonDefaults.buttonColors(containerColor = Color(0xFFE2C27A), contentColor = INK)
+    Column {
+        DrawerTitle("🖼️ " + stringResource(R.string.frame_n, i + 1))
+        Row(Modifier.padding(horizontal = 16.dp).horizontalScroll(rememberScrollState()), Arrangement.spacedBy(8.dp)) {
+            Button({ pick.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, colors = b) { Text(stringResource(R.string.add_phone)) }
+            Button({
+                val f = File(Store.galleryDir(), "cam_${System.currentTimeMillis()}.jpg"); shot = f
+                cam.launch(FileProvider.getUriForFile(ctx, "com.sawtelbeit.app.files", f))
+            }, colors = b) { Text(stringResource(R.string.camera)) }
+            OutlinedButton({ set(null) }) { Text(stringResource(R.string.remove), color = STONE) }
+        }
+        if (photos.isNotEmpty()) LazyVerticalGrid(GridCells.Adaptive(100.dp), contentPadding = PaddingValues(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            items(photos, key = { it.name }) { f ->
+                AsyncImage(f, null, Modifier.aspectRatio(1f).clip(RoundedCornerShape(10.dp)).clickable { set(f) }, contentScale = ContentScale.Crop)
+            }
+        }
+    }
 }

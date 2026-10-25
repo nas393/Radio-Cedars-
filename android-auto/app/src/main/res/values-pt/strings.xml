@@ -42,4 +42,8 @@
     <string name="fav_hint">Toque ♥ numa estação e ela vira uma cassete aqui.</string>
     <string name="share">Partilhar</string>
     <string name="explore">Explorar o mundo</string>
+    <string name="frame_n">Moldura %1$d</string>
+    <string name="remove">Remover</string>
+    <string name="fill_frames">Encher todas as molduras com as minhas fotos</string>
+    <string name="frame_hint">Toque numa moldura uma vez para a ver, duas para escolher a foto.</string>
 </resources>
