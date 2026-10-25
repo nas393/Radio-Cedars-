@@ -41,9 +41,8 @@ jobs:
         run: |
           APK=android-auto/app/build/outputs/apk/debug/app-debug.apk
           AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt2 | tail -1)
-          $AAPT dump badging $APK | grep -E "^package" | sed 's/^/::notice::/' || true
           $AAPT dump xmltree $APK --file AndroidManifest.xml > m.txt 2>&1 || true
-          grep -iE "car\.app|automotive|gms\.car|CAR_SPEED|category" m.txt | sed 's/^ */::notice::/' || true
+          echo "::notice::car: $(grep -ciE 'CarAppService|category.NAVIGATION|minCarApiLevel|MediaBrowserService' m.txt) car entries"
           SIG=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
           echo "::notice::verify: $($SIG verify -v $APK 2>&1 | tr '\n' ' ' | cut -c1-600)"
           echo "::notice::size: $(stat -c %s $APK) bytes; minSdk: $($AAPT dump badging $APK | grep -o "sdkVersion:'[0-9]*'")"
