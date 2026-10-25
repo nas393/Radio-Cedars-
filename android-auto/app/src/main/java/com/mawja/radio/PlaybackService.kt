@@ -36,6 +36,8 @@ import com.google.common.collect.ImmutableList
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
 import kotlinx.coroutines.*
+import androidx.car.app.connection.CarConnection
+import androidx.lifecycle.Observer
 import kotlinx.coroutines.guava.future
 import java.io.File
 import java.time.LocalDate
@@ -68,6 +70,15 @@ class PlaybackService : MediaLibraryService() {
     private var lastTitle: String? = null
     private var wallJob: Job? = null
     private var minutes = 0
+    private val carConn by lazy { CarConnection(this) }
+    private var inCar = false
+    /** Arrival fade: when the phone really leaves the car, the radio eases out. */
+    private val carLink = Observer<Int> { t ->
+        val now = t == CarConnection.CONNECTION_TYPE_PROJECTION
+        if (inCar && !now) { carOn = false; SpeedService.stop(this); if (player.isPlaying) fade(1f, 0f, 3000) { player.pause(); player.volume = 1f } }
+        if (now) carOn = true
+        inCar = now
+    }
     var sleepMin = 0; private set
     var carOn = false; private set
     private val sleepRun = Runnable { fade(1f, 0f, 20_000) { player.pause(); player.volume = 1f }; sleepMin = 0; Store.bump() }
@@ -96,7 +107,15 @@ class PlaybackService : MediaLibraryService() {
         player.addListener(object : Player.Listener {
             override fun onPlayerError(error: PlaybackException) = recover()
             override fun onIsPlayingChanged(isPlaying: Boolean) { if (isPlaying) retries = 0; pushWidget() }
+            // a live stream that closes must not stop the radio: play the same station again
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == Player.STATE_ENDED && player.playWhenReady && player.currentMediaItem?.mediaId?.startsWith("st:") == true) {
+                    handler.postDelayed({ player.seekToDefaultPosition(); player.prepare(); player.play() }, 1000)
+                }
+            }
             override fun onMediaItemTransition(item: MediaItem?, reason: Int) {
+                // radio repeats its own stream; spoken news plays once and moves on
+                player.repeatMode = if (item?.mediaId?.startsWith("st:") == true) Player.REPEAT_MODE_ONE else Player.REPEAT_MODE_OFF
                 if (item?.mediaId == lastId) return
                 lastId = item?.mediaId
                 Repo.stations[stationId(item)]?.let { Store.addRecent(it) }
@@ -113,6 +132,7 @@ class PlaybackService : MediaLibraryService() {
         getSystemService(NotificationManager::class.java).createNotificationChannel(
             NotificationChannel("breaking", getString(R.string.breaking), NotificationManager.IMPORTANCE_HIGH))
         handler.postDelayed(minuteTick, 60_000L)
+        carConn.type.observeForever(carLink)
         handler.post(slideTick)
         refreshWall(false)
     }
@@ -130,6 +150,7 @@ class PlaybackService : MediaLibraryService() {
 
     override fun onDestroy() {
         instance = null
+        carConn.type.removeObserver(carLink)
         handler.removeCallbacksAndMessages(null)
         scope.cancel(); tts?.shutdown()
         session.release(); player.release()
@@ -220,8 +241,9 @@ class PlaybackService : MediaLibraryService() {
             player.replaceMediaItem(player.currentMediaItemIndex, item.buildUpon().setUri(s.backup).build())
             player.prepare(); player.play(); return
         }
-        if (retries++ < 5) handler.postDelayed({ player.prepare(); player.play() }, 4000L * retries)
-        else if (player.hasNextMediaItem()) { retries = 0; player.seekToNextMediaItem(); player.prepare(); player.play() }
+        // tunnels and weak signal: keep trying the same station until it comes back (or you press pause)
+        retries++
+        handler.postDelayed({ if (player.playWhenReady && player.playerError != null) { player.prepare(); player.play() } }, (3000L * retries).coerceAtMost(15_000L))
     }
 
     // ---------- speech: news flash, morning brief, breaking news ----------
@@ -358,8 +380,7 @@ class PlaybackService : MediaLibraryService() {
 
         // Arrival fade: the music eases out when you leave the car.
         override fun onDisconnected(session: MediaSession, controller: MediaSession.ControllerInfo) {
-            if (controller.packageName == CAR) { carOn = false; SpeedService.stop(this@PlaybackService) }
-            if (controller.packageName == CAR && player.isPlaying) fade(1f, 0f, 3000) { player.pause(); player.volume = 1f }
+            // Android Auto opens and closes several connections while you drive; only a real car disconnect matters (see carLink)
         }
 
         override fun onCustomCommand(

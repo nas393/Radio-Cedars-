@@ -35,6 +35,14 @@ jobs:
           grep -E "^e: |error:|What went wrong" -A1 build.log | head -40 | sed 's/^/::error::/'
           exit $code
 
+      - name: Check the car parts of the APK
+        shell: bash
+        run: |
+          AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt2 | tail -1)
+          $AAPT dump badging android-auto/app/build/outputs/apk/debug/app-debug.apk | grep -E "^package|application-label" | sed 's/^/::notice::/'
+          $AAPT dump xmltree --file AndroidManifest.xml android-auto/app/build/outputs/apk/debug/app-debug.apk | grep -iE "car\.app|automotive|MediaBrowser|gms\.car" | sed 's/^ */::notice::/'
+          keytool -list -printcert -jarfile android-auto/app/build/outputs/apk/debug/app-debug.apk | grep -m1 SHA256 | sed 's/^/::notice::signer /'
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
