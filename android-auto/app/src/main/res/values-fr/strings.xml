@@ -46,4 +46,14 @@
     <string name="remove">Retirer</string>
     <string name="fill_frames">Remplir tous les cadres avec mes photos</string>
     <string name="frame_hint">Touchez un cadre une fois pour le voir, deux fois pour choisir sa photo.</string>
+    <string name="edit_room">Modifier le salon</string>
+    <string name="move_hint">Appui long sur un point puis glissez pour le déplacer. Les noms ci-dessous remplacent les étiquettes.</string>
+    <string name="reset_pos">Remettre les points</string>
+    <string name="frame_slides">Diaporama dans les cadres</string>
+    <string name="sound_rain">Pluie sur la vitre quand il pleut</string>
+    <string name="sound_clock">Horloge qui fait tic-tac</string>
+    <string name="visitor">Mode visiteur (cacher mes photos)</string>
+    <string name="ritual">Rituel du matin : lampe, radio et journal</string>
+    <string name="my_room">Mon propre salon</string>
+    <string name="my_room_pick">Utiliser une photo de mon salon</string>
 </resources>

@@ -15,6 +15,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -104,8 +106,9 @@ object Salon {
                 per("glass") { a -> (a as JSONArray).let { g -> (0 until g.length()).map { g.getDouble(it).toFloat() } } })
         }
     }
-    fun era(): Era = eras[Store.s("era") ?: "90s"] ?: eras.getValue("90s")
-    fun image(e: Era, scene: String) = Repo.SITE + e.base + scene + ".jpg"
+    fun era(): Era { if (Store.s("era") == "mine") MyRoom.era()?.let { return it }; return eras[Store.s("era") ?: "90s"] ?: eras.getValue("90s") }
+    fun image(e: Era, scene: String): Any = if (e.id == "mine") MyRoom.file ?: "" else Repo.SITE + e.base + scene + ".jpg"
+    fun bytes(e: Era, scene: String): ByteArray = if (e.id == "mine") MyRoom.file!!.readBytes() else Repo.bytes(Repo.SITE + e.base + scene + ".jpg")
 }
 
 /** Day / sunset / night from the real sunrise and sunset where the phone is (GPS), plus the local weather. */
@@ -182,6 +185,14 @@ fun SalonScreen(pc: PlayerConn) {
     var full by remember { mutableStateOf(false) }
     var drive by remember { mutableStateOf(false) }
     var focus by remember { mutableStateOf<String?>(null) }
+    val drag = remember { mutableStateMapOf<String, Offset>() }
+    val visitor = Store.b("visitor"); val slides = Store.b("fslides")
+    val gallery = remember(rev) { Store.gallery() }
+    val slideTick by produceState(0, slides) { while (slides) { delay(20_000); value++ } }
+    val fx = Wall.scene(Sky.weather)
+    DisposableEffect(Store.b("srain"), Store.b("sclock"), fx) {
+        Ambience.set(Store.b("srain") && fx in setOf("rain", "storm"), Store.b("sclock")); onDispose { Ambience.set(false, false) }
+    }
     var frame by remember { mutableIntStateOf(0) }
     LaunchedEffect(focus) { if (focus != null) { delay(5000); focus = null } }
     var explore by remember { mutableStateOf(false) }
@@ -194,8 +205,18 @@ fun SalonScreen(pc: PlayerConn) {
         }
     }
 
-    if (drive) { Drive(pc) { drive = false }; return }
-    if (explore) { Explore(pc) { explore = false }; return }
+    // morning ritual: the first time you open the salon after the set hour, the lamp, the radio and the newspaper
+    LaunchedEffect(Unit) {
+        val t = LocalTime.now(); val m = t.hour * 60 + t.minute; val at = Store.i("rh", 7) * 60 + Store.i("rm", 0)
+        val today = java.time.LocalDate.now().toString()
+        if (Store.b("ritual") && m >= at && m < 12 * 60 && Store.s("ritualDay") != today) {
+            delay(1500); Store.setS("ritualDay", today); Store.setB("lamp", true)
+            val l = Store.favs().ifEmpty { runCatching { Repo.byCountry("LB") }.getOrNull().orEmpty() }
+            l.firstOrNull()?.let { pc.play(l, it) }; drawer = "news"
+        }
+    }
+    if (drive) { Explore(pc, true) { drive = false }; return }
+    if (explore) { Explore(pc, false) { explore = false }; return }
 
     BoxWithConstraints(Modifier.fillMaxSize().background(WALNUT)) {
         val size = era.px[scene] ?: era.px.getValue("day")
@@ -219,13 +240,14 @@ fun SalonScreen(pc: PlayerConn) {
                 era.frames[scene].orEmpty().forEachIndexed { i, q ->
                     val a = px(q.minOf { it.first } to q.minOf { it.second }); val b = px(q.maxOf { it.first } to q.maxOf { it.second })
                     val fw = b.first - a.first; val fh = b.second - a.second
-                    remember(rev, era.id) { Store.framePhoto(era.id, i) }?.let { f ->
+                    val mine = remember(rev, era.id) { Store.framePhoto(era.id, i) }
+                    (if (visitor) null else if (slides && gallery.isNotEmpty()) gallery[(i + slideTick) % gallery.size] else mine)?.let { f ->
                         AsyncImage(f, null, Modifier.offset(a.first, a.second).size(fw, fh), contentScale = ContentScale.Crop)
                     }
                     val hit = 44.dp
-                    Box(Modifier.offset(a.first + fw / 2 - hit / 2, a.second + fh / 2 - hit / 2).size(hit)
+                    if (!visitor) Box(Modifier.offset(a.first + fw / 2 - hit / 2, a.second + fh / 2 - hit / 2).size(hit)
                         .clickable(remember { MutableInteractionSource() }, null) { if (focus == "f$i") { frame = i; drawer = "frame" } else focus = "f$i" })
-                    if (focus == "f$i") Text(stringResource(R.string.frame_n, i + 1), Modifier.offset(a.first + fw / 2 - 40.dp, a.second - 26.dp).width(80.dp)
+                    if (focus == "f$i") Text(Store.s("flbl_${era.id}_$i")?.ifBlank { null } ?: stringResource(R.string.frame_n, i + 1), Modifier.offset(a.first + fw / 2 - 50.dp, a.second - 26.dp).width(100.dp)
                         .background(CREAM.copy(alpha = .92f), RoundedCornerShape(50)).padding(vertical = 2.dp), color = INK, fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center, maxLines = 1)
                 }
@@ -259,10 +281,14 @@ fun SalonScreen(pc: PlayerConn) {
                     }
                 }
                 // the hotspots, as on the website
-                listOf("radio" to R.string.radio_l, "tv" to R.string.tv, "news" to R.string.news, "window" to R.string.weather_l,
-                    "photos" to R.string.photos, "cassettes" to R.string.cassettes, "lamp" to R.string.lamp).forEach { (k, label) ->
-                    era.spot(k, scene)?.let { (sx, sy) ->
-                        Hotspot(Modifier.offset(x(sx) - 60.dp, y(sy) - 22.dp), stringResource(label), focus == k) {
+                val wPx = with(dens) { w.toPx() }; val hPx = with(dens) { h.toPx() }
+                HOTSPOTS.filter { !(visitor && it.first == "photos") }.forEach { (k, label) ->
+                    (Store.pos(era.id, k) ?: era.spot(k, scene))?.let { (sx, sy) ->
+                        val d = drag[k] ?: Offset.Zero
+                        Hotspot(Modifier.offset(x(sx) - 60.dp, y(sy) - 22.dp).offset { IntOffset(d.x.roundToInt(), d.y.roundToInt()) },
+                            Store.s("lbl_$k")?.ifBlank { null } ?: stringResource(label), focus == k || drag.containsKey(k),
+                            onDrag = { drag[k] = (drag[k] ?: Offset.Zero) + it },
+                            onDragEnd = { drag.remove(k)?.let { o -> Store.setPos(era.id, k, (sx + o.x / wPx * 100).coerceIn(0f, 100f), (sy + o.y / hPx * 100).coerceIn(0f, 100f)) } }) {
                             if (focus != k) focus = k else { focus = null; if (k == "lamp") Store.setB("lamp", !lampOn) else drawer = k }
                         }
                     }
@@ -292,9 +318,10 @@ fun SalonScreen(pc: PlayerConn) {
                     "window" -> WeatherCard()
                     "photos" -> Photos(rev)
                     "frame" -> FrameDrawer(era, frame) { drawer = null }
+                    "edit" -> EditRoom(era)
                     "cassettes" -> Cassettes(pc)
                     "era" -> EraPicker { Store.setS("era", it); PlaybackService.instance?.refreshWall(false); drawer = null }
-                    else -> More(pc, { radioTab = it; drawer = "radio" }, { drawer = "era" }, { drawer = null; explore = true }) { drawer = null; drive = true }
+                    else -> More(pc, { radioTab = it; drawer = "radio" }, { drawer = "era" }, { drawer = "edit" }, { drawer = null; explore = true }) { drawer = null; drive = true }
                 }
             }
         }
@@ -311,10 +338,13 @@ fun MiniBtn(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -
     }
 
 @Composable
-fun Hotspot(m: Modifier, label: String, show: Boolean, onClick: () -> Unit) {
+fun Hotspot(m: Modifier, label: String, show: Boolean, onDrag: (Offset) -> Unit = {}, onDragEnd: () -> Unit = {}, onClick: () -> Unit) {
+    val dragCb by rememberUpdatedState(onDrag); val endCb by rememberUpdatedState(onDragEnd)
     val t by rememberInfiniteTransition(label = "dot").animateFloat(.5f, 1f, infiniteRepeatable(tween(1600), RepeatMode.Reverse), label = "d")
     Column(m.width(120.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(Modifier.size(44.dp).clip(CircleShape).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Box(Modifier.size(44.dp).clip(CircleShape).pointerInput(Unit) {
+            detectDragGesturesAfterLongPress(onDragEnd = { endCb() }, onDragCancel = { endCb() }) { ch, amount -> ch.consume(); dragCb(amount) }
+        }.clickable(onClick = onClick), contentAlignment = Alignment.Center) {
             Glow(Modifier.size(if (show) 40.dp else 28.dp), Color.White.copy(alpha = (if (show) .6f else .35f) * t))
             Box(Modifier.size(12.dp).background(Color.White.copy(alpha = .9f), CircleShape).border(2.dp, Color.White.copy(alpha = .5f), CircleShape))
         }
@@ -656,18 +686,31 @@ fun Cassettes(pc: PlayerConn) {
 
 @Composable
 fun EraPicker(pick: (String) -> Unit) {
+    val ctx = LocalContext.current
+    val scope = rememberCoroutineScope()
     val cur = Salon.era().id
+    val mine = remember { MyRoom.era() }
+    val own = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { u ->
+        if (u != null) scope.launch(Dispatchers.IO) {
+            val f = copyIn(ctx, u) ?: return@launch
+            MyRoom.set(f); withContext(Dispatchers.Main) { pick("mine") }
+        }
+    }
     Column {
         DrawerTitle("🏠 " + stringResource(R.string.era))
+        Button({ own.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }, Modifier.padding(horizontal = 16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE2C27A), contentColor = INK)) { Text("📷 " + stringResource(R.string.my_room_pick)) }
         LazyVerticalGrid(GridCells.Adaptive(160.dp), contentPadding = PaddingValues(12.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            items(Salon.ORDER.filter { it in Salon.eras }) { id ->
-                val e = Salon.eras.getValue(id)
+            items((if (mine != null) listOf("mine") else emptyList()) + Salon.ORDER.filter { it in Salon.eras }) { id ->
                 Column(Modifier.clip(RoundedCornerShape(14.dp)).border(if (id == cur) 3.dp else 1.dp, if (id == cur) OCHRE else BRASS.copy(alpha = .3f), RoundedCornerShape(14.dp))
                     .clickable { pick(id) }) {
-                    AsyncImage(Repo.SITE + e.base + "day-s.jpg", null, Modifier.fillMaxWidth().aspectRatio(1.5f), contentScale = ContentScale.Crop)
-                    val dec = when (id.take(2)) { "80" -> "1980s"; "90" -> "1990s"; "00" -> "2000s"; else -> "2026" }
-                    Text("$dec · " + stringResource(if (id.endsWith("h")) R.string.house else R.string.apt), Modifier.padding(10.dp), color = STONE, fontWeight = FontWeight.SemiBold)
+                    val model: Any = if (id == "mine") MyRoom.file ?: "" else Repo.SITE + Salon.eras.getValue(id).base + "day-s.jpg"
+                    AsyncImage(model, null, Modifier.fillMaxWidth().aspectRatio(1.5f), contentScale = ContentScale.Crop)
+                    val label = if (id == "mine") stringResource(R.string.my_room) else
+                        (when (id.take(2)) { "80" -> "1980s"; "90" -> "1990s"; "00" -> "2000s"; else -> "2026" }) + " · " +
+                            stringResource(if (id.endsWith("h")) R.string.house else R.string.apt)
+                    Text(label, Modifier.padding(10.dp), color = STONE, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
@@ -681,7 +724,7 @@ fun MoreRow(icon: String, label: String, onClick: () -> Unit) =
     }
 
 @Composable
-fun More(pc: PlayerConn, radio: (String) -> Unit, era: () -> Unit, explore: () -> Unit, drive: () -> Unit) {
+fun More(pc: PlayerConn, radio: (String) -> Unit, era: () -> Unit, edit: () -> Unit, explore: () -> Unit, drive: () -> Unit) {
     val ctx = LocalContext.current
     val sleep = PlaybackService.instance?.sleepMin ?: 0
     val shareText = stringResource(R.string.share_text, pc.name) + " " + Repo.SITE
@@ -693,6 +736,8 @@ fun More(pc: PlayerConn, radio: (String) -> Unit, era: () -> Unit, explore: () -
         item { MoreRow("📼", stringResource(R.string.cassettes)) { radio("fav") } }
         item { MoreRow("🚗", stringResource(R.string.drive), drive) }
         item { MoreRow("🏠", stringResource(R.string.era)) { era() } }
+        item { MoreRow("✏️", stringResource(R.string.edit_room), edit) }
+        item { MoreRow(if (Store.b("visitor")) "🙈" else "👁️", stringResource(R.string.visitor)) { Store.setB("visitor", !Store.b("visitor")) } }
         item { MoreRow("⏾", stringResource(R.string.sleep) + if (sleep > 0) " · ${sleep}m" else "") {
             PlaybackService.instance?.sleep(when (sleep) { 0 -> 15; 15 -> 30; 30 -> 60; else -> 0 })
         } }

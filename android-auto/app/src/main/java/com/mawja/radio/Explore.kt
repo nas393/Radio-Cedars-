@@ -1,6 +1,9 @@
 package com.mawja.radio
 
 import android.annotation.SuppressLint
+import android.net.ConnectivityManager
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.delay
 import android.os.Handler
 import android.os.Looper
 import android.webkit.JavascriptInterface
@@ -54,14 +57,32 @@ class GlobeBridge(private val wv: WebView, private val pc: PlayerConn, private v
     fun list(k: String): String = JSONArray((if (k == "fav") Store.favs() else Store.recents()).map { it.rb() }).toString()
 
     @JavascriptInterface fun close() { main.post(onClose) }
+
+    @JavascriptInterface fun resetTrip() = Speed.reset()
 }
 
 /** Explore the world: the interactive 3D Earth, with the house tuner bar kept at the bottom. */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
-fun Explore(pc: PlayerConn, close: () -> Unit) {
+fun Explore(pc: PlayerConn, car: Boolean, close: () -> Unit) {
+    val ctx = LocalContext.current
     var view by remember { mutableStateOf<WebView?>(null) }
     BackHandler(onBack = close)
+    LaunchedEffect(Unit) { startSpeed(ctx) }
+    // car widgets: speed, trip, heading, outside weather and signal, once a second
+    LaunchedEffect(view) {
+        val cm = ctx.getSystemService(ConnectivityManager::class.java)
+        while (view != null) {
+            val kbps = runCatching { cm.getNetworkCapabilities(cm.activeNetwork)?.linkDownstreamBandwidthKbps }.getOrNull()
+            val bars = when { kbps == null -> 0; kbps < 500 -> 1; kbps < 2000 -> 2; kbps < 8000 -> 3; else -> 4 }
+            val w = Sky.weather
+            val o = JSONObject().put("speed", Speed.kmh).put("heading", Speed.heading?.toDouble()).put("trip", Speed.tripKm)
+                .put("time", Speed.movingSec).put("top", Speed.top).put("signal", bars).put("kbps", pc.station?.bitrate ?: 0)
+                .put("temp", w?.temp).put("icon", w?.icon).put("place", w?.place)
+            view?.evaluateJavascript("window.setCar&&setCar($o)", null)
+            delay(1000)
+        }
+    }
     LaunchedEffect(pc.station?.id, view) {
         view?.evaluateJavascript("window.setPlaying&&setPlaying(${JSONObject.quote(pc.station?.id ?: "")})", null)
     }
@@ -76,7 +97,7 @@ fun Explore(pc: PlayerConn, close: () -> Unit) {
                 }
                 addJavascriptInterface(GlobeBridge(this, pc, close), "Sawt")
                 val q = "lang=${currentLang()}&night=${if (Sky.scene() == "night") 1 else 0}" +
-                    "&lat=${Store.s("lat") ?: ""}&lon=${Store.s("lon") ?: ""}&playing=${pc.station?.id ?: ""}"
+                    "&lat=${Store.s("lat") ?: ""}&lon=${Store.s("lon") ?: ""}&playing=${pc.station?.id ?: ""}&car=${if (car) 1 else 0}"
                 loadUrl("https://appassets.androidplatform.net/assets/explore/index.html?$q")
                 view = this
             }

@@ -96,7 +96,15 @@ class MawjaWidget : AppWidgetProvider() {
     }
 }
 
-object Speed { var kmh by mutableStateOf<Int?>(null) }
+object Speed {
+    var kmh by mutableStateOf<Int?>(null)
+    @Volatile var heading: Float? = null
+    @Volatile var tripKm = 0.0
+    @Volatile var movingSec = 0L
+    @Volatile var top = 0
+    var last: Location? = null
+    fun reset() { tripKm = 0.0; movingSec = 0; top = 0 }
+}
 
 /** GPS speed while driving. Started from the open app so it keeps working with the screen off. */
 class SpeedService : Service(), LocationListener {
@@ -123,6 +131,12 @@ class SpeedService : Service(), LocationListener {
 
     override fun onLocationChanged(l: Location) {
         val k = if (l.hasSpeed()) (l.speed * 3.6f).roundToInt() else 0
+        Speed.last?.let { p ->
+            if (k >= 3 && l.accuracy < 50) { Speed.tripKm += p.distanceTo(l) / 1000.0; Speed.movingSec += ((l.time - p.time) / 1000).coerceIn(0, 10) }
+        }
+        Speed.last = l
+        if (l.hasBearing() && k >= 3) Speed.heading = l.bearing
+        if (k > Speed.top) Speed.top = k
         Speed.kmh = k; PlaybackService.instance?.showSpeed(k)
     }
     @Deprecated("Deprecated in Java")

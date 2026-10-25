@@ -135,6 +135,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onStart() { super.onStart(); Ambience.visible = true }
+    override fun onStop() { Ambience.visible = false; super.onStop() }
     override fun onDestroy() { pc.release(); super.onDestroy() }
 }
 

@@ -177,7 +177,7 @@ object Wall {
         val w = runCatching { Repo.weather(s?.takeIf { it.cc.isNotBlank() } ?: PlaybackService.LEB) }.getOrNull()
         // the car shows the website's salon at this hour, centred on the radio, the real weather in its window
         val era = Salon.era(); val sc = Sky.scene()
-        val room = runCatching { decode(Repo.bytes(Salon.image(era, sc)), 1400) }.getOrNull()
+        val room = runCatching { decode(Salon.bytes(era, sc), 1400) }.getOrNull()
         val bg = if (room != null) salonSquare(room, era, sc, scene(Sky.weather ?: w)) else
             Bitmap.createBitmap(1400, 1400, Bitmap.Config.ARGB_8888).also { b ->
                 Canvas(b).drawPaint(Paint().apply { shader = LinearGradient(0f, 0f, 1400f, 1400f, 0xFF2B221A.toInt(), 0xFF17120E.toInt(), Shader.TileMode.CLAMP) })

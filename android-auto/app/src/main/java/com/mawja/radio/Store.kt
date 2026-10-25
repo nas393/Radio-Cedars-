@@ -69,6 +69,11 @@ object Store {
     fun galleryDir(id: Int = currentId) = File(ctx.filesDir, "gallery/$id").apply { mkdirs() }
     fun gallery(): List<File> = galleryDir().listFiles()?.filter { it.isFile && it.length() > 0 }?.sortedBy { it.name } ?: emptyList()
 
+    // Where you moved each salon dot, per room (% of the picture)
+    fun pos(era: String, k: String): Pt? = s("pos_${era}_$k")?.split(",")?.let { runCatching { it[0].toFloat() to it[1].toFloat() }.getOrNull() }
+    fun setPos(era: String, k: String, x: Float, y: Float) = setS("pos_${era}_$k", "$x,$y")
+    fun resetPos(era: String) = edit { HOTSPOTS.forEach { remove("pos_${era}_${it.first}") } }
+
     // Which of your photos hangs in each wall frame, per room
     fun framePhoto(era: String, i: Int): File? = s("fr_${era}_$i")?.let { File(galleryDir(), it).takeIf { f -> f.exists() } }
     fun setFrame(era: String, i: Int, name: String?) = edit { if (name == null) remove("fr_${era}_$i") else putString("fr_${era}_$i", name) }

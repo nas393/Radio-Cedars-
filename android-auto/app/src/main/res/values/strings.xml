@@ -46,4 +46,14 @@
     <string name="remove">Remove</string>
     <string name="fill_frames">Fill all frames with my photos</string>
     <string name="frame_hint">Tap a frame on the wall once to see it, twice to choose its picture.</string>
+    <string name="edit_room">Edit the room</string>
+    <string name="move_hint">Long-press a dot and drag it to move it. Names below replace the labels.</string>
+    <string name="reset_pos">Put the dots back</string>
+    <string name="frame_slides">Frame slideshow (your photos rotate)</string>
+    <string name="sound_rain">Rain on the window when it rains</string>
+    <string name="sound_clock">Ticking clock</string>
+    <string name="visitor">Visitor mode (hide my photos)</string>
+    <string name="ritual">Morning ritual: lamp, radio and newspaper</string>
+    <string name="my_room">My own salon</string>
+    <string name="my_room_pick">Use a photo of my room</string>
 </resources>

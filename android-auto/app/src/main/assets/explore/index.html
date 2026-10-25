@@ -16,9 +16,9 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:
 .search{display:flex;align-items:center;gap:8px;height:52px;padding:0 16px;border-radius:26px;background:rgba(255,255,255,.07);border:1px solid var(--line);flex:1 1 200px;max-width:340px}
 .search input{flex:1;background:none;border:0;color:var(--fg);font:inherit;font-size:15px;outline:none;min-width:0}
 #ask{position:fixed;left:0;right:0;bottom:150px;text-align:center;color:var(--dim);font-size:17px;letter-spacing:1px;pointer-events:none;transition:opacity .6s;z-index:2}
-#hops{position:fixed;inset-inline-start:12px;bottom:150px;display:flex;gap:6px;z-index:3}
+#hops{position:fixed;inset-inline-end:12px;bottom:214px;display:flex;gap:6px;z-index:3}
 #hops button{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);background:var(--glass);font-size:24px}
-#panel{position:fixed;inset-inline-end:12px;top:136px;bottom:146px;width:min(440px,calc(100% - 24px));background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:24px;padding:16px;display:none;flex-direction:column;gap:10px;z-index:4}
+#panel{position:fixed;inset-inline-end:12px;top:136px;bottom:214px;width:min(440px,calc(100% - 24px));background:var(--glass);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border:1px solid var(--line);border-radius:24px;padding:16px;display:none;flex-direction:column;gap:10px;z-index:4}
 #panel.show{display:flex}
 .head{display:flex;align-items:center;gap:12px}
 .flag{font-size:36px}.title{font-size:21px;font-weight:700}.sub{color:var(--dim);font-size:13px}
@@ -37,7 +37,25 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:
 .fallback{position:fixed;inset:120px 12px 150px;overflow:auto;display:none;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
 .fallback button{min-height:56px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--fg);font:inherit}
 .top,#panel,#hops{transition:opacity .5s}
-body.ambient .top,body.ambient #panel,body.ambient #hops{opacity:0;pointer-events:none}
+body.ambient .top,body.ambient #panel,body.ambient #hops,body.ambient #widgets,body.ambient #presets{opacity:0;pointer-events:none}
+#widgets{position:fixed;inset-inline-start:12px;top:136px;bottom:214px;width:196px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;z-index:3;transition:opacity .5s}
+.w{background:var(--glass);border:1px solid var(--line);border-radius:18px;padding:10px 14px;flex:none}
+.w .k{font-size:11px;color:var(--dim);letter-spacing:2px;text-transform:uppercase}.w .v{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+.w .s{font-size:12px;color:var(--dim)}.w.speed .v{font-size:58px;line-height:1}.w.alert{border-color:#ED1C24;background:rgba(237,28,36,.18)}
+.bars{display:flex;gap:4px;align-items:flex-end;height:26px}.bars i{width:7px;background:var(--line);border-radius:2px}.bars i.on{background:var(--blue)}
+#presets{position:fixed;left:12px;right:12px;bottom:146px;display:flex;gap:8px;overflow-x:auto;z-index:3;transition:opacity .5s}
+#presets button{flex:none;min-height:60px;max-width:180px;padding:0 16px;border-radius:18px;border:1px solid var(--line);background:var(--glass);color:var(--fg);font:inherit;font-size:14px;text-align:start;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#presets button b{display:block;font-size:11px;color:var(--gold)}
+#presets button.on{border-color:var(--gold)}
+#sheet{position:fixed;inset:70px 12px 146px;max-width:520px;margin:auto;background:var(--glass);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:24px;padding:18px;display:none;flex-direction:column;gap:8px;z-index:6;overflow-y:auto}
+#sheet.show{display:flex}#sheet h3{margin:0 0 6px;font-size:18px}
+.wrow{display:flex;align-items:center;gap:10px;min-height:56px;padding:0 12px;border-radius:14px;background:rgba(255,255,255,.04)}
+.wrow span{flex:1}.wrow input[type=checkbox]{width:26px;height:26px;accent-color:#D9B56B}
+.wrow button{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);background:none;color:var(--fg);font-size:16px}
+.wrow input[type=number]{width:90px;height:44px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--fg);font:inherit;padding:0 10px}
+body.drive .search,body.drive #panel,body.drive #hops,body.drive #ask{display:none!important}
+body.drive #widgets{width:240px}body.drive .w.speed .v{font-size:84px}
+body.drive #recent,body.drive #favs{display:none}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -50,12 +68,17 @@ body.ambient .top,body.ambient #panel,body.ambient #hops{opacity:0;pointer-event
   <button class="btn" id="favs"></button>
   <button class="btn" id="recent"></button>
   <button class="btn" id="rand"></button>
+  <button class="btn" id="drive"></button>
+  <button class="btn" id="wbtn"></button>
   <button class="btn" id="home" aria-label="Globe">⟲</button>
   <button class="btn" id="back" aria-label="Back">✕</button>
 </div>
 <div id="ask"></div>
 <div id="hops"></div>
 <div class="fallback" id="fb"></div>
+<div id="widgets"></div>
+<div id="presets"></div>
+<div id="sheet"></div>
 <div id="panel">
   <div class="head">
     <span class="flag" id="pf"></span>
@@ -71,16 +94,16 @@ body.ambient .top,body.ambient #panel,body.ambient #hops{opacity:0;pointer-event
 'use strict';
 const P = new URLSearchParams(location.search), L = P.get('lang') || 'en';
 const TT = {
-  en: { tag: 'The World Is Your Radio.', ask: 'Where do you want to listen?', q: 'Country, city or station', near: 'Nearby', favs: 'Favorites', recent: 'Recent', rand: 'Surprise me', st: n => n + ' stations', none: 'No stations found here yet.', load: 'Loading…', all: 'All', noloc: 'Allow location to see stations near you.', nogl: '3D is not available here — pick a country:' },
-  ar: { tag: 'العالم كلّه راديو.', ask: 'وين بدّك تسمع؟', q: 'بلد، مدينة أو محطة', near: 'حدّي', favs: 'المفضلة', recent: 'الأخيرة', rand: 'فاجئني', st: n => n + ' محطة', none: 'ما في محطات هون بعد.', load: 'عم يحمّل…', all: 'الكل', noloc: 'اسمح بالموقع لتشوف المحطات حدّك.', nogl: 'الـ3D مش متاح هون — اختار بلد:' },
-  fr: { tag: 'Le monde est votre radio.', ask: 'Où voulez-vous écouter ?', q: 'Pays, ville ou station', near: 'À proximité', favs: 'Favoris', recent: 'Récents', rand: 'Surprise', st: n => n + ' stations', none: 'Aucune station ici pour l’instant.', load: 'Chargement…', all: 'Tout', noloc: 'Autorisez la localisation pour voir les stations proches.', nogl: '3D indisponible ici — choisissez un pays :' },
-  pt: { tag: 'O mundo é o seu rádio.', ask: 'Onde quer ouvir?', q: 'País, cidade ou estação', near: 'Perto', favs: 'Favoritos', recent: 'Recentes', rand: 'Surpresa', st: n => n + ' estações', none: 'Ainda sem estações aqui.', load: 'A carregar…', all: 'Todas', noloc: 'Permita a localização para ver estações perto de si.', nogl: '3D indisponível aqui — escolha um país:' }
+  en: { speed: 'Speed', trip: 'Trip', avg: 'Avg', top: 'Top', outside: 'Outside', heading: 'Heading', local: 'Local time', beirut: 'Beirut', signal: 'Signal', presets: 'Presets', widgets: 'Widgets', drive: 'Driving mode', alert: 'Speed alert (km/h, 0 = off)', tapReset: 'tap to reset', done: 'Done', reset: 'Reset widgets', tag: 'The World Is Your Radio.', ask: 'Where do you want to listen?', q: 'Country, city or station', near: 'Nearby', favs: 'Favorites', recent: 'Recent', rand: 'Surprise me', st: n => n + ' stations', none: 'No stations found here yet.', load: 'Loading…', all: 'All', noloc: 'Allow location to see stations near you.', nogl: '3D is not available here — pick a country:' },
+  ar: { speed: 'السرعة', trip: 'المسافة', avg: 'المعدّل', top: 'الأقصى', outside: 'برّا', heading: 'الاتجاه', local: 'الوقت هون', beirut: 'بيروت', signal: 'الإشارة', presets: 'المحطات السريعة', widgets: 'الأدوات', drive: 'وضع القيادة', alert: 'تنبيه السرعة (كم/س، ٠ = بلا)', tapReset: 'دقّ لتصفير', done: 'تم', reset: 'رجّع الأدوات', tag: 'العالم كلّه راديو.', ask: 'وين بدّك تسمع؟', q: 'بلد، مدينة أو محطة', near: 'حدّي', favs: 'المفضلة', recent: 'الأخيرة', rand: 'فاجئني', st: n => n + ' محطة', none: 'ما في محطات هون بعد.', load: 'عم يحمّل…', all: 'الكل', noloc: 'اسمح بالموقع لتشوف المحطات حدّك.', nogl: 'الـ3D مش متاح هون — اختار بلد:' },
+  fr: { speed: 'Vitesse', trip: 'Trajet', avg: 'Moy.', top: 'Max', outside: 'Dehors', heading: 'Cap', local: 'Heure locale', beirut: 'Beyrouth', signal: 'Signal', presets: 'Présélections', widgets: 'Widgets', drive: 'Mode conduite', alert: 'Alerte vitesse (km/h, 0 = off)', tapReset: 'toucher pour remettre à zéro', done: 'OK', reset: 'Réinitialiser', tag: 'Le monde est votre radio.', ask: 'Où voulez-vous écouter ?', q: 'Pays, ville ou station', near: 'À proximité', favs: 'Favoris', recent: 'Récents', rand: 'Surprise', st: n => n + ' stations', none: 'Aucune station ici pour l’instant.', load: 'Chargement…', all: 'Tout', noloc: 'Autorisez la localisation pour voir les stations proches.', nogl: '3D indisponible ici — choisissez un pays :' },
+  pt: { speed: 'Velocidade', trip: 'Viagem', avg: 'Média', top: 'Máx', outside: 'Lá fora', heading: 'Rumo', local: 'Hora local', beirut: 'Beirute', signal: 'Sinal', presets: 'Pré-definições', widgets: 'Widgets', drive: 'Modo condução', alert: 'Alerta de velocidade (km/h, 0 = desligado)', tapReset: 'toque para repor', done: 'Feito', reset: 'Repor widgets', tag: 'O mundo é o seu rádio.', ask: 'Onde quer ouvir?', q: 'País, cidade ou estação', near: 'Perto', favs: 'Favoritos', recent: 'Recentes', rand: 'Surpresa', st: n => n + ' estações', none: 'Ainda sem estações aqui.', load: 'A carregar…', all: 'Todas', noloc: 'Permita a localização para ver estações perto de si.', nogl: '3D indisponível aqui — escolha um país:' }
 };
 const T = TT[L] || TT.en;
 if (L === 'ar') document.documentElement.dir = 'rtl';
 const $ = id => document.getElementById(id);
 $('tag').textContent = T.tag; $('ask').textContent = T.ask; $('q').placeholder = T.q;
-['near', 'favs', 'recent', 'rand'].forEach(k => $(k).textContent = T[k]);
+['near', 'favs', 'recent', 'rand', 'drive'].forEach(k => $(k).textContent = T[k]); $('wbtn').textContent = T.widgets;
 
 // ---- network through the app (no CORS, mirror fallback)
 let seq = 0; const waits = {};
@@ -236,6 +259,58 @@ let idle;
 const wake = () => { document.body.classList.remove('ambient'); clearTimeout(idle); idle = setTimeout(() => { document.body.classList.add('ambient'); if (globe) globe.controls().autoRotate = true; }, 60000); };
 addEventListener('pointerdown', () => { if (globe) globe.controls().autoRotate = false; wake(); });
 wake();
+
+// ---- car widgets: add, hide, delete, reorder; your choice is remembered
+const ALL = ['speed', 'trip', 'temp', 'compass', 'beirut', 'local', 'signal', 'presets'];
+let car = {}, alerted = false;
+let chosen = (() => { try { return JSON.parse(localStorage.getItem('widgets')) || ALL.slice(); } catch { return ALL.slice(); } })();
+const save = () => { try { localStorage.setItem('widgets', JSON.stringify(chosen)); } catch {} };
+const limit = () => +(localStorage.getItem('limit') || 0);
+const hm = (d, tz) => new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', timeZone: tz }).format(d);
+const dirs = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+const dur = s => { s = s || 0; return Math.floor(s / 3600) + ':' + String(Math.floor(s / 60) % 60).padStart(2, '0'); };
+const NAMES = { speed: T.speed, trip: T.trip, temp: T.outside, compass: T.heading, beirut: T.beirut, local: T.local, signal: T.signal, presets: T.presets };
+function chime() { try { const a = new (window.AudioContext || window.webkitAudioContext)(); [0, .28].forEach(t => { const o = a.createOscillator(), g = a.createGain(); o.frequency.value = 880; g.gain.value = .12; o.connect(g).connect(a.destination); o.start(a.currentTime + t); o.stop(a.currentTime + t + .16); }); } catch {} }
+function card(id, k, v, sub, cls) { return '<div class="w ' + (cls || '') + '" data-w="' + id + '"><div class="k">' + k + '</div><div class="v">' + v + '</div>' + (sub ? '<div class="s">' + sub + '</div>' : '') + '</div>'; }
+function drawWidgets() {
+  const c = car, now = new Date(), out = [];
+  chosen.forEach(id => {
+    if (id === 'speed') { const over = limit() > 0 && c.speed > limit(); if (over && !alerted) chime(); alerted = over; out.push(card(id, T.speed, c.speed == null ? '--' : c.speed, 'km/h', 'speed' + (over ? ' alert' : ''))); }
+    if (id === 'trip') out.push(card(id, T.trip, (c.trip || 0).toFixed(1) + ' km', T.avg + ' ' + (c.time > 0 ? Math.round(c.trip / (c.time / 3600)) : 0) + ' · ' + T.top + ' ' + (c.top || 0) + ' · ' + dur(c.time) + '<br>' + T.tapReset));
+    if (id === 'temp') out.push(card(id, T.outside, c.temp == null ? '--' : c.temp + '°', (c.icon || '') + ' ' + (c.place || '')));
+    if (id === 'compass') out.push(card(id, T.heading, c.heading == null ? '--' : dirs[Math.round(c.heading / 45) % 8] + ' ' + Math.round(c.heading) + '°'));
+    if (id === 'beirut') out.push(card(id, T.beirut, hm(now, 'Asia/Beirut')));
+    if (id === 'local') out.push(card(id, T.local, hm(now)));
+    if (id === 'signal') out.push('<div class="w" data-w="signal"><div class="k">' + T.signal + '</div><div class="bars">' + [1, 2, 3, 4].map(n => '<i class="' + (n <= (c.signal || 0) ? 'on' : '') + '" style="height:' + (6 + n * 5) + 'px"></i>').join('') + '</div><div class="s">' + (c.kbps ? c.kbps + ' kbps' : '') + '</div></div>');
+  });
+  $('widgets').innerHTML = out.join('');
+  const t = $('widgets').querySelector('[data-w=trip]'); if (t) t.onclick = () => { Sawt.resetTrip(); };
+}
+function drawPresets() {
+  const box = $('presets'); box.innerHTML = '';
+  if (!chosen.includes('presets')) return;
+  let favs = []; try { favs = JSON.parse(Sawt.list('fav')).slice(0, 6); } catch {}
+  favs.forEach((s, n) => { const b = document.createElement('button'); b.className = s.stationuuid === playing ? 'on' : ''; b.innerHTML = '<b>' + (n + 1) + '</b>'; b.append(document.createTextNode(s.name.trim())); b.onclick = () => play(s, favs); box.appendChild(b); });
+}
+window.setCar = c => { car = c; drawWidgets(); };
+const oldSet = window.setPlaying; window.setPlaying = id => { oldSet(id); drawPresets(); };
+function sheet() {
+  const el = $('sheet'); el.classList.add('show');
+  const order = chosen.concat(ALL.filter(x => !chosen.includes(x)));
+  el.innerHTML = '<h3>' + T.widgets + '</h3>' + order.map(id => '<div class="wrow"><input type="checkbox" data-id="' + id + '" ' + (chosen.includes(id) ? 'checked' : '') + ' aria-label="' + NAMES[id] + '"><span>' + NAMES[id] + '</span><button data-up="' + id + '" aria-label="Up">↑</button><button data-down="' + id + '" aria-label="Down">↓</button></div>').join('') +
+    '<div class="wrow"><span>' + T.alert + '</span><input type="number" id="lim" min="0" max="250" value="' + limit() + '"></div>' +
+    '<div style="display:flex;gap:8px;margin-top:6px"><button class="btn" id="wreset">' + T.reset + '</button><button class="btn" id="wdone" style="margin-inline-start:auto;border-color:#D9B56B;color:#D9B56B">' + T.done + '</button></div>';
+  el.querySelectorAll('input[type=checkbox]').forEach(cb => cb.onchange = () => { const id = cb.dataset.id; chosen = cb.checked ? chosen.concat(id) : chosen.filter(x => x !== id); save(); drawWidgets(); drawPresets(); });
+  el.querySelectorAll('[data-up],[data-down]').forEach(b => b.onclick = () => { const id = b.dataset.up || b.dataset.down, i = chosen.indexOf(id); if (i < 0) return; const j = b.dataset.up ? i - 1 : i + 1; if (j < 0 || j >= chosen.length) return; [chosen[i], chosen[j]] = [chosen[j], chosen[i]]; save(); drawWidgets(); sheet(); });
+  $('lim').onchange = e => { try { localStorage.setItem('limit', String(Math.max(0, +e.target.value || 0))); } catch {} };
+  $('wreset').onclick = () => { chosen = ALL.slice(); save(); drawWidgets(); drawPresets(); sheet(); };
+  $('wdone').onclick = () => el.classList.remove('show');
+}
+$('wbtn').onclick = sheet;
+$('drive').onclick = () => { document.body.classList.toggle('drive'); $('drive').style.borderColor = document.body.classList.contains('drive') ? '#D9B56B' : ''; };
+if (P.get('car') === '1') { document.body.classList.add('drive'); $('drive').style.borderColor = '#D9B56B'; }
+setInterval(drawWidgets, 20000);
+drawWidgets(); drawPresets();
 </script>
 </body>
 </html>

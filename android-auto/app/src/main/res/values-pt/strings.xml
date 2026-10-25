@@ -46,4 +46,14 @@
     <string name="remove">Remover</string>
     <string name="fill_frames">Encher todas as molduras com as minhas fotos</string>
     <string name="frame_hint">Toque numa moldura uma vez para a ver, duas para escolher a foto.</string>
+    <string name="edit_room">Editar a sala</string>
+    <string name="move_hint">Mantenha premido um ponto e arraste para o mover. Os nomes abaixo substituem as etiquetas.</string>
+    <string name="reset_pos">Repor os pontos</string>
+    <string name="frame_slides">Apresentação nas molduras</string>
+    <string name="sound_rain">Chuva na janela quando chove</string>
+    <string name="sound_clock">Relógio a fazer tique-taque</string>
+    <string name="visitor">Modo visita (esconder as minhas fotos)</string>
+    <string name="ritual">Ritual da manhã: candeeiro, rádio e jornal</string>
+    <string name="my_room">A minha sala</string>
+    <string name="my_room_pick">Usar uma foto da minha sala</string>
 </resources>

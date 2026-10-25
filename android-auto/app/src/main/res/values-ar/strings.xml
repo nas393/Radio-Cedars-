@@ -47,4 +47,14 @@
     <string name="remove">إزالة</string>
     <string name="fill_frames">عبّي كل الإطارات بصوري</string>
     <string name="frame_hint">دقّ على الإطار بالحيط مرّة لتشوفه، ومرّتين لتختار صورته.</string>
+    <string name="edit_room">عدّل الصالون</string>
+    <string name="move_hint">اضغط مطوّل على النقطة واسحبها لتحرّكها. الأسامي تحت بتبدّل التسميات.</string>
+    <string name="reset_pos">رجّع النقاط مطرحها</string>
+    <string name="frame_slides">عرض صور بالإطارات</string>
+    <string name="sound_rain">صوت الشتي عالشبّاك وقت تشتّي</string>
+    <string name="sound_clock">ساعة عم تدق</string>
+    <string name="visitor">وضع الضيوف (خبّي صوري)</string>
+    <string name="ritual">طقس الصبح: اللمبادير والراديو والجريدة</string>
+    <string name="my_room">صالوني</string>
+    <string name="my_room_pick">استعمل صورة صالوني</string>
 </resources>
