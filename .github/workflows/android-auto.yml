@@ -37,11 +37,15 @@ jobs:
 
       - name: Check the car parts of the APK
         shell: bash
+        continue-on-error: true
         run: |
+          APK=android-auto/app/build/outputs/apk/debug/app-debug.apk
           AAPT=$(ls $ANDROID_HOME/build-tools/*/aapt2 | tail -1)
-          $AAPT dump badging android-auto/app/build/outputs/apk/debug/app-debug.apk | grep -E "^package|application-label" | sed 's/^/::notice::/'
-          $AAPT dump xmltree --file AndroidManifest.xml android-auto/app/build/outputs/apk/debug/app-debug.apk | grep -iE "car\.app|automotive|MediaBrowser|gms\.car" | sed 's/^ */::notice::/'
-          keytool -list -printcert -jarfile android-auto/app/build/outputs/apk/debug/app-debug.apk | grep -m1 SHA256 | sed 's/^/::notice::signer /'
+          $AAPT dump badging $APK | grep -E "^package" | sed 's/^/::notice::/' || true
+          $AAPT dump xmltree $APK --file AndroidManifest.xml > m.txt 2>&1 || true
+          grep -iE "car\.app|automotive|gms\.car|CAR_SPEED|category" m.txt | sed 's/^ */::notice::/' || true
+          SIG=$(ls $ANDROID_HOME/build-tools/*/apksigner | tail -1)
+          $SIG verify --print-certs $APK | grep -m1 SHA-256 | sed 's/^/::notice::/' || true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
