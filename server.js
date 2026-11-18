@@ -14,6 +14,13 @@ const morning = require('./lib/morning');
 
 const app = express();
 app.disable('x-powered-by');
+// Basic security headers (mic and camera stay allowed: voice notes and calls use them).
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  next();
+});
 // Small JSON bodies everywhere, except voice notes (a few hundred KB of audio).
 const smallJson = express.json({ limit: '10kb' });
 const bigJson = express.json({ limit: '700kb' });
