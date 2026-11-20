@@ -19,8 +19,8 @@ if (!scripts.length || !styles.length) throw new Error('no scripts or styles fou
 
 const js = scripts.map(f => `/* ${f} */\n` + fs.readFileSync(path.join(pub, f), 'utf8')).join('\n;\n');
 const css = styles.map(f => fs.readFileSync(path.join(pub, f), 'utf8')).join('\n');
-const outJs = esbuild.transformSync(js, { loader: 'js', minify: true, target: 'es2019', legalComments: 'none' }).code;
-const outCss = esbuild.transformSync(css, { loader: 'css', minify: true, target: ['chrome90', 'safari14', 'firefox90'] }).code;
+const outJs = esbuild.transformSync(js, { loader: 'js', minify: true, target: 'es2019', legalComments: 'none', charset: 'utf8' }).code;
+const outCss = esbuild.transformSync(css, { loader: 'css', minify: true, target: ['chrome90', 'safari14', 'firefox90'], charset: 'utf8' }).code;
 const hash = s => crypto.createHash('sha1').update(s).digest('hex').slice(0, 10);
 
 fs.mkdirSync(path.join(pub, 'dist'), { recursive: true });
