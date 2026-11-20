@@ -692,6 +692,7 @@
   }
 
   function setTexture(unit, img) {
+    hotKey = '';   // a new picture can move the hotspots
     if (!tex[unit]) tex[unit] = gl.createTexture();
     gl.activeTexture([gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5][unit]);
     const rgba = unit === 2 || unit === 4;
@@ -861,8 +862,13 @@
   // On touch screens the object nearest the middle of the screen is "in focus": it shows
   // its name and the card at the bottom offers to open it. With a mouse, hovering does it.
   let focusId = null, hoverId = null;
+  // Hotspots only move when the view, the screen or the picture changes; weather-only redraws skip the DOM work.
+  var hotKey = '';   // var: also reset by setTexture, which can run before this line
   function placeHotspots() {
     const W = vw(), H = vh();
+    const key = `${view.cx.toFixed(5)},${view.cy.toFixed(5)},${view.z.toFixed(5)},${W},${H},${sheetOpen()},${hoverId},${focusId},${hotEls.size}`;
+    if (key === hotKey) return;
+    hotKey = key;
     const cx = W / 2, cy = H * (innerWidth < 900 && sheetOpen() ? 0.28 : 0.5);
     let best = null, bestD = Math.min(W, H) * 0.3;
     for (const o of OBJECTS) {
@@ -1050,7 +1056,7 @@
   // A gentle breath when nobody is touching anything: the room is alive, not a photo.
   let idleSince = performance.now();
   ['pointerdown', 'wheel', 'keydown'].forEach(t => window.addEventListener(t, () => { idleSince = performance.now(); }, { passive: true }));
-  let breath = 0;
+  let breath = 0, lastBreathDraw = 0;
 
   function frame(now) {
     if (glide) {
@@ -1069,13 +1075,17 @@
       clampView();
       needsDraw = true;
     }
+    // The breath is a 9-second movement: 30 updates a second look the same as 60 or 120 and cost half (or less) on phones.
     if (!reduceMotion && !lite && !introOn && !dragging && !glide && now - idleSince > 7000 && !document.hidden) {
-      const target = 0.012 * (0.5 - 0.5 * Math.cos((now - idleSince - 7000) / 9000));
-      const prev = breath;
-      breath = target;
-      view.z = Math.max(zMin(), view.z * (1 + breath) / (1 + prev));
-      clampView();
-      needsDraw = true;
+      if (now - lastBreathDraw > 33) {
+        lastBreathDraw = now;
+        const target = 0.012 * (0.5 - 0.5 * Math.cos((now - idleSince - 7000) / 9000));
+        const prev = breath;
+        breath = target;
+        view.z = Math.max(zMin(), view.z * (1 + breath) / (1 + prev));
+        clampView();
+        needsDraw = true;
+      }
     } else if (breath) { breath = 0; }
     if (fade) {
       const k = Math.min(1, (now - fade.t0) / 1600);
