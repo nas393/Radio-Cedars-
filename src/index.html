@@ -27,9 +27,9 @@
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="icon" href="/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="/icon-180.png">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Aref+Ruqaa:wght@400;700&family=Caveat:wght@500;700&family=Lalezar&family=Readex+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/lalezar-arabic-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/readex-pro-arabic-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link href="/fonts/fonts.css" rel="stylesheet">
   <link rel="stylesheet" href="/app.css">
   <link rel="stylesheet" href="/room.css">
 
@@ -97,6 +97,10 @@
       <svg class="intro-mark" viewBox="0 0 40 32" aria-hidden="true"><use href="#arches-mark"/></svg>
       <p class="intro-title" data-r="introTitle"></p>
       <p class="intro-sub" data-r="introSub"></p>
+      <script>/* Fill the welcome line at once in the person's language (the full app fills the rest later): faster first paint, no jump. */
+      (function(){try{var id=JSON.parse(localStorage.getItem('sawt:profileId'))||'p0',k=id==='p0'?'sawt:lang':'sawt:'+id+':lang',l=JSON.parse(localStorage.getItem(k))||'ar';
+      var T={ar:['تفضّل، البيت بيتك','صالون بيت لبناني من التسعينات. كل غرض فيه بيشتغل.'],en:['Come in, make yourself at home','A 1990s Lebanese living room. Everything in it works.'],fr:['Entrez, vous êtes chez vous','Un salon libanais des années 90. Tout y fonctionne.']}[l];
+      if(!T)return;var q=document.querySelectorAll('#intro [data-r]');q[0].textContent=T[0];q[1].textContent=T[1];}catch(e){}})();</script>
       <button type="button" class="btn btn-primary intro-btn" id="intro-btn" data-r="introEnter"></button>
     </div>
   </div>

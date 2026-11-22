@@ -657,6 +657,13 @@
     gl = canvas.getContext('webgl', { antialias: false, alpha: false, preserveDrawingBuffer: false }) ||
          canvas.getContext('experimental-webgl');
     if (!gl) return false;
+    // No graphics chip (the browser draws in software): a moving room would keep the processor busy
+    // all the time, so keep it still, unless the person already chose in My corner.
+    if (!lite && S.store.get('liteRoom', null) === null) {
+      const dbg = gl.getExtension('WEBGL_debug_renderer_info');
+      const r = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL) || '') : '';
+      if (/swiftshader|llvmpipe|softpipe|software/i.test(r)) { lite = true; document.body.classList.add('is-lite'); }
+    }
     maxTex = gl.getParameter(gl.MAX_TEXTURE_SIZE);
     const sh = (type, src) => {
       const s = gl.createShader(type);

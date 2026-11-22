@@ -1,7 +1,7 @@
 // Sawt el Beit service worker: keeps the page shell available offline,
 // shows the last headlines when the connection drops, and delivers
 // breaking-news alerts. Radio streams and other sites are never touched.
-const CACHE = 'sawt-69a3a114a3';
+const CACHE = 'sawt-c7f769cf8e';
 const SHELL = ['/', '/dist/app.css', '/dist/app.js', '/room/day-s.jpg', '/room/sunset-s.jpg', '/room/night-s.jpg', '/icon.svg', '/manifest.webmanifest', '/icon-192.png'];
 
 self.addEventListener('install', event => {
