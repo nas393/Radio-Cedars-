@@ -758,6 +758,15 @@ app.post('/api/admin/logout', noStore, needStore, async (req, res) => {
   try { await admin.logout(req); res.json({ ok: true }); }
   catch (err) { fail(res, err); }
 });
+// Q OS approvals inbox: how many family recipes wait for the admin. Counts only, never content.
+// Auth: Authorization: Bearer <Q_APPROVALS_TOKEN> (the same secret is set in Q OS).
+app.get('/api/qos/pending', noStore, needStore, async (req, res) => {
+  const expected = process.env.Q_APPROVALS_TOKEN || '', got = String(req.headers.authorization || '').replace(/^Bearer /, '');
+  const h = s => require('crypto').createHash('sha256').update(s).digest();
+  if (!expected || !got || !require('crypto').timingSafeEqual(h(got), h(expected))) return res.status(401).json({ error: 'Unauthorized' });
+  try { res.json({ items: [{ kind: 'recipes', label: 'Family cookbook recipes to review', count: (await recipes.pending()).length, url: '/admin' }] }); }
+  catch (err) { fail(res, err); }
+});
 app.get('/api/admin/queue', noStore, needStore, needAdmin, async (req, res) => {
   try { res.json({ items: await dedications.pending() }); }
   catch (err) { fail(res, err); }
